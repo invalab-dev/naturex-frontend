@@ -6,7 +6,7 @@ After=network.target
 Type=simple
 User=root
 WorkingDirectory=/root/naturex-frontend
-ExecStart=/root/.nvm/versions/node/v22.18.0/bin/node server.js
+ExecStart=/root/.nvm/versions/node/v22.18.0/bin/npx dotenvx run -f .env.naturex-frontend -- /root/.nvm/versions/node/v22.18.0/bin/node server.js
 Restart=on-failure
 Environment=PORT=3002
 
