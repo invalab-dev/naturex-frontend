@@ -36,8 +36,9 @@ jobs:
       - name: Move public folder(assets) into standalone
         run: cp -rf public .next/standalone/public
 
-      - name: Move .env into standalone
-        run: cp -rf .env .next/standalone
+        # .env는 sftp를 통해 직접 옮깁니다.
+#      - name: Move .env into standalone
+#        run: cp -rf .env .next/standalone
 
         # .service를 standalone과 압축하여 서버로 전송합니다.
       - name: Move .service into standalone

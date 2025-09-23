@@ -1,9 +1,9 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { VegetationDataSidebar } from "@/app/v0/main/components/vegetation-data-sidebar"
-import { MapOverlayControls } from "@/app/v0/main/components/map-overlay-controls"
-import { VegetationDetailModal } from "@/app/v0/main/components/vegetation-detail-modal"
+import { VegetationDataSidebar } from "./components/vegetation-data-sidebar";
+import { MapOverlayControls } from "./components/map-overlay-controls";
+import { VegetationDetailModal } from "./components/vegetation-detail-modal";
 
 interface VegetationPoint {
   id: string
