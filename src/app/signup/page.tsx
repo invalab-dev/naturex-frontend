@@ -11,8 +11,12 @@ import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { BarChart3, Eye, EyeOff } from "lucide-react"
+import {toast} from "sonner";
+import {useRouter} from "next/navigation";
 
 export default function SignupPage() {
+  const router = useRouter();
+
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isSamePassword, setIsSamePassword] = useState(true)
@@ -49,9 +53,20 @@ export default function SignupPage() {
       }),
     }).then((response) => {
       console.log(response);
+      setIsSubmitting(false);
 
       if(response.ok) {
-        setIsSubmitting(false);
+        toast.promise(new Promise((r) => setTimeout(r, 2000)), {
+          loading: "계정 생성 중...",
+          success: () => {
+            router.push("/login")
+            return "계정이 생성되었습니다. 로그인 해주세요."
+          }
+        });
+      } else {
+        toast("이미 등록된 이메일입니다.", {
+          description: "해당 이메일로 로그인하거나, 새롭게 등록해주세요."
+        })
       }
     });
   }

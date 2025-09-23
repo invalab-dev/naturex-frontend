@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import {Toaster} from "sonner";
 
 export const metadata: Metadata = {
   title: "NATUREX",
@@ -17,6 +18,7 @@ export default function RootLayout({
         className={`antialiased`}
       >
         {children}
+        <Toaster position="bottom-center"/>
       </body>
     </html>
   );
