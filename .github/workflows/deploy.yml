@@ -92,7 +92,7 @@ jobs:
             unzip release.zip -d naturex-frontend
             rm release.zip
             mv -f naturex-frontend/naturex-frontend.service /etc/systemd/system
-            cpg -f .env.naturex-frontend naturex-frontend
+            cp -f .env.naturex-frontend naturex-frontend
 
       - name: Restart systemd service
         uses: appleboy/ssh-action@v1.0.3
