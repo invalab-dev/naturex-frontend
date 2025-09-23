@@ -37,7 +37,7 @@ export default function SignupPage() {
     }
 
     setIsSubmitting(true);
-    fetch(`${process.env.NEXT_PUBLIC_SERVER}/auth/login`, {
+    fetch(`${process.env.NEXT_PUBLIC_SERVER}/auth/signUp`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
