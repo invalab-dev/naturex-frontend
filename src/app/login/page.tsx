@@ -24,11 +24,9 @@ export default function LoginPage() {
   // TODO: useTransition으로 추후 처리
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    // Handle login logic here
-    console.log("Login attempt:", { email, password })
 
     setIsSubmitting(true);
-    fetch("http://localhost:3001/auth/login", {
+    fetch(`${process.env.NEXT_PUBLIC_SERVER}/auth/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
