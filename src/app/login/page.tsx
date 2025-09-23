@@ -26,7 +26,7 @@ export default function LoginPage() {
     e.preventDefault()
 
     setIsSubmitting(true);
-    fetch(`${process.env.NEXT_PUBLIC_SERVER}/auth/login`, {
+    fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/auth/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
