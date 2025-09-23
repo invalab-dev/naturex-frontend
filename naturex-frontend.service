@@ -6,9 +6,10 @@ After=network.target
 Type=simple
 User=root
 WorkingDirectory=/root/naturex-frontend
+Environment=PATH=/root/.nvm/versions/node/v22.18.0/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+Environment=PORT=3002
 ExecStart=/root/.nvm/versions/node/v22.18.0/bin/npx dotenvx run -f .env.naturex-frontend -- /root/.nvm/versions/node/v22.18.0/bin/node server.js
 Restart=on-failure
-Environment=PORT=3002
 
 [Install]
 WantedBy=multi-user.target
