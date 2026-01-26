@@ -1,25 +1,10 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { ProjectRecommendationAssistant } from "@/components/project-recommendation-assistant"
-import { ContactModal } from "@/components/contact-modal"
-import { GlobalHeader } from "@/components/global-header"
+
 import { useRouter } from "next/navigation"
 import { getAuthSession } from "@/lib/auth-data"
-import {
-  Building2,
-  TreePine,
-  Sprout,
-  Factory,
-  Landmark,
-  Globe,
-  TrendingUp,
-  FileCheck,
-  ArrowRight,
-  Mail,
-} from "lucide-react"
+
 
 type Language = "ko" | "en"
 
