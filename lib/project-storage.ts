@@ -23,8 +23,43 @@ export function getProjects(): Project[] {
   }
 }
 
+export function saveProject(project: Project): void {
+  try {
+    const projects = getProjects()
+    projects.push(project)
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(projects))
+  } catch (error) {
+    console.error("[v0] Failed to save project to localStorage:", error)
+    throw error
+  }
+}
+
 export function getProjectById(id: string): Project | undefined {
   return getProjects().find((p) => p.id === id)
 }
 
 export const getProject = getProjectById
+
+export function updateProject(id: string, updates: Partial<Project>): void {
+  try {
+    const projects = getProjects()
+    const index = projects.findIndex((p) => p.id === id)
+    if (index !== -1) {
+      projects[index] = { ...projects[index], ...updates, updatedAt: new Date().toISOString() }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(projects))
+    }
+  } catch (error) {
+    console.error("[v0] Failed to update project:", error)
+    throw error
+  }
+}
+
+export function deleteProject(id: string): void {
+  try {
+    const projects = getProjects().filter((p) => p.id !== id)
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(projects))
+  } catch (error) {
+    console.error("[v0] Failed to delete project:", error)
+    throw error
+  }
+}
