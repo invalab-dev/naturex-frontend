@@ -139,6 +139,16 @@ export function clearAuthSession(): void {
   localStorage.removeItem(KEYS.auth)
 }
 
+// Update user
+export function updateUser(userId: string, updates: Partial<User>): void {
+  const users = getUsers()
+  const index = users.findIndex((u) => u.id === userId)
+  if (index >= 0) {
+    users[index] = { ...users[index], ...updates }
+    localStorage.setItem(KEYS.users, JSON.stringify(users))
+  }
+}
+
 // Delete user
 export function deleteUser(userId: string): void {
   const users = getUsers().filter((u) => u.id !== userId)

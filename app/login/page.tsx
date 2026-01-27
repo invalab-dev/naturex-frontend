@@ -5,9 +5,6 @@ import { Button } from "@/components/ui/button"
 import { useAuth } from "@/lib/auth-context"
 import { Leaf, User, Building2 } from "lucide-react"
 
-
-
-
 function LoginPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()

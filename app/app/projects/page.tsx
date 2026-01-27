@@ -6,7 +6,7 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
 import Link from "next/link"
-import { FolderKanban, Gauge, TrendingUp, Leaf, FolderOpen, MapPin, Trash2, Plus } from "lucide-react"
+import { FolderKanban, Gauge, TrendingUp, Leaf, FolderOpen, MapPin, Trash2 } from "lucide-react"
 import { getProjects, deleteProject, customerOrgMap, themeLabels, type Project } from "@/lib/data-service"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -20,7 +20,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { ProjectRequestModal } from "@/components/project-request-modal"
 
 const themeConfig = {
   efficiency: {
@@ -58,7 +57,6 @@ export default function ProjectsPage() {
   const [projects, setProjects] = useState<Project[]>([])
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [projectToDelete, setProjectToDelete] = useState<string | null>(null)
-  const [requestModalOpen, setRequestModalOpen] = useState(false)
 
   useEffect(() => {
     if (!user) return
@@ -90,6 +88,7 @@ export default function ProjectsPage() {
 
   const canDeleteProject = (project: Project) => {
     if (user?.role === "admin") return true
+    if (user?.role === "customer" && user.orgId === project.orgId) return true
     return false
   }
 
@@ -99,33 +98,35 @@ export default function ProjectsPage() {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-2xl font-bold text-[#111827] mb-1">내 프로젝트</h1>
-            <p className="text-sm text-[#6B7280]">NatureX 팀이 구성한 프로젝트를 확인하고 대시보드를 탐색하세요</p>
+            <p className="text-sm text-[#6B7280]">InvaLab에서 구성한 프로젝트를 확인하고 대시보드를 탐색하세요</p>
           </div>
-          <Button onClick={() => setRequestModalOpen(true)} className="bg-[#118DFF] hover:bg-[#0d6ecc] text-white">
-            <Plus className="w-4 h-4 mr-2" />새 프로젝트 요청하기
+          <Button
+            onClick={() => router.push("/app/projects/new")}
+            className="bg-[#118DFF] hover:bg-[#0d6ecc] text-white"
+          >
+            새 프로젝트 생성
           </Button>
         </div>
 
         {projects.length === 0 ? (
           <Card className="p-16 bg-white border-[#E5E7EB] text-center">
             <FolderOpen className="w-16 h-16 text-[#9CA3AF] mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-[#111827] mb-2">아직 제공된 프로젝트가 없습니다</h3>
-            <p className="text-sm text-[#6B7280] mb-6">
-              아래에서 새로운 프로젝트를 요청할 수 있습니다.
-              <br />
-              NatureX 팀이 고객님의 목적에 맞는 프로젝트를 구성해드립니다.
-            </p>
-            <Button onClick={() => setRequestModalOpen(true)} className="bg-[#118DFF] hover:bg-[#0d6ecc] text-white">
-              <Plus className="w-4 h-4 mr-2" />
-              프로젝트 요청하기
+            <h3 className="text-lg font-semibold text-[#111827] mb-2">프로젝트가 없습니다</h3>
+            <p className="text-sm text-[#6B7280] mb-6">홈으로 이동해 목적에 맞는 프로젝트를 생성해주세요.</p>
+            <Button
+              onClick={() => router.push("/app")}
+              variant="outline"
+              className="border-[#118DFF] text-[#118DFF] hover:bg-blue-50"
+            >
+              홈으로
             </Button>
           </Card>
         ) : (
           <div className="space-y-4">
             {projects.map((project) => {
-              const theme = themeConfig[project.theme]
+              const theme = themeConfig[project.theme as keyof typeof themeConfig] ?? themeConfig.efficiency
               const ThemeIcon = theme.icon
-              const status = statusConfig[project.status]
+              const status = statusConfig[project.status as keyof typeof statusConfig] ?? statusConfig.planning
               const customerLabel =
                 user?.role === "admin" ? customerOrgMap[project.orgId as keyof typeof customerOrgMap] : null
 
@@ -197,8 +198,6 @@ export default function ProjectsPage() {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-
-        <ProjectRequestModal open={requestModalOpen} onOpenChange={setRequestModalOpen} />
       </div>
     </div>
   )

@@ -58,39 +58,12 @@ export interface WidgetConfig {
   updatedAt: string
 }
 
-export interface ProjectRequest {
-  requestId: string
-  orgId: string
-  orgName: string
-  requestedBy: string
-  requestedByEmail: string
-
-  // Request details
-  purpose: "efficiency" | "asset" | "biodiversity"
-  location: string
-  availableData: ("drone_rgb" | "lidar" | "satellite" | "none")[]
-  expectedOutputs: ("dashboard" | "pdf_report" | "data_download")[]
-  additionalNotes?: string
-
-  // Status tracking
-  status: "pending" | "approved" | "rejected" | "converted"
-  convertedToProjectId?: string
-  reviewedBy?: string
-  reviewNotes?: string
-
-  // Timestamps
-  requestedAt: string
-  reviewedAt?: string
-  createdAt: string
-}
-
 // Storage keys
 const STORAGE_KEYS = {
   orgs: "naturex_orgs",
   users: "naturex_users",
   projects: "naturex_projects",
   widgetConfig: (projectId: string) => `naturex_widget_config__${projectId}`,
-  projectRequests: "naturex_project_requests",
 }
 
 // Initialize default data if not exists
@@ -225,12 +198,6 @@ export function initializeDefaultData() {
       },
     ]
     localStorage.setItem(STORAGE_KEYS.projects, JSON.stringify(defaultProjects))
-  }
-
-  // Default project requests
-  if (!localStorage.getItem(STORAGE_KEYS.projectRequests)) {
-    const defaultProjectRequests: ProjectRequest[] = []
-    localStorage.setItem(STORAGE_KEYS.projectRequests, JSON.stringify(defaultProjectRequests))
   }
 }
 
@@ -573,6 +540,51 @@ export function calculateWidgetCompletion(projectId: string): { total: number; c
   return { total: totalWidgets, configured: configuredWidgets }
 }
 
+export function updateProjectWidgetStatus(projectId: string): void {
+  const project = getProjectById(projectId)
+  if (!project) return
+
+  const completion = calculateWidgetCompletion(projectId)
+  let widgetStatus: "none" | "partial" | "complete" = "none"
+
+  if (completion.configured === 0) {
+    widgetStatus = "none"
+  } else if (completion.configured < completion.total) {
+    widgetStatus = "partial"
+  } else {
+    widgetStatus = "complete"
+  }
+
+  const updatedProject = {
+    ...project,
+    widgetCompletion: completion,
+    widgetStatus,
+    lastActivityAt: new Date().toISOString(),
+  }
+
+  saveProject(updatedProject)
+}
+
+export function getOrgWithAggregates(orgId: string): Organization | undefined {
+  const org = getOrganizationById(orgId)
+  if (!org) return undefined
+
+  const orgProjects = getProjectsByOrg(orgId)
+
+  const activeProjectsByStage = {
+    pending: orgProjects.filter((p) => p.deliveryStage === "pending").length,
+    analyzing: orgProjects.filter((p) => p.deliveryStage === "analyzing").length,
+    delivering: orgProjects.filter((p) => p.deliveryStage === "delivering").length,
+    executing: orgProjects.filter((p) => p.deliveryStage === "executing").length,
+    completed: orgProjects.filter((p) => p.deliveryStage === "completed").length,
+  }
+
+  return {
+    ...org,
+    activeProjectsByStage,
+  }
+}
+
 export function migrateProjectsToDeliveryStage() {
   const data = localStorage.getItem("naturex_projects")
   if (!data) return
@@ -616,96 +628,6 @@ export function migrateProjectsToDeliveryStage() {
   }
 }
 
-// Project Requests
-export function getProjectRequests(role?: "admin" | "customer", orgId?: string): ProjectRequest[] {
-  const requests = JSON.parse(localStorage.getItem(STORAGE_KEYS.projectRequests) || "[]")
-
-  if (role === "admin") {
-    return requests
-  }
-
-  if (role === "customer" && orgId) {
-    return requests.filter((r: ProjectRequest) => r.orgId === orgId)
-  }
-
-  return requests
-}
-
-export function createProjectRequest(
-  request: Omit<ProjectRequest, "requestId" | "status" | "createdAt" | "requestedAt">,
-): ProjectRequest {
-  const requests = getProjectRequests()
-
-  const newRequest: ProjectRequest = {
-    ...request,
-    requestId: `req-${Date.now()}`,
-    status: "pending",
-    requestedAt: new Date().toISOString(),
-    createdAt: new Date().toISOString(),
-  }
-
-  requests.push(newRequest)
-  localStorage.setItem(STORAGE_KEYS.projectRequests, JSON.stringify(requests))
-
-  return newRequest
-}
-
-export function updateProjectRequest(requestId: string, updates: Partial<ProjectRequest>): ProjectRequest {
-  const requests = getProjectRequests()
-  const index = requests.findIndex((r: ProjectRequest) => r.requestId === requestId)
-
-  if (index === -1) {
-    throw new Error("Project request not found")
-  }
-
-  requests[index] = { ...requests[index], ...updates }
-  localStorage.setItem(STORAGE_KEYS.projectRequests, JSON.stringify(requests))
-
-  return requests[index]
-}
-
-export function deleteProjectRequest(requestId: string): void {
-  const requests = getProjectRequests()
-  const filtered = requests.filter((r: ProjectRequest) => r.requestId !== requestId)
-  localStorage.setItem(STORAGE_KEYS.projectRequests, JSON.stringify(filtered))
-}
-
-export function convertRequestToProject(requestId: string, adminUserId: string): Project {
-  const request = getProjectRequests().find((r: ProjectRequest) => r.requestId === requestId)
-
-  if (!request) {
-    throw new Error("Project request not found")
-  }
-
-  // Create the project
-  const project = createProject({
-    orgId: request.orgId,
-    name: `${request.purpose === "efficiency" ? "운영비 절감" : request.purpose === "asset" ? "자산 가치 향상" : "생물다양성"} - ${request.location}`,
-    theme: request.purpose,
-    location: request.location,
-    deliveryStage: "analyzing",
-  })
-
-  // Update request status
-  updateProjectRequest(requestId, {
-    status: "converted",
-    convertedToProjectId: project.projectId,
-    reviewedBy: adminUserId,
-    reviewedAt: new Date().toISOString(),
-  })
-
-  return project
-}
-
-function createProject(project: Omit<Project, "projectId" | "createdAt" | "lastActivityAt" | "updatedAt">): Project {
-  const projects = getProjects()
-  const newProject: Project = {
-    ...project,
-    projectId: `proj-${Date.now()}`,
-    createdAt: new Date().toISOString(),
-    lastActivityAt: new Date().toISOString(),
-  }
-  projects.push(newProject)
-  localStorage.setItem(STORAGE_KEYS.projects, JSON.stringify(projects))
-  return newProject
+export function getProjectsByOrg(orgId: string): Project[] {
+  return getProjects().filter((p) => p.orgId === orgId)
 }

@@ -81,6 +81,15 @@ export default function AdminOrgsPage() {
     return themes
   }
 
+  const getWidgetConfigByOrg = (orgId: string) => {
+    const orgProjects = getProjectsByOrg(orgId)
+    const configMap: Record<string, ReturnType<typeof getWidgetConfig>> = {}
+    orgProjects.forEach((project) => {
+      configMap[project.projectId] = getWidgetConfig(project.projectId)
+    })
+    return configMap
+  }
+
   const getWidgetStatusByOrg = (orgId: string) => {
     const orgProjects = getProjectsByOrg(orgId)
     const themeStatus: Record<string, "configured" | "unconfigured" | "unused"> = {

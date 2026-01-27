@@ -10,6 +10,7 @@ export const metadata: Metadata = {
   title: "NatureX - Ecological Analysis Platform",
   description:
     "Professional ecological analysis and restoration platform by InvaLab. Tree management, environmental impact assessment, and custom restoration solutions.",
+  generator: "v0.app",
   icons: {
     icon: [
       {
@@ -49,6 +50,7 @@ export default function RootLayout({
           <DataInitializer />
           <AuthGuard>{children}</AuthGuard>
         </AuthProvider>
+        <Analytics />
       </body>
     </html>
   )

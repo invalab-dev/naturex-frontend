@@ -35,6 +35,7 @@ import {
 import { startImpersonation } from "@/lib/impersonation"
 
 export default function AdminProjectsPage() {
+  const router = useRouter()
   const [projects, setProjects] = useState<Project[]>([])
   const [filteredProjects, setFilteredProjects] = useState<Project[]>([])
   const [orgs, setOrgs] = useState<Array<{ orgId: string; name: string }>>([])

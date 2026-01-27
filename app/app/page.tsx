@@ -18,7 +18,6 @@ import {
   FileCheck,
   ArrowRight,
   Mail,
-  Plus,
 } from "lucide-react"
 import { ServiceWorkflowCard } from "@/components/service-workflow-card"
 import { getOrgs, type Project } from "@/lib/auth-data"
@@ -26,7 +25,6 @@ import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { ProjectRecommendationAssistant } from "@/components/project-recommendation-assistant"
 import { ContactModal } from "@/components/contact-modal"
-import { ProjectRequestModal } from "@/components/project-request-modal"
 
 const themeConfig = {
   efficiency: {
@@ -50,11 +48,11 @@ const themeConfig = {
 }
 
 export default function AppHomePage() {
+  const router = useRouter()
   const { user } = useAuth()
   const [projects, setProjects] = useState<Project[]>([])
   const [orgName, setOrgName] = useState("")
   const [contactModalOpen, setContactModalOpen] = useState(false)
-  const [requestModalOpen, setRequestModalOpen] = useState(false)
   const [language] = useState<"ko" | "en">("ko")
 
   useEffect(() => {
@@ -232,10 +230,12 @@ export default function AppHomePage() {
 
           {projects.length === 0 ? (
             <Card className="p-12 bg-white border-[#E5E7EB] text-center">
-              <p className="text-[#6B7280] mb-4">아직 제공된 프로젝트가 없습니다.</p>
-              <Button onClick={() => setRequestModalOpen(true)} className="bg-[#118DFF] hover:bg-[#0d6ecc] text-white">
-                <Plus className="w-4 h-4 mr-2" />
-                프로젝트 요청하기
+              <p className="text-[#6B7280] mb-4">등록된 프로젝트가 없습니다.</p>
+              <Button
+                onClick={() => router.push("/app/projects/new")}
+                className="bg-[#118DFF] hover:bg-[#0d6ecc] text-white"
+              >
+                새 프로젝트 생성
               </Button>
             </Card>
           ) : (
@@ -281,12 +281,14 @@ export default function AppHomePage() {
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Button
-                onClick={() => setRequestModalOpen(true)}
+                asChild
                 size="lg"
                 className="bg-[#118DFF] hover:bg-[#0d7ae6] text-white px-8 py-6 text-lg shadow-lg"
               >
-                <span>프로젝트 요청하기</span>
-                <ArrowRight className="w-5 h-5 ml-2" />
+                <Link href="/app/projects/new">
+                  <span>프로젝트 시작하기</span>
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </Link>
               </Button>
 
               <Button
@@ -301,23 +303,9 @@ export default function AppHomePage() {
             </div>
           </div>
         </div>
-
-        {/* Project Request Modal Placeholder */}
-        {requestModalOpen && (
-          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-            <div className="bg-white rounded-xl p-8 max-w-2xl w-full mx-4">
-              <h2 className="text-2xl font-bold text-[#111827] mb-4">새 프로젝트 요청</h2>
-              <p className="text-[#6B7280] mb-6">NatureX 팀이 고객님의 목적에 맞는 프로젝트를 구성해드립니다.</p>
-              <Button onClick={() => setRequestModalOpen(false)} variant="outline">
-                닫기
-              </Button>
-            </div>
-          </div>
-        )}
       </div>
 
       <ContactModal open={contactModalOpen} onOpenChange={setContactModalOpen} language={language} />
-      <ProjectRequestModal open={requestModalOpen} onOpenChange={setRequestModalOpen} />
     </div>
   )
 }
