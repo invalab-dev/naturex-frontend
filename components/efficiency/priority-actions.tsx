@@ -1,113 +1,127 @@
-"use client"
+'use client';
 
-import { AlertTriangle, Clock, CheckCircle2, MapPin, TrendingUp, Eye } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Card } from "@/components/ui/card"
+import {
+  AlertTriangle,
+  Clock,
+  CheckCircle2,
+  MapPin,
+  TrendingUp,
+  Eye,
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Card } from '@/components/ui/card';
 
 export function EfficiencyPriorityActions() {
   const actions = [
     {
-      priority: "즉시 조치 필요 (Critical)",
+      priority: '즉시 조치 필요 (Critical)',
       icon: AlertTriangle,
-      color: "red",
+      color: 'red',
       items: [
         {
-          id: "T-1234",
-          issue: "가지 균열 감지 + 기울기 이상",
-          location: "종로구 세종대로 34",
-          causes: ["LiDAR: Tilt 12.4°", "RGB: Crown Depression 감지"],
+          id: 'T-1234',
+          issue: '가지 균열 감지 + 기울기 이상',
+          location: '종로구 세종대로 34',
+          causes: ['LiDAR: Tilt 12.4°', 'RGB: Crown Depression 감지'],
           priorityScore: 94,
         },
         {
-          id: "T-1089",
-          issue: "뿌리 노출 + 토양 유실",
-          location: "강남구 테헤란로 152",
-          causes: ["RGB: 지면 변형 3.2cm", "LiDAR: 수고 불균형"],
+          id: 'T-1089',
+          issue: '뿌리 노출 + 토양 유실',
+          location: '강남구 테헤란로 152',
+          causes: ['RGB: 지면 변형 3.2cm', 'LiDAR: 수고 불균형'],
           priorityScore: 91,
         },
         {
-          id: "T-2341",
-          issue: "수고 초과 (전선 간섭 위험)",
-          location: "마포구 월드컵로 240",
-          causes: ["LiDAR: 높이 15.2m", "전선 이격거리 0.8m"],
+          id: 'T-2341',
+          issue: '수고 초과 (전선 간섭 위험)',
+          location: '마포구 월드컵로 240',
+          causes: ['LiDAR: 높이 15.2m', '전선 이격거리 0.8m'],
           priorityScore: 89,
         },
       ],
     },
     {
-      priority: "단기 조치 필요 (Short-term)",
+      priority: '단기 조치 필요 (Short-term)',
       icon: Clock,
-      color: "yellow",
+      color: 'yellow',
       items: [
         {
-          id: "T-0892",
-          issue: "병해충 초기 징후",
-          location: "송파구 올림픽로 300",
-          causes: ["RGB: 엽색 변화 15%", "Multispectral: NDVI drop 0.12"],
+          id: 'T-0892',
+          issue: '병해충 초기 징후',
+          location: '송파구 올림픽로 300',
+          causes: ['RGB: 엽색 변화 15%', 'Multispectral: NDVI drop 0.12'],
           priorityScore: 72,
         },
         {
-          id: "T-1455",
-          issue: "수관폭 과다 (보행로 간섭)",
-          location: "서초구 반포대로 58",
-          causes: ["LiDAR: Crown width 8.3m", "보행로 폭 2.1m"],
+          id: 'T-1455',
+          issue: '수관폭 과다 (보행로 간섭)',
+          location: '서초구 반포대로 58',
+          causes: ['LiDAR: Crown width 8.3m', '보행로 폭 2.1m'],
           priorityScore: 68,
         },
         {
-          id: "T-3304",
-          issue: "NDRE 감소 (영양 스트레스)",
-          location: "중구 을지로 128",
-          causes: ["Multispectral: NDRE 0.38", "토양 pH 이상"],
+          id: 'T-3304',
+          issue: 'NDRE 감소 (영양 스트레스)',
+          location: '중구 을지로 128',
+          causes: ['Multispectral: NDRE 0.38', '토양 pH 이상'],
           priorityScore: 65,
         },
       ],
     },
     {
-      priority: "계획적 관리 가능 (Planned)",
+      priority: '계획적 관리 가능 (Planned)',
       icon: CheckCircle2,
-      color: "emerald",
+      color: 'emerald',
       items: [
         {
-          id: "T-3021",
-          issue: "정기 가지치기 권장",
-          location: "용산구 한강대로 405",
-          causes: ["생육 패턴: 연간 생장률 +18%", "밀도 관리 필요"],
+          id: 'T-3021',
+          issue: '정기 가지치기 권장',
+          location: '용산구 한강대로 405',
+          causes: ['생육 패턴: 연간 생장률 +18%', '밀도 관리 필요'],
           priorityScore: 45,
         },
         {
-          id: "T-1672",
-          issue: "영양상태 모니터링",
-          location: "성동구 왕십리로 222",
-          causes: ["계절별 건강지수 추이", "NDVI 안정 범위"],
+          id: 'T-1672',
+          issue: '영양상태 모니터링',
+          location: '성동구 왕십리로 222',
+          causes: ['계절별 건강지수 추이', 'NDVI 안정 범위'],
           priorityScore: 38,
         },
       ],
     },
-  ]
+  ];
 
   return (
     <div className="space-y-6">
       {actions.map((category) => {
-        const Icon = category.icon
+        const Icon = category.icon;
         const colorClass = {
-          red: "border-red-500 bg-red-500/5",
-          yellow: "border-yellow-500 bg-yellow-500/5",
-          emerald: "border-emerald-500 bg-emerald-500/5",
-        }[category.color]
+          red: 'border-red-500 bg-red-500/5',
+          yellow: 'border-yellow-500 bg-yellow-500/5',
+          emerald: 'border-emerald-500 bg-emerald-500/5',
+        }[category.color];
 
         const iconColorClass = {
-          red: "text-red-400",
-          yellow: "text-yellow-400",
-          emerald: "text-emerald-400",
-        }[category.color]
+          red: 'text-red-400',
+          yellow: 'text-yellow-400',
+          emerald: 'text-emerald-400',
+        }[category.color];
 
         return (
-          <div key={category.priority} className={`rounded-xl border ${colorClass} p-6`}>
+          <div
+            key={category.priority}
+            className={`rounded-xl border ${colorClass} p-6`}
+          >
             <div className="flex items-center gap-3 mb-4">
               <Icon size={20} className={iconColorClass} />
-              <h3 className="text-lg font-semibold text-foreground">{category.priority}</h3>
-              <span className="text-sm text-muted-foreground">({category.items.length}건)</span>
+              <h3 className="text-lg font-semibold text-foreground">
+                {category.priority}
+              </h3>
+              <span className="text-sm text-muted-foreground">
+                ({category.items.length}건)
+              </span>
             </div>
 
             <div className="space-y-3">
@@ -119,13 +133,17 @@ export function EfficiencyPriorityActions() {
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-xs font-mono text-slate-400">{item.id}</span>
+                        <span className="text-xs font-mono text-slate-400">
+                          {item.id}
+                        </span>
                         <Badge variant="outline" className="text-xs">
                           <TrendingUp size={12} className="mr-1" />
                           Priority {item.priorityScore}
                         </Badge>
                       </div>
-                      <h4 className="font-semibold text-foreground">{item.issue}</h4>
+                      <h4 className="font-semibold text-foreground">
+                        {item.issue}
+                      </h4>
                     </div>
                     <Button size="sm" variant="ghost" className="gap-1">
                       <MapPin size={14} />
@@ -139,10 +157,15 @@ export function EfficiencyPriorityActions() {
                   </p>
 
                   <div className="space-y-1">
-                    <p className="text-xs font-medium text-muted-foreground">원인 및 근거:</p>
+                    <p className="text-xs font-medium text-muted-foreground">
+                      원인 및 근거:
+                    </p>
                     <div className="flex flex-wrap gap-2">
                       {item.causes.map((cause, idx) => (
-                        <span key={idx} className="text-xs bg-slate-800 text-slate-300 px-2 py-1 rounded">
+                        <span
+                          key={idx}
+                          className="text-xs bg-slate-800 text-slate-300 px-2 py-1 rounded"
+                        >
                           {cause}
                         </span>
                       ))}
@@ -152,7 +175,7 @@ export function EfficiencyPriorityActions() {
               ))}
             </div>
           </div>
-        )
+        );
       })}
 
       <Card className="rounded-xl border border-slate-700 bg-slate-900/50 p-6">
@@ -168,9 +191,12 @@ export function EfficiencyPriorityActions() {
         </div>
 
         <p className="text-sm text-slate-400 mb-4">
-          식물 다양성, 토양 조건, 병해충 분포, 기후 패턴, 교통 밀도 등을 종합 고려한 AI 추천 관리 전략입니다.
+          식물 다양성, 토양 조건, 병해충 분포, 기후 패턴, 교통 밀도 등을 종합
+          고려한 AI 추천 관리 전략입니다.
           <br />
-          <span className="text-emerald-400">상세보기를 클릭하면 더 자세한 맵과 분석 결과를 확인할 수 있습니다.</span>
+          <span className="text-emerald-400">
+            상세보기를 클릭하면 더 자세한 맵과 분석 결과를 확인할 수 있습니다.
+          </span>
         </p>
 
         <div className="rounded-lg border border-slate-700 overflow-hidden mb-4">
@@ -257,11 +283,12 @@ export function EfficiencyPriorityActions() {
 
         <div className="mt-4 p-3 bg-slate-800/50 rounded-lg border border-slate-700">
           <p className="text-xs text-slate-400">
-            <strong className="text-emerald-400">고려 요소:</strong> 식물 다양성 지수, 토양 pH/영양도, 병해충 발생 이력,
-            기후 패턴(온도/습도), 교통 밀도, 보행자 안전, 미세먼지 흡수율
+            <strong className="text-emerald-400">고려 요소:</strong> 식물 다양성
+            지수, 토양 pH/영양도, 병해충 발생 이력, 기후 패턴(온도/습도), 교통
+            밀도, 보행자 안전, 미세먼지 흡수율
           </p>
         </div>
       </Card>
     </div>
-  )
+  );
 }

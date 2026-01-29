@@ -2,9 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { jwtVerify } from "jose";
 import {UserRole} from "@/lib/data-type";
 
-export async function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   if (req.nextUrl.pathname === '/') {
-    return NextResponse.rewrite(new URL('/login', process.env.NEXT_PUBLIC_NATUREX_BACKEND as string))
+    const url = new URL('/login', req.nextUrl.origin);
+    return NextResponse.rewrite(url);
   }
   // if(req.url.startsWith("/login")){
   //   return NextResponse.next();

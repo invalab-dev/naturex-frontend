@@ -1,52 +1,52 @@
-"use client"
+'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { AlertCircle, CheckCircle2, AlertTriangle } from "lucide-react"
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { AlertCircle, CheckCircle2, AlertTriangle } from 'lucide-react';
 
 const evaluationResults = [
   {
-    category: "Biodiversity Index",
-    value: "High",
+    category: 'Biodiversity Index',
+    value: 'High',
     score: 8.4,
-    status: "good",
-    description: "Rich species diversity detected",
+    status: 'good',
+    description: 'Rich species diversity detected',
   },
   {
-    category: "Habitat Quality",
-    value: "Good",
+    category: 'Habitat Quality',
+    value: 'Good',
     score: 7.2,
-    status: "good",
-    description: "Well-preserved forest structure",
+    status: 'good',
+    description: 'Well-preserved forest structure',
   },
   {
-    category: "Corridor Connectivity",
-    value: "Moderate",
+    category: 'Corridor Connectivity',
+    value: 'Moderate',
     score: 6.1,
-    status: "warning",
-    description: "Partial fragmentation observed",
+    status: 'warning',
+    description: 'Partial fragmentation observed',
   },
   {
-    category: "Legal Compliance",
-    value: "Alert",
+    category: 'Legal Compliance',
+    value: 'Alert',
     score: 4.8,
-    status: "alert",
-    description: "Grade I species in impact zone",
+    status: 'alert',
+    description: 'Grade I species in impact zone',
   },
   {
-    category: "Buffer Zone Impact",
-    value: "Moderate",
+    category: 'Buffer Zone Impact',
+    value: 'Moderate',
     score: 6.5,
-    status: "warning",
-    description: "30m buffer required",
+    status: 'warning',
+    description: '30m buffer required',
   },
-]
+];
 
 const protectedSpecies = [
-  { name: "Pinus densiflora", korean: "소나무", grade: "I", count: 847 },
-  { name: "Zelkova serrata", korean: "느티나무", grade: "I", count: 234 },
-]
+  { name: 'Pinus densiflora', korean: '소나무', grade: 'I', count: 847 },
+  { name: 'Zelkova serrata', korean: '느티나무', grade: 'I', count: 234 },
+];
 
 export function EvaluationResultsPanel() {
   return (
@@ -63,27 +63,39 @@ export function EvaluationResultsPanel() {
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex-1">
-                        <div className="text-sm font-medium mb-1">{result.category}</div>
-                        <div className="text-xs text-muted-foreground">{result.description}</div>
+                        <div className="text-sm font-medium mb-1">
+                          {result.category}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {result.description}
+                        </div>
                       </div>
-                      {result.status === "good" && <CheckCircle2 className="w-5 h-5 text-green-500" />}
-                      {result.status === "warning" && <AlertTriangle className="w-5 h-5 text-yellow-500" />}
-                      {result.status === "alert" && <AlertCircle className="w-5 h-5 text-red-500" />}
+                      {result.status === 'good' && (
+                        <CheckCircle2 className="w-5 h-5 text-green-500" />
+                      )}
+                      {result.status === 'warning' && (
+                        <AlertTriangle className="w-5 h-5 text-yellow-500" />
+                      )}
+                      {result.status === 'alert' && (
+                        <AlertCircle className="w-5 h-5 text-red-500" />
+                      )}
                     </div>
                     <div className="flex items-center justify-between">
                       <Badge
                         variant={
-                          result.status === "good"
-                            ? "secondary"
-                            : result.status === "warning"
-                              ? "outline"
-                              : "destructive"
+                          result.status === 'good'
+                            ? 'secondary'
+                            : result.status === 'warning'
+                              ? 'outline'
+                              : 'destructive'
                         }
                         className="text-xs"
                       >
                         {result.value}
                       </Badge>
-                      <span className="text-sm font-semibold">{result.score}/10</span>
+                      <span className="text-sm font-semibold">
+                        {result.score}/10
+                      </span>
                     </div>
                   </CardContent>
                 </Card>
@@ -103,16 +115,23 @@ export function EvaluationResultsPanel() {
         <CardContent>
           <div className="space-y-3">
             {protectedSpecies.map((species, index) => (
-              <div key={index} className="flex items-center justify-between text-sm">
+              <div
+                key={index}
+                className="flex items-center justify-between text-sm"
+              >
                 <div className="flex-1">
                   <div className="font-medium text-xs">{species.name}</div>
-                  <div className="text-xs text-muted-foreground">{species.korean}</div>
+                  <div className="text-xs text-muted-foreground">
+                    {species.korean}
+                  </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <Badge variant="destructive" className="text-xs">
                     Grade {species.grade}
                   </Badge>
-                  <span className="text-xs font-medium w-12 text-right">{species.count}</span>
+                  <span className="text-xs font-medium w-12 text-right">
+                    {species.count}
+                  </span>
                 </div>
               </div>
             ))}
@@ -120,5 +139,5 @@ export function EvaluationResultsPanel() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

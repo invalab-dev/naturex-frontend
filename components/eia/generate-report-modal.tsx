@@ -1,6 +1,6 @@
-"use client"
+'use client';
 
-import { useState } from "react"
+import { useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -8,60 +8,65 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
-import { Checkbox } from "@/components/ui/checkbox"
-import { FileText, Download, CheckCircle2 } from "lucide-react"
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
+import { FileText, Download, CheckCircle2 } from 'lucide-react';
 
 interface GenerateReportModalProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
-export function GenerateReportModal({ open, onOpenChange }: GenerateReportModalProps) {
-  const [isGenerating, setIsGenerating] = useState(false)
-  const [isComplete, setIsComplete] = useState(false)
+export function GenerateReportModal({
+  open,
+  onOpenChange,
+}: GenerateReportModalProps) {
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [isComplete, setIsComplete] = useState(false);
   const [selectedSections, setSelectedSections] = useState<string[]>([
-    "executive-summary",
-    "site-analysis",
-    "biodiversity",
-    "legal-compliance",
-  ])
+    'executive-summary',
+    'site-analysis',
+    'biodiversity',
+    'legal-compliance',
+  ]);
 
   const reportSections = [
-    { id: "executive-summary", label: "Executive Summary" },
-    { id: "site-analysis", label: "Site Analysis & Mapping" },
-    { id: "biodiversity", label: "Biodiversity Assessment" },
-    { id: "habitat", label: "Habitat Classification" },
-    { id: "corridor", label: "Ecological Corridor Analysis" },
-    { id: "legal-compliance", label: "Legal Compliance Report" },
-    { id: "mitigation", label: "Mitigation Measures" },
-    { id: "monitoring", label: "Monitoring Plan" },
-  ]
+    { id: 'executive-summary', label: 'Executive Summary' },
+    { id: 'site-analysis', label: 'Site Analysis & Mapping' },
+    { id: 'biodiversity', label: 'Biodiversity Assessment' },
+    { id: 'habitat', label: 'Habitat Classification' },
+    { id: 'corridor', label: 'Ecological Corridor Analysis' },
+    { id: 'legal-compliance', label: 'Legal Compliance Report' },
+    { id: 'mitigation', label: 'Mitigation Measures' },
+    { id: 'monitoring', label: 'Monitoring Plan' },
+  ];
 
   const toggleSection = (sectionId: string) => {
     setSelectedSections((prev) =>
-      prev.includes(sectionId) ? prev.filter((id) => id !== sectionId) : [...prev, sectionId],
-    )
-  }
+      prev.includes(sectionId)
+        ? prev.filter((id) => id !== sectionId)
+        : [...prev, sectionId],
+    );
+  };
 
   const handleGenerate = () => {
-    setIsGenerating(true)
+    setIsGenerating(true);
     // Simulate report generation
     setTimeout(() => {
-      setIsGenerating(false)
-      setIsComplete(true)
-    }, 2000)
-  }
+      setIsGenerating(false);
+      setIsComplete(true);
+    }, 2000);
+  };
 
   const handleClose = () => {
-    onOpenChange(false)
+    onOpenChange(false);
     setTimeout(() => {
-      setIsComplete(false)
-      setIsGenerating(false)
-    }, 300)
-  }
+      setIsComplete(false);
+      setIsGenerating(false);
+    }, 300);
+  };
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
@@ -72,7 +77,8 @@ export function GenerateReportModal({ open, onOpenChange }: GenerateReportModalP
             Generate EIA Report
           </DialogTitle>
           <DialogDescription>
-            Select the sections to include in your environmental impact assessment report
+            Select the sections to include in your environmental impact
+            assessment report
           </DialogDescription>
         </DialogHeader>
 
@@ -88,7 +94,10 @@ export function GenerateReportModal({ open, onOpenChange }: GenerateReportModalP
                       onCheckedChange={() => toggleSection(section.id)}
                       disabled={isGenerating}
                     />
-                    <Label htmlFor={section.id} className="text-sm cursor-pointer flex-1">
+                    <Label
+                      htmlFor={section.id}
+                      className="text-sm cursor-pointer flex-1"
+                    >
                       {section.label}
                     </Label>
                   </div>
@@ -96,16 +105,25 @@ export function GenerateReportModal({ open, onOpenChange }: GenerateReportModalP
               </div>
 
               <div className="pt-4 border-t border-border">
-                <div className="text-sm text-muted-foreground">{selectedSections.length} sections selected</div>
+                <div className="text-sm text-muted-foreground">
+                  {selectedSections.length} sections selected
+                </div>
               </div>
             </div>
 
             <DialogFooter>
-              <Button variant="outline" onClick={handleClose} disabled={isGenerating}>
+              <Button
+                variant="outline"
+                onClick={handleClose}
+                disabled={isGenerating}
+              >
                 Cancel
               </Button>
-              <Button onClick={handleGenerate} disabled={isGenerating || selectedSections.length === 0}>
-                {isGenerating ? "Generating..." : "Generate Report"}
+              <Button
+                onClick={handleGenerate}
+                disabled={isGenerating || selectedSections.length === 0}
+              >
+                {isGenerating ? 'Generating...' : 'Generate Report'}
               </Button>
             </DialogFooter>
           </>
@@ -116,8 +134,12 @@ export function GenerateReportModal({ open, onOpenChange }: GenerateReportModalP
                 <CheckCircle2 className="w-8 h-8 text-green-500" />
               </div>
               <div className="text-center">
-                <h3 className="font-semibold mb-1">Report Generated Successfully</h3>
-                <p className="text-sm text-muted-foreground">Your EIA report is ready to download</p>
+                <h3 className="font-semibold mb-1">
+                  Report Generated Successfully
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  Your EIA report is ready to download
+                </p>
               </div>
             </div>
 
@@ -134,5 +156,5 @@ export function GenerateReportModal({ open, onOpenChange }: GenerateReportModalP
         )}
       </DialogContent>
     </Dialog>
-  )
+  );
 }

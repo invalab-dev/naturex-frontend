@@ -1,22 +1,33 @@
-import type React from "react"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import type React from 'react';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from '@/components/ui/card';
 
 interface TableRow {
-  [key: string]: string | number | React.ReactNode
+  [key: string]: string | number | React.ReactNode;
 }
 
 interface DataTableCardProps {
-  title: string
-  description?: string
+  title: string;
+  description?: string;
   columns: {
-    key: string
-    label: string
-    className?: string
-  }[]
-  data: TableRow[]
+    key: string;
+    label: string;
+    className?: string;
+  }[];
+  data: TableRow[];
 }
 
-export function DataTableCard({ title, description, columns, data }: DataTableCardProps) {
+export function DataTableCard({
+  title,
+  description,
+  columns,
+  data,
+}: DataTableCardProps) {
   return (
     <Card>
       <CardHeader>
@@ -29,7 +40,10 @@ export function DataTableCard({ title, description, columns, data }: DataTableCa
             <thead>
               <tr className="border-b border-border">
                 {columns.map((column) => (
-                  <th key={column.key} className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">
+                  <th
+                    key={column.key}
+                    className="text-left py-3 px-4 text-sm font-medium text-muted-foreground"
+                  >
                     {column.label}
                   </th>
                 ))}
@@ -37,9 +51,15 @@ export function DataTableCard({ title, description, columns, data }: DataTableCa
             </thead>
             <tbody>
               {data.map((row, idx) => (
-                <tr key={idx} className="border-b border-border last:border-0 hover:bg-muted/50 transition-colors">
+                <tr
+                  key={idx}
+                  className="border-b border-border last:border-0 hover:bg-muted/50 transition-colors"
+                >
                   {columns.map((column) => (
-                    <td key={column.key} className={`py-3 px-4 text-sm ${column.className || ""}`}>
+                    <td
+                      key={column.key}
+                      className={`py-3 px-4 text-sm ${column.className || ''}`}
+                    >
                       {row[column.key]}
                     </td>
                   ))}
@@ -50,5 +70,5 @@ export function DataTableCard({ title, description, columns, data }: DataTableCa
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }

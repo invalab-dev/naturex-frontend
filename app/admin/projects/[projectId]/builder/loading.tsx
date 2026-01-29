@@ -3,5 +3,5 @@ export default function Loading() {
     <div className="flex items-center justify-center min-h-screen bg-[#F5F7FB]">
       <div className="text-[#6B7280]">Loading widget builder...</div>
     </div>
-  )
+  );
 }

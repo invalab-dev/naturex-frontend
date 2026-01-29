@@ -1,7 +1,7 @@
-"use client"
+'use client';
 
-import { ChevronDown, User, Bell } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { ChevronDown, User, Bell } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,29 +9,39 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { NatureXLogo } from "@/components/naturex-logo"
-import { cn } from "@/lib/utils"
-import Link from "next/link"
+} from '@/components/ui/dropdown-menu';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { NatureXLogo } from '@/components/naturex-logo';
+import { cn } from '@/lib/utils';
+import Link from 'next/link';
 
-type ModuleTab = "streetcare" | "eia" | "forest-management"
+type ModuleTab = 'streetcare' | 'eia' | 'forest-management';
 
 interface ModuleNavbarProps {
-  activeModule?: ModuleTab
+  activeModule?: ModuleTab;
 }
 
 export function ModuleNavbar({ activeModule }: ModuleNavbarProps) {
   const modules = [
-    { id: "streetcare" as ModuleTab, label: "가로수 관리", sublabel: "StreetCare", href: "/streetcare" },
-    { id: "eia" as ModuleTab, label: "환경영향평가", sublabel: "EIA", href: "/eia" },
     {
-      id: "forest-management" as ModuleTab,
-      label: "산림경영",
-      sublabel: "Forest Management",
-      href: "/forest-management",
+      id: 'streetcare' as ModuleTab,
+      label: '가로수 관리',
+      sublabel: 'StreetCare',
+      href: '/streetcare',
     },
-  ]
+    {
+      id: 'eia' as ModuleTab,
+      label: '환경영향평가',
+      sublabel: 'EIA',
+      href: '/eia',
+    },
+    {
+      id: 'forest-management' as ModuleTab,
+      label: '산림경영',
+      sublabel: 'Forest Management',
+      href: '/forest-management',
+    },
+  ];
 
   return (
     <header className="border-b border-border bg-card sticky top-0 z-10">
@@ -47,15 +57,18 @@ export function ModuleNavbar({ activeModule }: ModuleNavbarProps) {
             {modules.map((module) => (
               <Link key={module.id} href={module.href}>
                 <Button
-                  variant={activeModule === module.id ? "secondary" : "ghost"}
+                  variant={activeModule === module.id ? 'secondary' : 'ghost'}
                   size="sm"
                   className={cn(
-                    "flex flex-col items-start h-auto py-2 px-4 gap-0",
-                    activeModule === module.id && "bg-primary/10 text-primary font-semibold",
+                    'flex flex-col items-start h-auto py-2 px-4 gap-0',
+                    activeModule === module.id &&
+                      'bg-primary/10 text-primary font-semibold',
                   )}
                 >
                   <span className="text-sm leading-tight">{module.label}</span>
-                  <span className="text-xs text-muted-foreground font-normal">{module.sublabel}</span>
+                  <span className="text-xs text-muted-foreground font-normal">
+                    {module.sublabel}
+                  </span>
                 </Button>
               </Link>
             ))}
@@ -113,5 +126,5 @@ export function ModuleNavbar({ activeModule }: ModuleNavbarProps) {
         </div>
       </div>
     </header>
-  )
+  );
 }

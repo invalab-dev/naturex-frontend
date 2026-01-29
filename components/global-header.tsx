@@ -1,55 +1,55 @@
-"use client"
+'use client';
 
-import { useState, useEffect } from "react"
-import Link from "next/link"
-import { usePathname, useRouter } from "next/navigation"
-import { Globe, ChevronDown, Home, FolderKanban, Plus } from "lucide-react"
-import { useAuth } from "@/lib/auth-context"
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
+import { Globe, ChevronDown, Home, FolderKanban, Plus } from 'lucide-react';
+import { useAuth } from '@/lib/auth-context';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from '@/components/ui/dropdown-menu';
 
 export function GlobalHeader() {
-  const pathname = usePathname()
-  const router = useRouter()
-  const { user, logout } = useAuth()
-  const [language, setLanguage] = useState<"ko" | "en">("ko")
+  const pathname = usePathname();
+  const router = useRouter();
+  const { user, logout } = useAuth();
+  const [language, setLanguage] = useState<'ko' | 'en'>('ko');
 
   useEffect(() => {
-    const saved = localStorage.getItem("naturex_language")
-    if (saved === "ko" || saved === "en") {
-      setLanguage(saved)
+    const saved = localStorage.getItem('naturex_language');
+    if (saved === 'ko' || saved === 'en') {
+      setLanguage(saved);
     }
-  }, [])
+  }, []);
 
-  const handleLanguageChange = (lang: "ko" | "en") => {
-    setLanguage(lang)
-    localStorage.setItem("naturex_language", lang)
-  }
+  const handleLanguageChange = (lang: 'ko' | 'en') => {
+    setLanguage(lang);
+    localStorage.setItem('naturex_language', lang);
+  };
 
   const handleLogout = () => {
-    logout()
-    router.push("/login")
-  }
+    logout();
+    router.push('/login');
+  };
 
   const getRoleBadge = () => {
-    if (!user) return null
-    if (user.role === "ADMIN") {
-      return "ADMIN"
+    if (!user) return null;
+    if (user.role === 'ADMIN') {
+      return 'ADMIN';
     }
-    return "USER"
-  }
+    return 'USER';
+  };
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 h-14 border-b border-[#E5E7EB] bg-white flex items-center justify-between px-6 shadow-sm">
       {/* Left: Logo + Navigation */}
       <div className="flex items-center gap-6">
         <Link
-          href={user ? (user.role === "ADMIN" ? "/admin" : "/app") : "/"}
+          href={user ? (user.role === 'ADMIN' ? '/admin' : '/app') : '/'}
           className="text-base font-semibold text-[#118DFF] hover:text-[#0F7FE6] transition-colors"
         >
           NatureX
@@ -57,7 +57,7 @@ export function GlobalHeader() {
 
         {user && (
           <nav className="flex items-center gap-1">
-            {user.role === "ADMIN" ? (
+            {user.role === 'ADMIN' ? (
               <>
                 <Link href="/admin">
                   <button className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-[#374151] hover:bg-[#F3F4F6] rounded-md transition-colors">
@@ -109,18 +109,33 @@ export function GlobalHeader() {
               <ChevronDown className="w-3.5 h-3.5" />
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-32 bg-white border border-[#E5E7EB] shadow-md">
+          <DropdownMenuContent
+            align="end"
+            className="w-32 bg-white border border-[#E5E7EB] shadow-md"
+          >
             <DropdownMenuItem
-              onClick={() => handleLanguageChange("ko")}
+              onClick={() => handleLanguageChange('ko')}
               className="cursor-pointer hover:bg-[#F3F4F6] text-[#374151]"
             >
-              <span className={language === "ko" ? "font-semibold text-[#118DFF]" : ""}>한국어</span>
+              <span
+                className={
+                  language === 'ko' ? 'font-semibold text-[#118DFF]' : ''
+                }
+              >
+                한국어
+              </span>
             </DropdownMenuItem>
             <DropdownMenuItem
-              onClick={() => handleLanguageChange("en")}
+              onClick={() => handleLanguageChange('en')}
               className="cursor-pointer hover:bg-[#F3F4F6] text-[#374151]"
             >
-              <span className={language === "en" ? "font-semibold text-[#118DFF]" : ""}>English</span>
+              <span
+                className={
+                  language === 'en' ? 'font-semibold text-[#118DFF]' : ''
+                }
+              >
+                English
+              </span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -146,23 +161,31 @@ export function GlobalHeader() {
                 <ChevronDown className="w-3.5 h-3.5" />
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-40 bg-white border border-[#E5E7EB] shadow-md">
+            <DropdownMenuContent
+              align="end"
+              className="w-40 bg-white border border-[#E5E7EB] shadow-md"
+            >
               <DropdownMenuItem
-                onClick={() => router.push(user.role === "admin" ? "/admin" : "/app")}
+                onClick={() =>
+                  router.push(user.role === 'admin' ? '/admin' : '/app')
+                }
                 className="cursor-pointer hover:bg-[#F3F4F6] text-[#374151]"
               >
                 Dashboard
               </DropdownMenuItem>
-              {user.role === "ADMIN" && (
+              {user.role === 'ADMIN' && (
                 <DropdownMenuItem
-                  onClick={() => router.push("/admin/users")}
+                  onClick={() => router.push('/admin/users')}
                   className="cursor-pointer hover:bg-[#F3F4F6] text-[#374151]"
                 >
                   Users
                 </DropdownMenuItem>
               )}
               <DropdownMenuSeparator className="bg-[#E5E7EB]" />
-              <DropdownMenuItem onClick={handleLogout} className="cursor-pointer hover:bg-[#F3F4F6] text-red-600">
+              <DropdownMenuItem
+                onClick={handleLogout}
+                className="cursor-pointer hover:bg-[#F3F4F6] text-red-600"
+              >
                 Logout
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -170,5 +193,5 @@ export function GlobalHeader() {
         )}
       </div>
     </header>
-  )
+  );
 }

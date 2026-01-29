@@ -1,14 +1,10 @@
-import React from "react"
-import { GlobalSidebar } from "@/components/global-sidebar"
-import { GlobalHeader } from "@/components/global-header"
-import {AuthGuard} from "@/components/auth-guard";
-import {UserRole} from "@/lib/data-type";
+import React from 'react';
+import { GlobalSidebar } from '@/components/global-sidebar';
+import { GlobalHeader } from '@/components/global-header';
+import { AuthGuard } from '@/components/auth-guard';
+import { UserRole } from '@/lib/data-type';
 
-export default function AppLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex h-screen bg-[#F5F7FB]">
       <GlobalHeader />
@@ -21,5 +17,5 @@ export default function AppLayout({
         </div>
       </div>
     </div>
-  )
+  );
 }
