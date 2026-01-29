@@ -1,6 +1,8 @@
 import type React from "react"
 import { AdminSidebar } from "@/components/admin-sidebar"
 import { AdminTopBar } from "@/components/admin-topbar"
+import {GlobalHeader} from "@/components/global-header";
+import {GlobalSidebar} from "@/components/global-sidebar";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (

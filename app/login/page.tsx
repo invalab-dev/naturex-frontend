@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, Suspense } from "react"
+import {useEffect, Suspense, useState} from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/lib/auth-context"
@@ -7,46 +7,38 @@ import { Leaf, User, Building2 } from "lucide-react"
 
 function LoginPageContent() {
   const router = useRouter()
-  const searchParams = useSearchParams()
-  const { user } = useAuth()
-
-  const redirect = searchParams.get("redirect") || "/app"
+  const { user, login } = useAuth()
+  const [ isLoading, setIsLoading ] = useState(false);
 
   useEffect(() => {
     if (user) {
       // Role-aware redirect
-      if (user.role === "admin") {
+      if (user.roles.includes("ADMIN")) {
         router.replace("/admin")
       } else {
-        router.replace(redirect)
+        router.replace("/app")
       }
     }
-  }, [user, router, redirect])
+  }, [user, router])
 
-  const handleAdminLogin = () => {
-    const authData = {
-      userId: "admin-001",
-      name: "Dr. Shin",
-      role: "admin" as const,
-      email: "admin@naturex.test",
-      orgId: null,
-      isMock: true,
+  const handleAdminLogin = async () => {
+    if(isLoading) {
+      return;
     }
-    localStorage.setItem("naturex_auth", JSON.stringify(authData))
-    window.location.href = "/admin" // Always go to /admin for admin
+    setIsLoading(true);
+    await login('admin@naturex.example', 'pw_hash_admin_01');
+    window.location.href = "/admin"
+    setIsLoading(false);
   }
 
-  const handleCustomerLogin = () => {
-    const authData = {
-      userId: "customer-001",
-      name: "Customer 1",
-      role: "customer" as const,
-      email: "customer1@naturex.test",
-      orgId: "org-customer-001",
-      isMock: true,
+  const handleCustomerLogin = async () => {
+    if(isLoading) {
+      return;
     }
-    localStorage.setItem("naturex_auth", JSON.stringify(authData))
-    window.location.href = "/app" // Always go to /app for customer
+    setIsLoading(true);
+    await login('analyst@urbanpulse.example', 'pw_hash_admin_03');
+    window.location.href = "/app"
+    setIsLoading(false);
   }
 
   return (
@@ -91,13 +83,13 @@ function LoginPageContent() {
                   <div className="flex justify-between items-start mb-1">
                     <span className="text-xs font-medium text-[#9CA3AF]">이메일</span>
                   </div>
-                  <div className="font-mono text-xs text-[#374151]">admin@naturex.test</div>
+                  <div className="font-mono text-xs text-[#374151]">admin@naturex.example</div>
                 </div>
                 <div className="bg-[#F9FAFB] rounded-lg p-3 border border-[#E5E7EB]">
                   <div className="flex justify-between items-start mb-1">
                     <span className="text-xs font-medium text-[#9CA3AF]">비밀번호</span>
                   </div>
-                  <div className="font-mono text-xs text-[#374151]">Admin1234!</div>
+                  <div className="font-mono text-xs text-[#374151]">pw_hash_admin_01</div>
                 </div>
                 <div className="text-xs text-[#9CA3AF] pt-1">관리자는 모든 프로젝트와 고객을 관리할 수 있습니다.</div>
               </div>
@@ -128,13 +120,13 @@ function LoginPageContent() {
                   <div className="flex justify-between items-start mb-1">
                     <span className="text-xs font-medium text-[#9CA3AF]">이메일</span>
                   </div>
-                  <div className="font-mono text-xs text-[#374151]">customer1@naturex.test</div>
+                  <div className="font-mono text-xs text-[#374151]">analyst@urbanpulse.example</div>
                 </div>
                 <div className="bg-[#F9FAFB] rounded-lg p-3 border border-[#E5E7EB]">
                   <div className="flex justify-between items-start mb-1">
                     <span className="text-xs font-medium text-[#9CA3AF]">비밀번호</span>
                   </div>
-                  <div className="font-mono text-xs text-[#374151]">Customer1234!</div>
+                  <div className="font-mono text-xs text-[#374151]">pw_hash_user_03</div>
                 </div>
                 <div className="text-xs text-[#9CA3AF] pt-1">고객은 자신의 조직에 속한 프로젝트만 볼 수 있습니다.</div>
               </div>

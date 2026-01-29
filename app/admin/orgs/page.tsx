@@ -139,13 +139,13 @@ export default function AdminOrgsPage() {
       }
 
       // Determine widget status (worst case)
-      if (project.widgetStatus === "none" || heatmap[theme].widgetStatus === "none") {
-        heatmap[theme].widgetStatus = "none"
-      } else if (project.widgetStatus === "partial" && heatmap[theme].widgetStatus !== "none") {
-        heatmap[theme].widgetStatus = "partial"
-      } else if (project.widgetStatus === "complete" && heatmap[theme].widgetStatus === "unused") {
-        heatmap[theme].widgetStatus = "complete"
-      }
+      // if (project.widgetStatus === "none" || heatmap[theme].widgetStatus === "none") {
+      //   heatmap[theme].widgetStatus = "none"
+      // } else if (project.widgetStatus === "partial" && heatmap[theme].widgetStatus !== "none") {
+      //   heatmap[theme].widgetStatus = "partial"
+      // } else if (project.widgetStatus === "complete" && heatmap[theme].widgetStatus === "unused") {
+      //   heatmap[theme].widgetStatus = "complete"
+      // }
     })
 
     return heatmap

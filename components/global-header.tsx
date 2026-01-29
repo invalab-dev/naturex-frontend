@@ -38,10 +38,10 @@ export function GlobalHeader() {
 
   const getRoleBadge = () => {
     if (!user) return null
-    if (user.role === "admin") {
+    if (user.role === "ADMIN") {
       return "ADMIN"
     }
-    return "CUSTOMER"
+    return "USER"
   }
 
   return (
@@ -49,7 +49,7 @@ export function GlobalHeader() {
       {/* Left: Logo + Navigation */}
       <div className="flex items-center gap-6">
         <Link
-          href={user ? (user.role === "admin" ? "/admin" : "/app") : "/"}
+          href={user ? (user.role === "ADMIN" ? "/admin" : "/app") : "/"}
           className="text-base font-semibold text-[#118DFF] hover:text-[#0F7FE6] transition-colors"
         >
           NatureX
@@ -57,7 +57,7 @@ export function GlobalHeader() {
 
         {user && (
           <nav className="flex items-center gap-1">
-            {user.role === "admin" ? (
+            {user.role === "ADMIN" ? (
               <>
                 <Link href="/admin">
                   <button className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-[#374151] hover:bg-[#F3F4F6] rounded-md transition-colors">
@@ -153,7 +153,7 @@ export function GlobalHeader() {
               >
                 Dashboard
               </DropdownMenuItem>
-              {user.role === "admin" && (
+              {user.role === "ADMIN" && (
                 <DropdownMenuItem
                   onClick={() => router.push("/admin/users")}
                   className="cursor-pointer hover:bg-[#F3F4F6] text-[#374151]"

@@ -10,7 +10,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { TrendingDown, TrendingUp, Leaf, Building2 } from "lucide-react"
-import { getOrgs, createOrg, type Org } from "@/lib/auth-data"
+import { getOrgs, createOrg, type Org } from "@/lib/data-type"
 
 const projectTypes = [
   {
@@ -49,16 +49,16 @@ export default function NewProjectRequestPage() {
   useEffect(() => {
     if (!user) return
 
-    if (user.role === "admin") {
+    if (user.role === "ADMIN") {
       const orgs = getOrgs()
       setOrganizations(orgs)
-    } else if (user.role === "customer" && user.orgId) {
+    } else if (user.role === "USER" && user.orgId) {
       setSelectedOrgId(user.orgId)
     }
   }, [user])
 
   const isFormValid = () => {
-    if (user?.role === "admin") {
+    if (user?.role === "ADMIN") {
       return projectName.trim() !== "" && location.trim() !== "" && selectedTheme !== "" && selectedOrgId !== ""
     }
     return projectName.trim() !== "" && location.trim() !== "" && selectedTheme !== ""
@@ -78,7 +78,7 @@ export default function NewProjectRequestPage() {
     if (!isFormValid() || !user) return
 
     const projectId = `proj-${Date.now()}`
-    const orgId = user.role === "customer" ? user.orgId! : selectedOrgId
+    const orgId = user.role === "USER" ? user.orgId! : selectedOrgId
 
     const existingProjects = JSON.parse(localStorage.getItem("naturex_projects") || "[]")
     const newProject = {
@@ -106,7 +106,7 @@ export default function NewProjectRequestPage() {
 
       <div className="px-8 py-8 max-w-4xl mx-auto space-y-6">
         {/* Admin: Customer Org Selection */}
-        {user?.role === "admin" && (
+        {user?.role === "ADMIN" && (
           <div className="bg-white border border-[#E5E7EB] rounded-lg p-6">
             <h2 className="text-base font-semibold text-[#111827] mb-4">고객사 선택 *</h2>
             <div className="space-y-4">

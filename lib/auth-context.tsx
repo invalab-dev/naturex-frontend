@@ -1,56 +1,49 @@
 "use client"
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
-import {
-  initializeAuthData,
-  authenticateUser,
-  setAuthSession,
-  getAuthSession,
-  clearAuthSession,
-  type AuthSession,
-} from "./auth-data"
+import {User} from "@/lib/data-type";
 
-interface AuthContextType {
-  user: AuthSession | null
+const AuthContext = createContext<{
+  user: User | null
   login: (email: string, password: string) => Promise<boolean>
   logout: () => void
-  isLoading: boolean
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined)
+} | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<AuthSession | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-
-  useEffect(() => {
-    // Initialize auth data on first load
-    initializeAuthData()
-
-    // Load existing session
-    const session = getAuthSession()
-    if (session) {
-      setUser(session)
-    }
-    setIsLoading(false)
-  }, [])
+  const [user, setUser] = useState<User | null>(null)
 
   const login = async (email: string, password: string): Promise<boolean> => {
-    const authenticatedUser = authenticateUser(email, password)
-    if (authenticatedUser) {
-      setAuthSession(authenticatedUser)
-      setUser(getAuthSession())
-      return true
-    }
-    return false
+    return await fetch(new URL("/auth/login", process.env.NEXT_PUBLIC_NATUREX_BACKEND), {
+      method: "POST",
+      headers: {
+        contentType: "application/json",
+      },
+      body: JSON.stringify({
+        email: email,
+        password: password
+      }),
+    }).then<boolean, boolean>(async (res) => {
+      if(!res.ok) {
+        console.error(res.statusText);
+        return false;
+      }
+      const user = new User(await res.json());
+      setUser(user);
+      return true;
+    }, (error) => {
+      console.error(error);
+      return false;
+    });
   }
 
-  const logout = () => {
-    clearAuthSession()
-    setUser(null)
+  const logout = async () => {
+    setUser(null);
+    await fetch(new URL("/auth/logout", process.env.NEXT_PUBLIC_NATUREX_BACKEND), {
+      method: "PUT",
+    });
   }
 
-  return <AuthContext.Provider value={{ user, login, logout, isLoading }}>{children}</AuthContext.Provider>
+  return <AuthContext.Provider value={{ user, login, logout }}>{children}</AuthContext.Provider>
 }
 
 export function useAuth() {

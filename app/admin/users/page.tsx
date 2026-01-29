@@ -17,7 +17,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Plus, UsersIcon, Mail, Trash2, Shield, Building2 } from "lucide-react"
-import { getUsers, getOrgs, createCustomerUser, createOrg, deleteUser, type User, type Org } from "@/lib/auth-data"
+import { getUsers, getOrgs, createCustomerUser, createOrg, deleteUser, type User, type Org } from "@/lib/data-type"
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<User[]>([])

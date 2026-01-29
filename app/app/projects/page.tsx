@@ -87,8 +87,8 @@ export default function ProjectsPage() {
   }
 
   const canDeleteProject = (project: Project) => {
-    if (user?.role === "admin") return true
-    if (user?.role === "customer" && user.orgId === project.orgId) return true
+    if (user?.role === "ADMIN") return true
+    if (user?.role === "USER" && user.orgId === project.orgId) return true
     return false
   }
 
@@ -128,7 +128,7 @@ export default function ProjectsPage() {
               const ThemeIcon = theme.icon
               const status = statusConfig[project.status as keyof typeof statusConfig] ?? statusConfig.planning
               const customerLabel =
-                user?.role === "admin" ? customerOrgMap[project.orgId as keyof typeof customerOrgMap] : null
+                user?.role === "ADMIN" ? customerOrgMap[project.orgId as keyof typeof customerOrgMap] : null
 
               return (
                 <Link key={project.projectId} href={`/app/projects/${project.projectId}`}>

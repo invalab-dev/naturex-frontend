@@ -1,0 +1,107 @@
+name: Build and deploy naturex-frontend
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read #This is required for actions/checkout
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js version
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22.x'
+
+      - name: npm install, build, and test
+        run: |
+          npm install
+          npm run build:prod --if-present
+          npm run test --if-present
+
+        # 'standalone' 옵션은 server.js와 서버가 사용하는 최소한의 의존성만 포함합니다.
+        # 따라서 정적 파일을 포함하지 않으며, 이를 제공하기 위해서는
+        # 정적 파일을 .next/standalone 내부로 옮겨야 합니다.
+      - name: Move static files into standalone
+        run: cp -rf .next/static .next/standalone/.next/static
+
+        # public/ 에 있는 이미지들도 위와 동일한 이유로 .next/standalone 내부로 옮겨야 합니다.
+      - name: Move public folder(assets) into standalone
+        run: cp -rf public .next/standalone/public
+
+        # .env는 sftp를 통해 직접 옮깁니다.
+        #      - name: Move .env into standalone
+        #        run: cp -rf .env .next/standalone
+
+        # .service를 standalone과 압축하여 서버로 전송합니다.
+      - name: Move .service into standalone
+        run: cp -f naturex-frontend.service .next/standalone
+
+        # release.zip 안에는 standalone(폴더 포함x) 내부 파일과 폴더들만 가집니다.
+      - name: Zip artifact for deployment
+        run: |
+          cd .next/standalone
+          zip -r ../../release.zip .
+
+      - name: Upload artifact for deployment job
+        uses: actions/upload-artifact@v4
+        with:
+          name: node-app
+          path: release.zip
+
+  deploy:
+    environment: production
+    runs-on: ubuntu-latest
+    needs: build
+
+    permissions:
+      id-token: write #This is required for requesting the JWT
+      contents: read #This is required for actions/checkout
+
+    steps:
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v4
+        with:
+          name: node-app
+
+      - name: Deploy over SSH
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "./release.zip"
+          target: "~"
+
+      - name: Cleanup and unzip on naturex-frontend & move .service, .env
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            rm -rf naturex-frontend
+            mkdir naturex-frontend
+            unzip release.zip -d naturex-frontend
+            rm release.zip
+            mv -f naturex-frontend/naturex-frontend.service /etc/systemd/system
+      #            cp -f .env.naturex-frontend naturex-frontend
+
+      - name: Restart systemd service
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd ~/naturex-frontend
+            npm install --omit=dev
+            sudo systemctl daemon-reload
+            sudo systemctl restart naturex-frontend

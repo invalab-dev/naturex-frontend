@@ -20,7 +20,6 @@ import {
   Mail,
 } from "lucide-react"
 import { ServiceWorkflowCard } from "@/components/service-workflow-card"
-import { getOrgs, type Project } from "@/lib/auth-data"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { ProjectRecommendationAssistant } from "@/components/project-recommendation-assistant"
@@ -50,19 +49,12 @@ const themeConfig = {
 export default function AppHomePage() {
   const router = useRouter()
   const { user } = useAuth()
-  const [projects, setProjects] = useState<Project[]>([])
-  const [orgName, setOrgName] = useState("")
+  const [projects, setProjects] = useState<any[]>([])
   const [contactModalOpen, setContactModalOpen] = useState(false)
-  const [language] = useState<"ko" | "en">("ko")
+  const [language] = useState<string>(user?.language)
 
   useEffect(() => {
     if (!user) return
-
-    // Load projects from data-service (old storage)
-    const loadedProjects =
-      user.role === "admin"
-        ? JSON.parse(localStorage.getItem("naturex_projects") || "[]")
-        : JSON.parse(localStorage.getItem("naturex_projects") || "[]").filter((p: any) => p.orgId === user.orgId)
 
     const sorted = loadedProjects.sort(
       (a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
@@ -119,7 +111,7 @@ export default function AppHomePage() {
       <div className="max-w-6xl mx-auto space-y-8">
         {user && (
           <div className="text-xs text-[#9CA3AF]">
-            Session Debug: role={user.role}, userId={user.id}, orgId={user.orgId || "N/A"}
+            Session Debug: role={user.role}, userId={user.userId}, orgId={user.orgId || "N/A"}
           </div>
         )}
 
