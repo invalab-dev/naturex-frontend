@@ -28,7 +28,7 @@ function LoginPageContent() {
     }
     setIsLoading(true);
     await login('admin@naturex.example', 'pw_hash_admin_01');
-    window.location.href = '/admin';
+    router.push('/admin');
     setIsLoading(false);
   };
 
@@ -37,8 +37,8 @@ function LoginPageContent() {
       return;
     }
     setIsLoading(true);
-    await login('analyst@urbanpulse.example', 'pw_hash_admin_03');
-    window.location.href = '/app';
+    await login('analyst@urbanpulse.example', 'pw_hash_user_03');
+    router.push('/app');
     setIsLoading(false);
   };
 

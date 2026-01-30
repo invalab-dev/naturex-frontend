@@ -3,7 +3,7 @@
 import { useAuth } from '@/lib/auth-context';
 import React, { useEffect, useState } from 'react';
 import { UserRole } from '@/lib/data-type';
-import { router } from 'next/client';
+import { useRouter } from 'next/navigation';
 
 export function AuthGuard({
   children,
@@ -14,6 +14,7 @@ export function AuthGuard({
 }) {
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     if (!user) {

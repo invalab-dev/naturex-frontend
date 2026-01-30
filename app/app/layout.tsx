@@ -1,7 +1,7 @@
 import React from 'react';
 import { GlobalSidebar } from '@/components/global-sidebar';
 import { GlobalHeader } from '@/components/global-header';
-import { AuthGuard } from '@/components/auth-guard';
+import { AuthGuard } from '@/lib/auth-guard';
 import { UserRole } from '@/lib/data-type';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {

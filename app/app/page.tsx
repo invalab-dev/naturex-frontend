@@ -60,25 +60,27 @@ export default function AppHomePage() {
   useEffect(() => {
     if (!user) return;
 
-    fetch(new URL('/projects/organization/belonging', process.env.NEXT_PUBLIC_NATUREX_BACKEND), {
-      method: 'GET',
-    }).then<void, void>(async (res) => {
-      if (!res.ok) {
-        console.error(res.statusText);
-      }
-      const projects = ((await res.json()) as any[]).map((e) => new Project(e));
-      setProjects(projects);
-    });
-
     if (user.organizationId) {
       fetch(new URL(`/organizations/${user.organizationId}`, process.env.NEXT_PUBLIC_NATUREX_BACKEND), {
         method: 'GET',
+        credentials: 'include',
       }).then<void, void>(async (res) => {
         if (!res.ok) {
           console.error(res.statusText);
         }
         const organization = new Organization(await res.json());
         setOrganization(organization);
+      });
+
+      fetch(new URL(`/projects/organization/${user.organizationId}`, process.env.NEXT_PUBLIC_NATUREX_BACKEND), {
+        method: 'GET',
+        credentials: 'include',
+      }).then<void, void>(async (res) => {
+        if (!res.ok) {
+          console.error(res.statusText);
+        }
+        const projects = ((await res.json()) as any[]).map((e) => new Project(e));
+        setProjects(projects);
       });
     }
   }, [user, projects, organization]);

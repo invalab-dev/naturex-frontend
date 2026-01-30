@@ -8,12 +8,6 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, AlertCircle } from 'lucide-react';
 import { ServiceWorkflowCard } from '@/components/service-workflow-card';
-import {
-  getProjectById,
-  getWidgetConfig,
-  type Project,
-  type Widget,
-} from '@/lib/data-service';
 import { useToast } from '@/hooks/use-toast';
 
 export default function ProjectDashboardPage() {
