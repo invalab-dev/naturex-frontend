@@ -21,6 +21,24 @@ const AuthContext = createContext<
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
 
+  useEffect(() => {
+    // hydrate session from HttpOnly cookies
+    fetch(new URL('/auth/me', process.env.NEXT_PUBLIC_NATUREX_BACKEND), {
+      method: 'GET',
+      credentials: 'include',
+    })
+      .then(async (res) => {
+        if (!res.ok) return null;
+        return new User(await res.json());
+      })
+      .then((u) => {
+        if (u) setUser(u);
+      })
+      .catch(() => {
+        // ignore hydration errors
+      });
+  }, []);
+
   const login = async (email: string, password: string): Promise<boolean> => {
     return await fetch(
       new URL('/auth/login', process.env.NEXT_PUBLIC_NATUREX_BACKEND),
