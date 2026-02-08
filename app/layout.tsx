@@ -45,10 +45,7 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased">
-        <AuthProvider>
-          <AuthGuard>{children}</AuthGuard>
-        </AuthProvider>
-        <Analytics />
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   )
