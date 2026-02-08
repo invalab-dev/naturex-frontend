@@ -1,17 +1,14 @@
 "use client"
 
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react"
+import {UserRole} from "@/lib/data-service";
 
 export type AuthSession = {
   id: string
   email: string
-  roles: Array<"ADMIN" | "USER">
+  roles: UserRole[]
   name?: string | null
   organizationId?: string | null
-
-  // FE convenience fields (keeps existing UI logic mostly unchanged)
-  role: "admin" | "customer"
-  orgId?: string | null
 }
 
 interface AuthContextType {
@@ -24,16 +21,13 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 function mapMe(me: any): AuthSession {
-  const roles: Array<"ADMIN" | "USER"> = Array.isArray(me.roles) ? me.roles : []
-  const isAdmin = roles.includes("ADMIN")
+  const roles: UserRole[] = Array.isArray(me.roles) ? me.roles : []
   return {
     id: String(me.id),
     email: String(me.email),
     roles,
     name: me.name ?? null,
     organizationId: me.organizationId ?? null,
-    role: isAdmin ? "admin" : "customer",
-    orgId: me.organizationId ?? null,
   }
 }
 

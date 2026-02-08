@@ -12,12 +12,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import {UserRole} from "@/lib/data-service";
 
 export function GlobalHeader() {
   const pathname = usePathname()
   const router = useRouter()
   const { user, logout } = useAuth()
   const [language, setLanguage] = useState<"ko" | "en">("ko")
+  const is
 
   useEffect(() => {
     const saved = localStorage.getItem("naturex_language")
@@ -36,20 +38,12 @@ export function GlobalHeader() {
     router.push("/login")
   }
 
-  const getRoleBadge = () => {
-    if (!user) return null
-    if (user.role === "admin") {
-      return "ADMIN"
-    }
-    return "CUSTOMER"
-  }
-
   return (
     <header className="fixed top-0 left-0 right-0 z-50 h-14 border-b border-[#E5E7EB] bg-white flex items-center justify-between px-6 shadow-sm">
       {/* Left: Logo + Navigation */}
       <div className="flex items-center gap-6">
         <Link
-          href={user ? (user.role === "admin" ? "/admin" : "/app") : "/"}
+          href={user ? (user.roles.includes(UserRole.ADMIN) ? "/admin" : "/app") : "/"}
           className="text-base font-semibold text-[#118DFF] hover:text-[#0F7FE6] transition-colors"
         >
           NatureX
@@ -57,7 +51,7 @@ export function GlobalHeader() {
 
         {user && (
           <nav className="flex items-center gap-1">
-            {user.role === "admin" ? (
+            {user.roles.includes(UserRole.ADMIN) ? (
               <>
                 <Link href="/admin">
                   <button className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-[#374151] hover:bg-[#F3F4F6] rounded-md transition-colors">
@@ -140,7 +134,6 @@ export function GlobalHeader() {
                 <div className="flex items-center gap-2">
                   <span className="font-medium">{user.name}</span>
                   <span className="px-2 py-0.5 text-xs font-medium bg-[#118DFF]/10 text-[#118DFF] rounded">
-                    {getRoleBadge()}
                   </span>
                 </div>
                 <ChevronDown className="w-3.5 h-3.5" />
@@ -148,12 +141,12 @@ export function GlobalHeader() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-40 bg-white border border-[#E5E7EB] shadow-md">
               <DropdownMenuItem
-                onClick={() => router.push(user.role === "admin" ? "/admin" : "/app")}
+                onClick={() => router.push(user.roles.includes(UserRole.ADMIN) ? "/admin" : "/app")}
                 className="cursor-pointer hover:bg-[#F3F4F6] text-[#374151]"
               >
                 Dashboard
               </DropdownMenuItem>
-              {user.role === "admin" && (
+              {user.roles.includes(UserRole.ADMIN) && (
                 <DropdownMenuItem
                   onClick={() => router.push("/admin/users")}
                   className="cursor-pointer hover:bg-[#F3F4F6] text-[#374151]"
