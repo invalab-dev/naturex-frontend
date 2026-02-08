@@ -1,28 +1,31 @@
-"use client"
+"use client";
 
-import { ArrowLeft } from "lucide-react"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
+import { ArrowLeft } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 
 interface BackButtonProps {
-  fallbackRoute?: string
-  language?: "ko" | "en"
+  fallbackRoute?: string;
+  language?: "ko" | "en";
 }
 
-export function BackButton({ fallbackRoute = "/", language = "ko" }: BackButtonProps) {
-  const router = useRouter()
+export function BackButton({
+  fallbackRoute = "/",
+  language = "ko",
+}: BackButtonProps) {
+  const router = useRouter();
 
   const handleBack = () => {
     // Try to go back in history
     if (window.history.length > 1) {
-      router.back()
+      router.back();
     } else {
       // No history, use fallback route
-      router.push(fallbackRoute)
+      router.push(fallbackRoute);
     }
-  }
+  };
 
-  const label = language === "ko" ? "뒤로가기" : "Back"
+  const label = language === "ko" ? "뒤로가기" : "Back";
 
   return (
     <Button
@@ -34,5 +37,5 @@ export function BackButton({ fallbackRoute = "/", language = "ko" }: BackButtonP
       <ArrowLeft size={16} />
       {label}
     </Button>
-  )
+  );
 }

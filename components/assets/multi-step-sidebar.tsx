@@ -1,15 +1,25 @@
-"use client"
+"use client";
 
-import { Home, FolderTree, TrendingUp, Target } from "lucide-react"
-import { SharedMultiStepSidebar, assetsTheme, type StepItem } from "@/components/sidebar/shared-multi-step-sidebar"
+import { Home, FolderTree, TrendingUp, Target } from "lucide-react";
+import {
+  SharedMultiStepSidebar,
+  assetsTheme,
+  type StepItem,
+} from "@/components/sidebar/shared-multi-step-sidebar";
 
 interface MultiStepSidebarProps {
-  currentStep: "home" | "portfolio" | "valuation" | "optimization"
-  onStepChange: (step: "home" | "portfolio" | "valuation" | "optimization") => void
-  language: "kr" | "en"
+  currentStep: "home" | "portfolio" | "valuation" | "optimization";
+  onStepChange: (
+    step: "home" | "portfolio" | "valuation" | "optimization",
+  ) => void;
+  language: "kr" | "en";
 }
 
-export function AssetsMultiStepSidebar({ currentStep, onStepChange, language }: MultiStepSidebarProps) {
+export function AssetsMultiStepSidebar({
+  currentStep,
+  onStepChange,
+  language,
+}: MultiStepSidebarProps) {
   const steps: StepItem[] = [
     {
       id: "home" as const,
@@ -39,7 +49,7 @@ export function AssetsMultiStepSidebar({ currentStep, onStepChange, language }: 
       en: "Optimization",
       description: { kr: "시나리오·장기가치", en: "Scenarios & Long-term" },
     },
-  ]
+  ];
 
   return (
     <SharedMultiStepSidebar
@@ -51,5 +61,5 @@ export function AssetsMultiStepSidebar({ currentStep, onStepChange, language }: 
       subtitle={{ kr: "단계별 진행", en: "Step by Step" }}
       theme={assetsTheme}
     />
-  )
+  );
 }

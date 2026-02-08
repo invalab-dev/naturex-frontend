@@ -1,15 +1,23 @@
-"use client"
+"use client";
 
-import { Home, MapPin, Shield, FileCheck } from "lucide-react"
-import { SharedMultiStepSidebar, riskTheme, type StepItem } from "@/components/sidebar/shared-multi-step-sidebar"
+import { Home, MapPin, Shield, FileCheck } from "lucide-react";
+import {
+  SharedMultiStepSidebar,
+  riskTheme,
+  type StepItem,
+} from "@/components/sidebar/shared-multi-step-sidebar";
 
 interface MultiStepSidebarProps {
-  currentStep: "home" | "locate" | "assess" | "prepare"
-  onStepChange: (step: "home" | "locate" | "assess" | "prepare") => void
-  language: "kr" | "en"
+  currentStep: "home" | "locate" | "assess" | "prepare";
+  onStepChange: (step: "home" | "locate" | "assess" | "prepare") => void;
+  language: "kr" | "en";
 }
 
-export function RiskMultiStepSidebar({ currentStep, onStepChange, language }: MultiStepSidebarProps) {
+export function RiskMultiStepSidebar({
+  currentStep,
+  onStepChange,
+  language,
+}: MultiStepSidebarProps) {
   const steps: StepItem[] = [
     {
       id: "home" as const,
@@ -39,7 +47,7 @@ export function RiskMultiStepSidebar({ currentStep, onStepChange, language }: Mu
       en: "Prepare",
       description: { kr: "근거자료·대응방안", en: "Evidence & Response" },
     },
-  ]
+  ];
 
   return (
     <SharedMultiStepSidebar
@@ -51,5 +59,5 @@ export function RiskMultiStepSidebar({ currentStep, onStepChange, language }: Mu
       subtitle={{ kr: "단계별 진행", en: "Step by Step" }}
       theme={riskTheme}
     />
-  )
+  );
 }

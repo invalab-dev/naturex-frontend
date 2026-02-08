@@ -1,13 +1,26 @@
-"use client"
+"use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Send, CheckCircle2, Clock, AlertCircle } from "lucide-react"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Send, CheckCircle2, Clock, AlertCircle } from "lucide-react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 const requestHistory = [
   {
@@ -34,27 +47,34 @@ const requestHistory = [
     status: "Pending",
     estimatedDelivery: "2025-01-25",
   },
-]
+];
 
 export function MonitorRequestSection() {
   return (
     <div className="p-6 space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-foreground">Monitor Request</h1>
-        <p className="text-sm text-muted-foreground mt-1">Request professional monitoring services from InvaLab</p>
+        <p className="text-sm text-muted-foreground mt-1">
+          Request professional monitoring services from InvaLab
+        </p>
       </div>
 
       {/* Request Form */}
       <Card>
         <CardHeader>
           <CardTitle>New Monitoring Request</CardTitle>
-          <CardDescription>Submit a request for professional tree monitoring and analysis</CardDescription>
+          <CardDescription>
+            Submit a request for professional tree monitoring and analysis
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="service-type">Service Type</Label>
-              <select id="service-type" className="w-full h-10 px-3 rounded-md border border-input bg-background">
+              <select
+                id="service-type"
+                className="w-full h-10 px-3 rounded-md border border-input bg-background"
+              >
                 <option>Full LiDAR + Drone Survey</option>
                 <option>Drone Imagery Only</option>
                 <option>LiDAR Analysis Only</option>
@@ -71,7 +91,10 @@ export function MonitorRequestSection() {
 
           <div className="space-y-2">
             <Label htmlFor="location-input">Target Location</Label>
-            <Input id="location-input" placeholder="e.g., Gangnam-gu, Teheran-ro, Seoul" />
+            <Input
+              id="location-input"
+              placeholder="e.g., Gangnam-gu, Teheran-ro, Seoul"
+            />
           </div>
 
           <div className="space-y-2">
@@ -99,7 +122,9 @@ export function MonitorRequestSection() {
       <Card>
         <CardHeader>
           <CardTitle>Request History</CardTitle>
-          <CardDescription>Track your monitoring service requests</CardDescription>
+          <CardDescription>
+            Track your monitoring service requests
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
@@ -116,24 +141,43 @@ export function MonitorRequestSection() {
             <TableBody>
               {requestHistory.map((request) => (
                 <TableRow key={request.id}>
-                  <TableCell className="font-mono text-xs">{request.id}</TableCell>
-                  <TableCell className="font-medium">{request.location}</TableCell>
-                  <TableCell className="text-sm text-muted-foreground">{request.serviceType}</TableCell>
-                  <TableCell className="text-sm">{request.requestedAt}</TableCell>
-                  <TableCell className="text-sm">{request.estimatedDelivery}</TableCell>
+                  <TableCell className="font-mono text-xs">
+                    {request.id}
+                  </TableCell>
+                  <TableCell className="font-medium">
+                    {request.location}
+                  </TableCell>
+                  <TableCell className="text-sm text-muted-foreground">
+                    {request.serviceType}
+                  </TableCell>
+                  <TableCell className="text-sm">
+                    {request.requestedAt}
+                  </TableCell>
+                  <TableCell className="text-sm">
+                    {request.estimatedDelivery}
+                  </TableCell>
                   <TableCell>
                     {request.status === "Completed" ? (
-                      <Badge variant="outline" className="bg-green-500/10 text-green-500">
+                      <Badge
+                        variant="outline"
+                        className="bg-green-500/10 text-green-500"
+                      >
                         <CheckCircle2 className="h-3 w-3 mr-1" />
                         Completed
                       </Badge>
                     ) : request.status === "In Progress" ? (
-                      <Badge variant="outline" className="bg-blue-500/10 text-blue-500">
+                      <Badge
+                        variant="outline"
+                        className="bg-blue-500/10 text-blue-500"
+                      >
                         <Clock className="h-3 w-3 mr-1" />
                         In Progress
                       </Badge>
                     ) : (
-                      <Badge variant="outline" className="bg-amber-500/10 text-amber-500">
+                      <Badge
+                        variant="outline"
+                        className="bg-amber-500/10 text-amber-500"
+                      >
                         <AlertCircle className="h-3 w-3 mr-1" />
                         Pending
                       </Badge>
@@ -146,5 +190,5 @@ export function MonitorRequestSection() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

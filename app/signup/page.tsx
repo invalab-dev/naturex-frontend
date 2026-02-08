@@ -1,53 +1,53 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { useAuth } from "@/lib/auth-context"
-import { Leaf } from "lucide-react"
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useAuth } from "@/lib/auth-context";
+import { Leaf } from "lucide-react";
 
 export default function SignupPage() {
-  const router = useRouter()
-  const { signup } = useAuth()
-  const [name, setName] = useState("")
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [confirmPassword, setConfirmPassword] = useState("")
-  const [error, setError] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
+  const router = useRouter();
+  const { signup } = useAuth();
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError("")
+    e.preventDefault();
+    setError("");
 
     // Validation
     if (password !== confirmPassword) {
-      setError("비밀번호가 일치하지 않습니다.")
-      return
+      setError("비밀번호가 일치하지 않습니다.");
+      return;
     }
 
     if (password.length < 6) {
-      setError("비밀번호는 최소 6자 이상이어야 합니다.")
-      return
+      setError("비밀번호는 최소 6자 이상이어야 합니다.");
+      return;
     }
 
-    setIsLoading(true)
+    setIsLoading(true);
 
-    const success = await signup(email, password, name)
+    const success = await signup(email, password, name);
 
     if (success) {
-      router.push("/app")
+      router.push("/app");
     } else {
-      setError("회원가입에 실패했습니다. 다시 시도해주세요.")
+      setError("회원가입에 실패했습니다. 다시 시도해주세요.");
     }
 
-    setIsLoading(false)
-  }
+    setIsLoading(false);
+  };
 
   return (
     <div className="min-h-screen bg-[#F5F7FB] flex items-center justify-center p-4">
@@ -58,10 +58,16 @@ export default function SignupPage() {
             <div className="w-10 h-10 rounded-lg bg-[#118DFF] flex items-center justify-center">
               <Leaf className="w-6 h-6 text-white" />
             </div>
-            <span className="text-2xl font-semibold text-slate-900">NatureX</span>
+            <span className="text-2xl font-semibold text-slate-900">
+              NatureX
+            </span>
           </div>
-          <h1 className="text-2xl font-bold text-slate-900 mb-2">NatureX 회원가입</h1>
-          <p className="text-sm text-slate-600">프로젝트 기반 자연자산 관리를 시작하세요.</p>
+          <h1 className="text-2xl font-bold text-slate-900 mb-2">
+            NatureX 회원가입
+          </h1>
+          <p className="text-sm text-slate-600">
+            프로젝트 기반 자연자산 관리를 시작하세요.
+          </p>
         </div>
 
         {/* Signup Card */}
@@ -69,7 +75,10 @@ export default function SignupPage() {
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Name Field */}
             <div className="space-y-2">
-              <Label htmlFor="name" className="text-sm font-medium text-slate-700">
+              <Label
+                htmlFor="name"
+                className="text-sm font-medium text-slate-700"
+              >
                 이름
               </Label>
               <Input
@@ -85,7 +94,10 @@ export default function SignupPage() {
 
             {/* Email Field */}
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-sm font-medium text-slate-700">
+              <Label
+                htmlFor="email"
+                className="text-sm font-medium text-slate-700"
+              >
                 이메일
               </Label>
               <Input
@@ -101,7 +113,10 @@ export default function SignupPage() {
 
             {/* Password Field */}
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-sm font-medium text-slate-700">
+              <Label
+                htmlFor="password"
+                className="text-sm font-medium text-slate-700"
+              >
                 비밀번호
               </Label>
               <Input
@@ -117,7 +132,10 @@ export default function SignupPage() {
 
             {/* Confirm Password Field */}
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword" className="text-sm font-medium text-slate-700">
+              <Label
+                htmlFor="confirmPassword"
+                className="text-sm font-medium text-slate-700"
+              >
                 비밀번호 확인
               </Label>
               <Input
@@ -133,7 +151,9 @@ export default function SignupPage() {
 
             {/* Error Message */}
             {error && (
-              <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg p-3">{error}</div>
+              <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg p-3">
+                {error}
+              </div>
             )}
 
             {/* Signup Button */}
@@ -187,12 +207,15 @@ export default function SignupPage() {
           {/* Login Link */}
           <div className="mt-6 text-center text-sm text-slate-600">
             이미 계정이 있으신가요?{" "}
-            <Link href="/login" className="text-[#118DFF] hover:underline font-medium">
+            <Link
+              href="/login"
+              className="text-[#118DFF] hover:underline font-medium"
+            >
               로그인
             </Link>
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }

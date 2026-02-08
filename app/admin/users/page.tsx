@@ -1,13 +1,19 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState, useEffect } from "react"
-import { Card } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useState, useEffect } from "react";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -15,37 +21,45 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { Plus, UsersIcon, Mail, Trash2, Shield, Building2 } from "lucide-react"
-import { createOrganization, createUser, deleteUser, getOrganizations, getUsers, type Organization, type User } from "@/lib/data-service"
+} from "@/components/ui/dialog";
+import { Plus, UsersIcon, Mail, Trash2, Shield, Building2 } from "lucide-react";
+import {
+  createOrganization,
+  createUser,
+  deleteUser,
+  getOrganizations,
+  getUsers,
+  type Organization,
+  type User,
+} from "@/lib/data-service";
 
 export default function AdminUsersPage() {
-  const [users, setUsers] = useState<User[]>([])
-  const [orgs, setOrgs] = useState<Organization[]>([])
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [showNewOrgForm, setShowNewOrgForm] = useState(false)
+  const [users, setUsers] = useState<User[]>([]);
+  const [orgs, setOrgs] = useState<Organization[]>([]);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [showNewOrgForm, setShowNewOrgForm] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
     orgId: "",
     newOrgName: "",
-  })
+  });
 
   useEffect(() => {
-    loadData()
-  }, [])
+    loadData();
+  }, []);
 
   const loadData = async () => {
-    const [u, o] = await Promise.all([getUsers(), getOrganizations()])
-    setUsers(u)
-    setOrgs(o)
-  }
+    const [u, o] = await Promise.all([getUsers(), getOrganizations()]);
+    setUsers(u);
+    setOrgs(o);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    let targetOrgId = formData.orgId
+    let targetOrgId = formData.orgId;
     if (showNewOrgForm && formData.newOrgName) {
       const newOrg = await createOrganization({
         orgId: `org-${Date.now()}`,
@@ -53,8 +67,8 @@ export default function AdminUsersPage() {
         industry: "",
         contact: "",
         status: "onboarding",
-      })
-      targetOrgId = newOrg.orgId
+      });
+      targetOrgId = newOrg.orgId;
     }
 
     await createUser({
@@ -63,43 +77,51 @@ export default function AdminUsersPage() {
       name: formData.name,
       role: "customer",
       orgId: targetOrgId || null,
-    })
+    });
 
-    await loadData()
-    setIsDialogOpen(false)
-    resetForm()
-  }
+    await loadData();
+    setIsDialogOpen(false);
+    resetForm();
+  };
 
   const handleDelete = async (userId: string) => {
     if (confirm("정말 삭제하시겠습니까?")) {
-      await deleteUser(userId)
-      await loadData()
+      await deleteUser(userId);
+      await loadData();
     }
-  }
+  };
 
   const resetForm = () => {
-    setFormData({ name: "", email: "", password: "", orgId: "", newOrgName: "" })
-    setShowNewOrgForm(false)
-  }
+    setFormData({
+      name: "",
+      email: "",
+      password: "",
+      orgId: "",
+      newOrgName: "",
+    });
+    setShowNewOrgForm(false);
+  };
 
   const getOrgName = (orgId?: string | null) => {
-    if (!orgId) return "-"
-    const org = orgs.find((o) => o.orgId === orgId)
-    return org?.name || orgId
-  }
+    if (!orgId) return "-";
+    const org = orgs.find((o) => o.orgId === orgId);
+    return org?.name || orgId;
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-8">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-[#111827] mb-2">사용자 관리</h1>
+          <h1 className="text-3xl font-bold text-[#111827] mb-2">
+            사용자 관리
+          </h1>
           <p className="text-[#6B7280]">고객 계정을 생성하고 관리합니다.</p>
         </div>
         <Dialog
           open={isDialogOpen}
           onOpenChange={(open) => {
-            setIsDialogOpen(open)
-            if (!open) resetForm()
+            setIsDialogOpen(open);
+            if (!open) resetForm();
           }}
         >
           <DialogTrigger asChild>
@@ -110,8 +132,12 @@ export default function AdminUsersPage() {
           </DialogTrigger>
           <DialogContent className="bg-white border-[#E5E7EB]">
             <DialogHeader>
-              <DialogTitle className="text-[#111827]">고객 계정 생성</DialogTitle>
-              <DialogDescription className="text-[#6B7280]">새 고객 사용자 정보를 입력하세요.</DialogDescription>
+              <DialogTitle className="text-[#111827]">
+                고객 계정 생성
+              </DialogTitle>
+              <DialogDescription className="text-[#6B7280]">
+                새 고객 사용자 정보를 입력하세요.
+              </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
@@ -121,7 +147,9 @@ export default function AdminUsersPage() {
                 <Input
                   id="name"
                   value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
                   placeholder="홍길동"
                   className="border-[#E5E7EB]"
                   required
@@ -135,7 +163,9 @@ export default function AdminUsersPage() {
                   id="email"
                   type="email"
                   value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, email: e.target.value })
+                  }
                   placeholder="customer@company.com"
                   className="border-[#E5E7EB]"
                   required
@@ -149,7 +179,9 @@ export default function AdminUsersPage() {
                   id="password"
                   type="password"
                   value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, password: e.target.value })
+                  }
                   placeholder="비밀번호 입력"
                   className="border-[#E5E7EB]"
                   required
@@ -162,7 +194,9 @@ export default function AdminUsersPage() {
                   <>
                     <Select
                       value={formData.orgId}
-                      onValueChange={(value) => setFormData({ ...formData, orgId: value })}
+                      onValueChange={(value) =>
+                        setFormData({ ...formData, orgId: value })
+                      }
                     >
                       <SelectTrigger className="border-[#E5E7EB]">
                         <SelectValue placeholder="기존 조직 선택" />
@@ -189,7 +223,9 @@ export default function AdminUsersPage() {
                   <>
                     <Input
                       value={formData.newOrgName}
-                      onChange={(e) => setFormData({ ...formData, newOrgName: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, newOrgName: e.target.value })
+                      }
                       placeholder="새 고객사 이름"
                       className="border-[#E5E7EB]"
                       required
@@ -199,8 +235,8 @@ export default function AdminUsersPage() {
                       variant="outline"
                       size="sm"
                       onClick={() => {
-                        setShowNewOrgForm(false)
-                        setFormData({ ...formData, newOrgName: "" })
+                        setShowNewOrgForm(false);
+                        setFormData({ ...formData, newOrgName: "" });
                       }}
                       className="w-full mt-2 border-[#E5E7EB] text-[#6B7280]"
                     >
@@ -219,7 +255,10 @@ export default function AdminUsersPage() {
                 >
                   취소
                 </Button>
-                <Button type="submit" className="bg-[#118DFF] hover:bg-[#0D6FCC]">
+                <Button
+                  type="submit"
+                  className="bg-[#118DFF] hover:bg-[#0D6FCC]"
+                >
                   생성
                 </Button>
               </div>
@@ -238,7 +277,9 @@ export default function AdminUsersPage() {
                 </div>
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <h3 className="text-lg font-semibold text-[#111827]">{user.name}</h3>
+                    <h3 className="text-lg font-semibold text-[#111827]">
+                      {user.name}
+                    </h3>
                     <span
                       className={`text-xs px-2 py-1 rounded ${user.role === "admin" ? "bg-purple-100 text-purple-700" : "bg-blue-100 text-blue-700"}`}
                     >
@@ -277,5 +318,5 @@ export default function AdminUsersPage() {
         )}
       </div>
     </div>
-  )
+  );
 }

@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Map, Layers, TreeDeciduous, AlertCircle } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
+import { useState } from "react";
+import { Map, Layers, TreeDeciduous, AlertCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 const treeData = [
   {
@@ -42,11 +42,13 @@ const treeData = [
     ndvi: 0.65,
     ndre: 0.58,
   },
-]
+];
 
 export function EfficiencyLocationView() {
-  const [mapLayer, setMapLayer] = useState<"standard" | "satellite" | "terrain">("standard")
-  const [selectedTree, setSelectedTree] = useState(treeData[0])
+  const [mapLayer, setMapLayer] = useState<
+    "standard" | "satellite" | "terrain"
+  >("standard");
+  const [selectedTree, setSelectedTree] = useState(treeData[0]);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -94,35 +96,97 @@ export function EfficiencyLocationView() {
             <rect
               width="800"
               height="600"
-              fill={mapLayer === "satellite" ? "#1a2332" : mapLayer === "terrain" ? "#2d3a2e" : "#1e293b"}
+              fill={
+                mapLayer === "satellite"
+                  ? "#1a2332"
+                  : mapLayer === "terrain"
+                    ? "#2d3a2e"
+                    : "#1e293b"
+              }
             />
 
             {/* Grid lines */}
             {Array.from({ length: 20 }).map((_, i) => (
               <g key={i}>
-                <line x1={i * 40} y1="0" x2={i * 40} y2="600" stroke="#334155" strokeWidth="0.5" />
-                <line x1="0" y1={i * 30} x2="800" y2={i * 30} stroke="#334155" strokeWidth="0.5" />
+                <line
+                  x1={i * 40}
+                  y1="0"
+                  x2={i * 40}
+                  y2="600"
+                  stroke="#334155"
+                  strokeWidth="0.5"
+                />
+                <line
+                  x1="0"
+                  y1={i * 30}
+                  x2="800"
+                  y2={i * 30}
+                  stroke="#334155"
+                  strokeWidth="0.5"
+                />
               </g>
             ))}
 
             {/* Parcel polygons */}
-            <polygon points="100,100 300,120 280,250 120,240" fill="#10b98130" stroke="#10b981" strokeWidth="2" />
-            <polygon points="320,100 520,110 500,260 310,250" fill="#eab30830" stroke="#eab308" strokeWidth="2" />
-            <polygon points="540,120 720,130 700,280 530,270" fill="#ef444430" stroke="#ef4444" strokeWidth="2" />
+            <polygon
+              points="100,100 300,120 280,250 120,240"
+              fill="#10b98130"
+              stroke="#10b981"
+              strokeWidth="2"
+            />
+            <polygon
+              points="320,100 520,110 500,260 310,250"
+              fill="#eab30830"
+              stroke="#eab308"
+              strokeWidth="2"
+            />
+            <polygon
+              points="540,120 720,130 700,280 530,270"
+              fill="#ef444430"
+              stroke="#ef4444"
+              strokeWidth="2"
+            />
 
             {/* Road/Administrative layers */}
-            <path d="M 0,300 L 800,300" stroke="#64748b" strokeWidth="3" strokeDasharray="10,5" />
-            <path d="M 400,0 L 400,600" stroke="#64748b" strokeWidth="3" strokeDasharray="10,5" />
+            <path
+              d="M 0,300 L 800,300"
+              stroke="#64748b"
+              strokeWidth="3"
+              strokeDasharray="10,5"
+            />
+            <path
+              d="M 400,0 L 400,600"
+              stroke="#64748b"
+              strokeWidth="3"
+              strokeDasharray="10,5"
+            />
 
             {/* Tree markers with color-coded risk */}
             {treeData.map((tree, idx) => {
-              const x = 150 + idx * 200
-              const y = 180 + idx * 50
-              const color = tree.risk === "High" ? "#ef4444" : tree.risk === "Medium" ? "#eab308" : "#10b981"
+              const x = 150 + idx * 200;
+              const y = 180 + idx * 50;
+              const color =
+                tree.risk === "High"
+                  ? "#ef4444"
+                  : tree.risk === "Medium"
+                    ? "#eab308"
+                    : "#10b981";
 
               return (
-                <g key={tree.id} className="cursor-pointer" onClick={() => setSelectedTree(tree)}>
-                  <circle cx={x} cy={y} r="10" fill={color} opacity="0.7" stroke={color} strokeWidth="2" />
+                <g
+                  key={tree.id}
+                  className="cursor-pointer"
+                  onClick={() => setSelectedTree(tree)}
+                >
+                  <circle
+                    cx={x}
+                    cy={y}
+                    r="10"
+                    fill={color}
+                    opacity="0.7"
+                    stroke={color}
+                    strokeWidth="2"
+                  />
                   <circle
                     cx={x}
                     cy={y}
@@ -133,17 +197,36 @@ export function EfficiencyLocationView() {
                     opacity="0.3"
                     className="animate-pulse"
                   />
-                  <text x={x} y={y - 20} fill="#e2e8f0" fontSize="12" textAnchor="middle">
+                  <text
+                    x={x}
+                    y={y - 20}
+                    fill="#e2e8f0"
+                    fontSize="12"
+                    textAnchor="middle"
+                  >
                     {tree.id}
                   </text>
                 </g>
-              )
+              );
             })}
 
             {/* NDVI/Height layer toggle legend */}
             <g transform="translate(650, 20)">
-              <rect width="120" height="80" fill="#1e293b" stroke="#475569" strokeWidth="1" rx="4" />
-              <text x="10" y="20" fill="#94a3b8" fontSize="11" fontWeight="bold">
+              <rect
+                width="120"
+                height="80"
+                fill="#1e293b"
+                stroke="#475569"
+                strokeWidth="1"
+                rx="4"
+              />
+              <text
+                x="10"
+                y="20"
+                fill="#94a3b8"
+                fontSize="11"
+                fontWeight="bold"
+              >
                 Layer
               </text>
               <text x="10" y="40" fill="#10b981" fontSize="10">
@@ -166,7 +249,11 @@ export function EfficiencyLocationView() {
             </h3>
             <Badge
               variant={
-                selectedTree.risk === "High" ? "destructive" : selectedTree.risk === "Medium" ? "secondary" : "default"
+                selectedTree.risk === "High"
+                  ? "destructive"
+                  : selectedTree.risk === "Medium"
+                    ? "secondary"
+                    : "default"
               }
             >
               {selectedTree.risk}
@@ -177,36 +264,52 @@ export function EfficiencyLocationView() {
             {/* Basic Info */}
             <div>
               <p className="text-xs text-muted-foreground">Tree ID</p>
-              <p className="text-lg font-bold text-foreground">{selectedTree.id}</p>
+              <p className="text-lg font-bold text-foreground">
+                {selectedTree.id}
+              </p>
             </div>
 
             {/* Measurements */}
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <p className="text-xs text-muted-foreground">Height</p>
-                <p className="text-xl font-semibold text-foreground">{selectedTree.height}m</p>
+                <p className="text-xl font-semibold text-foreground">
+                  {selectedTree.height}m
+                </p>
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">DBH</p>
-                <p className="text-xl font-semibold text-foreground">{selectedTree.dbh}cm</p>
+                <p className="text-xl font-semibold text-foreground">
+                  {selectedTree.dbh}cm
+                </p>
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">Crown Volume</p>
-                <p className="text-xl font-semibold text-foreground">{selectedTree.crown}m³</p>
+                <p className="text-xl font-semibold text-foreground">
+                  {selectedTree.crown}m³
+                </p>
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">Health Score</p>
-                <p className="text-xl font-semibold text-emerald-400">{selectedTree.health}</p>
+                <p className="text-xl font-semibold text-emerald-400">
+                  {selectedTree.health}
+                </p>
               </div>
             </div>
 
             {/* Risk Score */}
             <div>
-              <p className="text-xs text-muted-foreground mb-2">Risk Assessment</p>
+              <p className="text-xs text-muted-foreground mb-2">
+                Risk Assessment
+              </p>
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-slate-300">Overall Risk</span>
-                  <Badge variant={selectedTree.risk === "High" ? "destructive" : "secondary"}>
+                  <Badge
+                    variant={
+                      selectedTree.risk === "High" ? "destructive" : "secondary"
+                    }
+                  >
                     {selectedTree.risk}
                   </Badge>
                 </div>
@@ -265,5 +368,5 @@ export function EfficiencyLocationView() {
         </div>
       </div>
     </div>
-  )
+  );
 }

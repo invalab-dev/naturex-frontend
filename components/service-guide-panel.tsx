@@ -1,39 +1,61 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { Target, Upload, GitBranch, FileCheck } from "lucide-react"
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
+import type React from "react";
+import { Target, Upload, GitBranch, FileCheck } from "lucide-react";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 
 interface GuideSection {
-  title: { kr: string; en: string }
-  icon: React.ElementType
-  items: { kr: string[]; en: string[] }
+  title: { kr: string; en: string };
+  icon: React.ElementType;
+  items: { kr: string[]; en: string[] };
 }
 
 interface ServiceGuidePanelProps {
-  open: boolean
-  onClose: () => void
-  serviceType: "efficiency" | "risk" | "assets" | "reporting"
-  language?: "kr" | "en"
+  open: boolean;
+  onClose: () => void;
+  serviceType: "efficiency" | "risk" | "assets" | "reporting";
+  language?: "kr" | "en";
 }
 
 const guideContent = {
   efficiency: {
-    title: { kr: "🌳 운영비 절감 (Efficiency) 가이드", en: "🌳 Operational Efficiency Guide" },
+    title: {
+      kr: "🌳 운영비 절감 (Efficiency) 가이드",
+      en: "🌳 Operational Efficiency Guide",
+    },
     sections: [
       {
         title: { kr: "Purpose", en: "Purpose" },
         icon: Target,
         items: {
-          kr: ["관리비 절감", "위험·건강도 자동 감지", "우선관리 구간 자동 추천"],
-          en: ["Cost reduction", "Automated health & risk detection", "Priority management recommendations"],
+          kr: [
+            "관리비 절감",
+            "위험·건강도 자동 감지",
+            "우선관리 구간 자동 추천",
+          ],
+          en: [
+            "Cost reduction",
+            "Automated health & risk detection",
+            "Priority management recommendations",
+          ],
         },
       },
       {
         title: { kr: "Required Inputs", en: "Required Inputs" },
         icon: Upload,
         items: {
-          kr: ["RGB 정사영상", "LiDAR(고도·구조)", "다분광(Multispectral)", "필지·도로 GIS", "수목 DB(Optional)"],
+          kr: [
+            "RGB 정사영상",
+            "LiDAR(고도·구조)",
+            "다분광(Multispectral)",
+            "필지·도로 GIS",
+            "수목 DB(Optional)",
+          ],
           en: [
             "RGB orthophoto",
             "LiDAR (height & structure)",
@@ -99,7 +121,11 @@ const guideContent = {
         title: { kr: "Purpose", en: "Purpose" },
         icon: Target,
         items: {
-          kr: ["사업 대상지의 규제·민감구역 자동 식별", "환경영향평가(EIA) 대응", "도시·국토계획 심의자료 자동 생성"],
+          kr: [
+            "사업 대상지의 규제·민감구역 자동 식별",
+            "환경영향평가(EIA) 대응",
+            "도시·국토계획 심의자료 자동 생성",
+          ],
           en: [
             "Auto-identify regulatory & sensitive areas",
             "EIA compliance support",
@@ -111,7 +137,11 @@ const guideContent = {
         title: { kr: "Required Inputs", en: "Required Inputs" },
         icon: Upload,
         items: {
-          kr: ["대상 지역(좌표/폴리곤)", "보호구역/생태등급/위험구역 레이어", "개발안 또는 계획안(Optional)"],
+          kr: [
+            "대상 지역(좌표/폴리곤)",
+            "보호구역/생태등급/위험구역 레이어",
+            "개발안 또는 계획안(Optional)",
+          ],
           en: [
             "Target area (coordinates/polygon)",
             "Protected/ecological/risk zone layers",
@@ -187,7 +217,12 @@ const guideContent = {
         title: { kr: "Required Inputs", en: "Required Inputs" },
         icon: Upload,
         items: {
-          kr: ["LiDAR (3D 구조)", "Multispectral (생육·건강도)", "자산 경계(폴리곤)", "관리계획안(Optional)"],
+          kr: [
+            "LiDAR (3D 구조)",
+            "Multispectral (생육·건강도)",
+            "자산 경계(폴리곤)",
+            "관리계획안(Optional)",
+          ],
           en: [
             "LiDAR (3D structure)",
             "Multispectral (health & growth)",
@@ -239,13 +274,20 @@ const guideContent = {
     ],
   },
   reporting: {
-    title: { kr: "🧭 ESG·TNFD 공시 지원 (ESG & TNFD Reporting) 가이드", en: "🧭 ESG & TNFD Reporting Guide" },
+    title: {
+      kr: "🧭 ESG·TNFD 공시 지원 (ESG & TNFD Reporting) 가이드",
+      en: "🧭 ESG & TNFD Reporting Guide",
+    },
     sections: [
       {
         title: { kr: "Purpose", en: "Purpose" },
         icon: Target,
         items: {
-          kr: ["TNFD LEAP 자동화", "의존·영향·리스크·기회 정량화", "ESG/TNFD 보고서 자동 생성"],
+          kr: [
+            "TNFD LEAP 자동화",
+            "의존·영향·리스크·기회 정량화",
+            "ESG/TNFD 보고서 자동 생성",
+          ],
           en: [
             "Automate TNFD LEAP",
             "Quantify dependencies/impacts/risks/opportunities",
@@ -257,7 +299,11 @@ const guideContent = {
         title: { kr: "Required Inputs", en: "Required Inputs" },
         icon: Upload,
         items: {
-          kr: ["사업장 위치", "자연자본 레이어(산림/습지/수계/도시녹지 등)", "기업 활동 데이터(Optional)"],
+          kr: [
+            "사업장 위치",
+            "자연자본 레이어(산림/습지/수계/도시녹지 등)",
+            "기업 활동 데이터(Optional)",
+          ],
           en: [
             "Facility location",
             "Natural capital layers (forest/wetland/water/urban green)",
@@ -307,40 +353,55 @@ const guideContent = {
       },
     ],
   },
-}
+};
 
-export function ServiceGuidePanel({ open, onClose, serviceType, language = "kr" }: ServiceGuidePanelProps) {
-  const guide = guideContent[serviceType]
+export function ServiceGuidePanel({
+  open,
+  onClose,
+  serviceType,
+  language = "kr",
+}: ServiceGuidePanelProps) {
+  const guide = guideContent[serviceType];
 
   return (
     <Sheet open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
-      <SheetContent side="right" className="w-[420px] bg-slate-900 border-slate-700 overflow-y-auto">
+      <SheetContent
+        side="right"
+        className="w-[420px] bg-slate-900 border-slate-700 overflow-y-auto"
+      >
         <SheetHeader>
-          <SheetTitle className="text-foreground">{guide.title[language]}</SheetTitle>
+          <SheetTitle className="text-foreground">
+            {guide.title[language]}
+          </SheetTitle>
         </SheetHeader>
 
         <div className="mt-6 space-y-6">
           {guide.sections.map((section, idx) => {
-            const Icon = section.icon
+            const Icon = section.icon;
             return (
               <div key={idx} className="space-y-3">
                 <div className="flex items-center gap-2">
                   <Icon className="w-4 h-4 text-emerald-400" />
-                  <h4 className="text-sm font-semibold text-foreground">{section.title[language]}</h4>
+                  <h4 className="text-sm font-semibold text-foreground">
+                    {section.title[language]}
+                  </h4>
                 </div>
                 <ul className="space-y-1.5 ml-6">
                   {section.items[language].map((item, iIdx) => (
-                    <li key={iIdx} className="text-xs text-slate-300 flex items-start gap-2">
+                    <li
+                      key={iIdx}
+                      className="text-xs text-slate-300 flex items-start gap-2"
+                    >
                       <span className="text-emerald-400 mt-0.5">•</span>
                       <span>{item}</span>
                     </li>
                   ))}
                 </ul>
               </div>
-            )
+            );
           })}
         </div>
       </SheetContent>
     </Sheet>
-  )
+  );
 }

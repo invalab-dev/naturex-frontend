@@ -1,14 +1,14 @@
-"use client"
+"use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { TreeTable } from "./tree-table"
-import { TreeHeightChart } from "./tree-height-chart"
-import { AlertCircle, TreePine, Ruler, Maximize2 } from "lucide-react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { TreeTable } from "./tree-table";
+import { TreeHeightChart } from "./tree-height-chart";
+import { AlertCircle, TreePine, Ruler, Maximize2 } from "lucide-react";
 
 interface TreeInfoPanelProps {
-  treeId: string | null
+  treeId: string | null;
 }
 
 const treeDetails = {
@@ -39,12 +39,15 @@ const treeDetails = {
     health: "Fair",
     lastInspection: "2025-11-15",
   },
-}
+};
 
 export function TreeInfoPanel({ treeId }: TreeInfoPanelProps) {
-  const defaultTree = treeDetails["TR-001"]
-  const tree = treeId && treeId in treeDetails ? treeDetails[treeId as keyof typeof treeDetails] : defaultTree
-  const displayId = treeId && treeId in treeDetails ? treeId : "TR-001"
+  const defaultTree = treeDetails["TR-001"];
+  const tree =
+    treeId && treeId in treeDetails
+      ? treeDetails[treeId as keyof typeof treeDetails]
+      : defaultTree;
+  const displayId = treeId && treeId in treeDetails ? treeId : "TR-001";
 
   return (
     <div className="flex flex-col gap-4 h-full">
@@ -56,7 +59,15 @@ export function TreeInfoPanel({ treeId }: TreeInfoPanelProps) {
               <CardTitle className="text-lg">Tree Information</CardTitle>
               <p className="text-sm text-muted-foreground mt-1">{displayId}</p>
             </div>
-            <Badge variant={tree.risk === "High" ? "destructive" : tree.risk === "Medium" ? "secondary" : "default"}>
+            <Badge
+              variant={
+                tree.risk === "High"
+                  ? "destructive"
+                  : tree.risk === "Medium"
+                    ? "secondary"
+                    : "default"
+              }
+            >
               {tree.risk} Risk
             </Badge>
           </div>
@@ -99,12 +110,18 @@ export function TreeInfoPanel({ treeId }: TreeInfoPanelProps) {
 
             <div className="pt-4 border-t border-border space-y-2">
               <div className="flex justify-between items-center">
-                <span className="text-sm text-muted-foreground">Health Status</span>
+                <span className="text-sm text-muted-foreground">
+                  Health Status
+                </span>
                 <span className="text-sm font-medium">{tree.health}</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm text-muted-foreground">Last Inspection</span>
-                <span className="text-sm font-medium">{tree.lastInspection}</span>
+                <span className="text-sm text-muted-foreground">
+                  Last Inspection
+                </span>
+                <span className="text-sm font-medium">
+                  {tree.lastInspection}
+                </span>
               </div>
             </div>
           </div>
@@ -131,5 +148,5 @@ export function TreeInfoPanel({ treeId }: TreeInfoPanelProps) {
         </Tabs>
       </Card>
     </div>
-  )
+  );
 }

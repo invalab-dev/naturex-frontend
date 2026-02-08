@@ -1,7 +1,7 @@
-import type React from "react"
-import type { Metadata } from "next"
-import { AuthProvider } from "@/lib/auth-context"
-import "./globals.css"
+import type React from "react";
+import type { Metadata } from "next";
+import { AuthProvider } from "@/lib/auth-context";
+import "./globals.css";
 
 export const metadata: Metadata = {
   title: "NatureX - Ecological Analysis Platform",
@@ -25,12 +25,12 @@ export const metadata: Metadata = {
     ],
     apple: "/apple-icon.png",
   },
-}
+};
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode
+  children: React.ReactNode;
 }>) {
   return (
     <html lang="ko">
@@ -46,5 +46,5 @@ export default function RootLayout({
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
-  )
+  );
 }

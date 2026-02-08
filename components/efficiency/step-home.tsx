@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
-import { Card } from "@/components/ui/card"
-import { ArrowRight, Clipboard, BarChart3, Settings } from "lucide-react"
+import { Card } from "@/components/ui/card";
+import { ArrowRight, Clipboard, BarChart3, Settings } from "lucide-react";
 
 interface StepHomeProps {
-  language: "kr" | "en"
+  language: "kr" | "en";
 }
 
 export function StepHome({ language }: StepHomeProps) {
@@ -14,7 +14,11 @@ export function StepHome({ language }: StepHomeProps) {
       subtitle: "AI 기반 예측·우선순위로 유지관리 비용을 최소화합니다",
       planning: {
         title: "계획",
-        items: ["고객 데이터 업로드", "위성 기반 사전 탐색", "(선택) 데이터 취득 요청"],
+        items: [
+          "고객 데이터 업로드",
+          "위성 기반 사전 탐색",
+          "(선택) 데이터 취득 요청",
+        ],
       },
       analysis: {
         title: "분석",
@@ -36,10 +40,15 @@ export function StepHome({ language }: StepHomeProps) {
     },
     en: {
       title: "Efficiency – Full Process",
-      subtitle: "Minimize maintenance costs with AI-based predictions and priorities",
+      subtitle:
+        "Minimize maintenance costs with AI-based predictions and priorities",
       planning: {
         title: "Planning",
-        items: ["Upload customer data", "Satellite pre-screening", "(Optional) Data acquisition request"],
+        items: [
+          "Upload customer data",
+          "Satellite pre-screening",
+          "(Optional) Data acquisition request",
+        ],
       },
       analysis: {
         title: "Analysis",
@@ -59,9 +68,9 @@ export function StepHome({ language }: StepHomeProps) {
         ],
       },
     },
-  }
+  };
 
-  const t = language === "kr" ? content.kr : content.en
+  const t = language === "kr" ? content.kr : content.en;
 
   return (
     <div className="space-y-8">
@@ -77,11 +86,16 @@ export function StepHome({ language }: StepHomeProps) {
             <div className="p-2 rounded-lg bg-blue-50">
               <Clipboard className="w-6 h-6 text-blue-600" />
             </div>
-            <h3 className="text-lg font-semibold text-blue-600">{t.planning.title}</h3>
+            <h3 className="text-lg font-semibold text-blue-600">
+              {t.planning.title}
+            </h3>
           </div>
           <ul className="space-y-2 flex-1">
             {t.planning.items.map((item, idx) => (
-              <li key={idx} className="text-sm text-gray-700 leading-relaxed flex items-start gap-2">
+              <li
+                key={idx}
+                className="text-sm text-gray-700 leading-relaxed flex items-start gap-2"
+              >
                 <span className="text-blue-600 mt-1">•</span>
                 <span>{item}</span>
               </li>
@@ -98,11 +112,16 @@ export function StepHome({ language }: StepHomeProps) {
             <div className="p-2 rounded-lg bg-blue-50">
               <BarChart3 className="w-6 h-6 text-blue-600" />
             </div>
-            <h3 className="text-lg font-semibold text-blue-600">{t.analysis.title}</h3>
+            <h3 className="text-lg font-semibold text-blue-600">
+              {t.analysis.title}
+            </h3>
           </div>
           <ul className="space-y-2 flex-1">
             {t.analysis.items.map((item, idx) => (
-              <li key={idx} className="text-sm text-gray-700 leading-relaxed flex items-start gap-2">
+              <li
+                key={idx}
+                className="text-sm text-gray-700 leading-relaxed flex items-start gap-2"
+              >
                 <span className="text-blue-600 mt-1">•</span>
                 <span>{item}</span>
               </li>
@@ -119,11 +138,16 @@ export function StepHome({ language }: StepHomeProps) {
             <div className="p-2 rounded-lg bg-blue-50">
               <Settings className="w-6 h-6 text-blue-600" />
             </div>
-            <h3 className="text-lg font-semibold text-blue-600">{t.management.title}</h3>
+            <h3 className="text-lg font-semibold text-blue-600">
+              {t.management.title}
+            </h3>
           </div>
           <ul className="space-y-2 flex-1">
             {t.management.items.map((item, idx) => (
-              <li key={idx} className="text-sm text-gray-700 leading-relaxed flex items-start gap-2">
+              <li
+                key={idx}
+                className="text-sm text-gray-700 leading-relaxed flex items-start gap-2"
+              >
                 <span className="text-blue-600 mt-1">•</span>
                 <span>{item}</span>
               </li>
@@ -144,5 +168,5 @@ export function StepHome({ language }: StepHomeProps) {
         </p>
       </Card>
     </div>
-  )
+  );
 }

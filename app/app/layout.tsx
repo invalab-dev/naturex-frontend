@@ -1,29 +1,25 @@
-import type React from "react"
-import { GlobalSidebar } from "@/components/global-sidebar"
-import { GlobalHeader } from "@/components/global-header"
-import { ImpersonationBanner } from "@/components/impersonation-banner"
-import {AuthGuard} from "@/components/auth-guard";
-import {UserRole} from "@/lib/data-service";
+import type React from "react";
+import { GlobalSidebar } from "@/components/global-sidebar";
+import { GlobalHeader } from "@/components/global-header";
+import { ImpersonationBanner } from "@/components/impersonation-banner";
+import { AuthGuard } from "@/components/auth-guard";
+import { UserRole } from "@/lib/data-service";
 
-export default function AppLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <AuthGuard acceptUserRoles={[UserRole.ADMIN]}>
-        <div className="flex h-screen bg-[#F5F7FB]">
-            <ImpersonationBanner />
+      <div className="flex h-screen bg-[#F5F7FB]">
+        <ImpersonationBanner />
 
-            <GlobalHeader />
+        <GlobalHeader />
 
-            <div className="flex pt-14 w-full h-full">
-                <GlobalSidebar />
-                <div className="flex-1 flex flex-col overflow-hidden">
-                    <main className="flex-1 overflow-auto">{children}</main>
-                </div>
-            </div>
+        <div className="flex pt-14 w-full h-full">
+          <GlobalSidebar />
+          <div className="flex-1 flex flex-col overflow-hidden">
+            <main className="flex-1 overflow-auto">{children}</main>
+          </div>
         </div>
+      </div>
     </AuthGuard>
-  )
+  );
 }

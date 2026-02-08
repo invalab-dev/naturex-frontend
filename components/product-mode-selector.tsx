@@ -1,13 +1,13 @@
-"use client"
-import { Trees, FileCheck, Palette } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
+"use client";
+import { Trees, FileCheck, Palette } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
-export type ProductMode = "streetcare" | "eia" | "custom"
+export type ProductMode = "streetcare" | "eia" | "custom";
 
 interface ProductModeSelectorProps {
-  value: ProductMode
-  onChange: (mode: ProductMode) => void
+  value: ProductMode;
+  onChange: (mode: ProductMode) => void;
 }
 
 const modes = [
@@ -32,14 +32,17 @@ const modes = [
     icon: Palette,
     description: "Restoration & monitoring solutions",
   },
-]
+];
 
-export function ProductModeSelector({ value, onChange }: ProductModeSelectorProps) {
+export function ProductModeSelector({
+  value,
+  onChange,
+}: ProductModeSelectorProps) {
   return (
     <div className="flex items-center gap-2 p-1 bg-muted rounded-lg">
       {modes.map((mode) => {
-        const Icon = mode.icon
-        const isActive = value === mode.id
+        const Icon = mode.icon;
+        const isActive = value === mode.id;
 
         return (
           <Button
@@ -47,13 +50,16 @@ export function ProductModeSelector({ value, onChange }: ProductModeSelectorProp
             variant={isActive ? "default" : "ghost"}
             size="sm"
             onClick={() => onChange(mode.id)}
-            className={cn("flex items-center gap-2 transition-all", isActive && "bg-primary text-primary-foreground")}
+            className={cn(
+              "flex items-center gap-2 transition-all",
+              isActive && "bg-primary text-primary-foreground",
+            )}
           >
             <Icon size={16} />
             <span className="font-medium">{mode.label}</span>
           </Button>
-        )
+        );
       })}
     </div>
-  )
+  );
 }

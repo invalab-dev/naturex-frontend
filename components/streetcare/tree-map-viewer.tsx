@@ -1,12 +1,12 @@
-"use client"
+"use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { MapPin } from "lucide-react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { MapPin } from "lucide-react";
 
 interface TreeMapViewerProps {
-  selectedTreeId: string | null
-  onTreeSelect: (id: string) => void
+  selectedTreeId: string | null;
+  onTreeSelect: (id: string) => void;
 }
 
 const treeData = [
@@ -18,16 +18,21 @@ const treeData = [
   { id: "TR-006", x: 35, y: 80, risk: "Low", species: "Birch" },
   { id: "TR-007", x: 85, y: 35, risk: "High", species: "Willow" },
   { id: "TR-008", x: 50, y: 45, risk: "Medium", species: "Ash" },
-]
+];
 
-export function TreeMapViewer({ selectedTreeId, onTreeSelect }: TreeMapViewerProps) {
+export function TreeMapViewer({
+  selectedTreeId,
+  onTreeSelect,
+}: TreeMapViewerProps) {
   return (
     <Card className="flex flex-col h-full">
       <CardHeader className="border-b border-border">
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="text-lg">Map Viewer</CardTitle>
-            <p className="text-xs text-muted-foreground mt-1">Tree locations with risk indicators</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Tree locations with risk indicators
+            </p>
           </div>
           <Badge variant="outline" className="text-xs">
             <MapPin size={12} className="mr-1" />
@@ -36,15 +41,28 @@ export function TreeMapViewer({ selectedTreeId, onTreeSelect }: TreeMapViewerPro
         </div>
       </CardHeader>
       <CardContent className="flex-1 p-0">
-        <div className="relative w-full h-full bg-muted/20" style={{ minHeight: "500px" }}>
+        <div
+          className="relative w-full h-full bg-muted/20"
+          style={{ minHeight: "500px" }}
+        >
           {/* Map background */}
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent" />
 
           {/* Grid overlay */}
           <svg className="absolute inset-0 w-full h-full opacity-10">
             <defs>
-              <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" strokeWidth="1" />
+              <pattern
+                id="grid"
+                width="40"
+                height="40"
+                patternUnits="userSpaceOnUse"
+              >
+                <path
+                  d="M 40 0 L 0 0 0 40"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1"
+                />
               </pattern>
             </defs>
             <rect width="100%" height="100%" fill="url(#grid)" />
@@ -52,9 +70,13 @@ export function TreeMapViewer({ selectedTreeId, onTreeSelect }: TreeMapViewerPro
 
           {/* Tree markers */}
           {treeData.map((tree) => {
-            const isSelected = selectedTreeId === tree.id
+            const isSelected = selectedTreeId === tree.id;
             const riskColor =
-              tree.risk === "High" ? "bg-destructive" : tree.risk === "Medium" ? "bg-warning" : "bg-primary"
+              tree.risk === "High"
+                ? "bg-destructive"
+                : tree.risk === "Medium"
+                  ? "bg-warning"
+                  : "bg-primary";
 
             return (
               <button
@@ -66,14 +88,20 @@ export function TreeMapViewer({ selectedTreeId, onTreeSelect }: TreeMapViewerPro
                 )}
                 style={{ left: `${tree.x}%`, top: `${tree.y}%` }}
               >
-                <div className={cn("w-3 h-3 rounded-full", riskColor, isSelected && "ring-4 ring-primary/30")} />
+                <div
+                  className={cn(
+                    "w-3 h-3 rounded-full",
+                    riskColor,
+                    isSelected && "ring-4 ring-primary/30",
+                  )}
+                />
                 {isSelected && (
                   <div className="absolute top-5 left-1/2 transform -translate-x-1/2 bg-popover border border-border rounded px-2 py-1 text-xs whitespace-nowrap shadow-lg">
                     {tree.id}
                   </div>
                 )}
               </button>
-            )
+            );
           })}
 
           {/* Legend */}
@@ -97,9 +125,9 @@ export function TreeMapViewer({ selectedTreeId, onTreeSelect }: TreeMapViewerPro
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 function cn(...classes: (string | boolean | undefined)[]) {
-  return classes.filter(Boolean).join(" ")
+  return classes.filter(Boolean).join(" ");
 }

@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { ScrollArea } from "@/components/ui/scroll-area"
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const speciesData = [
   {
@@ -53,7 +53,7 @@ const speciesData = [
     area: "4.1 ha",
     count: 412,
   },
-]
+];
 
 export function EIARawDataView() {
   return (
@@ -64,31 +64,56 @@ export function EIARawDataView() {
             <table className="w-full">
               <thead className="sticky top-0 bg-background z-10">
                 <tr className="border-b border-border">
-                  <th className="text-left py-2 px-2 text-xs font-medium text-muted-foreground">Species</th>
-                  <th className="text-left py-2 px-2 text-xs font-medium text-muted-foreground">Grade</th>
-                  <th className="text-left py-2 px-2 text-xs font-medium text-muted-foreground">Habitat</th>
-                  <th className="text-right py-2 px-2 text-xs font-medium text-muted-foreground">Area</th>
-                  <th className="text-right py-2 px-2 text-xs font-medium text-muted-foreground">Count</th>
+                  <th className="text-left py-2 px-2 text-xs font-medium text-muted-foreground">
+                    Species
+                  </th>
+                  <th className="text-left py-2 px-2 text-xs font-medium text-muted-foreground">
+                    Grade
+                  </th>
+                  <th className="text-left py-2 px-2 text-xs font-medium text-muted-foreground">
+                    Habitat
+                  </th>
+                  <th className="text-right py-2 px-2 text-xs font-medium text-muted-foreground">
+                    Area
+                  </th>
+                  <th className="text-right py-2 px-2 text-xs font-medium text-muted-foreground">
+                    Count
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {speciesData.map((item, index) => (
-                  <tr key={index} className="border-b border-border hover:bg-muted/50 transition-colors">
+                  <tr
+                    key={index}
+                    className="border-b border-border hover:bg-muted/50 transition-colors"
+                  >
                     <td className="py-2 px-2">
                       <div className="text-xs font-medium">{item.species}</div>
-                      <div className="text-xs text-muted-foreground">{item.korean}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {item.korean}
+                      </div>
                     </td>
                     <td className="py-2 px-2">
                       <Badge
-                        variant={item.grade === "I" ? "destructive" : item.grade === "II" ? "default" : "secondary"}
+                        variant={
+                          item.grade === "I"
+                            ? "destructive"
+                            : item.grade === "II"
+                              ? "default"
+                              : "secondary"
+                        }
                         className="text-xs"
                       >
                         {item.grade}
                       </Badge>
                     </td>
                     <td className="py-2 px-2 text-xs">{item.habitat}</td>
-                    <td className="py-2 px-2 text-xs text-right">{item.area}</td>
-                    <td className="py-2 px-2 text-xs text-right font-medium">{item.count.toLocaleString()}</td>
+                    <td className="py-2 px-2 text-xs text-right">
+                      {item.area}
+                    </td>
+                    <td className="py-2 px-2 text-xs text-right font-medium">
+                      {item.count.toLocaleString()}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -97,5 +122,5 @@ export function EIARawDataView() {
         </ScrollArea>
       </CardContent>
     </Card>
-  )
+  );
 }

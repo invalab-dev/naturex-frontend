@@ -1,41 +1,47 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { AlertTriangle, Activity } from "lucide-react"
-import { SvgParcelMap } from "./svg-parcel-map"
+import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { AlertTriangle, Activity } from "lucide-react";
+import { SvgParcelMap } from "./svg-parcel-map";
 
 interface Tree {
-  id: string
-  parcelId: string
-  species: string
-  height: number
-  dbh: number
-  crownWidth: number
-  risk: "Low" | "Medium" | "High" | "Critical"
-  lat: number
-  lng: number
-  lastInspection: string
-  priorityScore: number
+  id: string;
+  parcelId: string;
+  species: string;
+  height: number;
+  dbh: number;
+  crownWidth: number;
+  risk: "Low" | "Medium" | "High" | "Critical";
+  lat: number;
+  lng: number;
+  lastInspection: string;
+  priorityScore: number;
   riskReasons: {
-    type: "LiDAR" | "RGB"
-    reason: string
-  }[]
-  maintenanceAction: string
+    type: "LiDAR" | "RGB";
+    reason: string;
+  }[];
+  maintenanceAction: string;
 }
 
 interface Parcel {
-  id: string
-  name: string
-  address: string
-  treeCount: number
-  highestRisk: "Low" | "Medium" | "High" | "Critical"
-  avgHeight: number
-  avgDbh: number
-  highRiskCount: number
-  polygon: { lat: number; lng: number }[]
+  id: string;
+  name: string;
+  address: string;
+  treeCount: number;
+  highestRisk: "Low" | "Medium" | "High" | "Critical";
+  avgHeight: number;
+  avgDbh: number;
+  highRiskCount: number;
+  polygon: { lat: number; lng: number }[];
 }
 
 const parcels: Parcel[] = [
@@ -109,7 +115,7 @@ const parcels: Parcel[] = [
       { lat: 37.4963, lng: 127.0015 },
     ],
   },
-]
+];
 
 const trees: Tree[] = [
   {
@@ -125,11 +131,15 @@ const trees: Tree[] = [
     lastInspection: "2025-01-15",
     priorityScore: 78,
     riskReasons: [
-      { type: "LiDAR", reason: "Excessive trunk tilt detected (12° from vertical)" },
+      {
+        type: "LiDAR",
+        reason: "Excessive trunk tilt detected (12° from vertical)",
+      },
       { type: "LiDAR", reason: "Canopy asymmetry / crown imbalance" },
       { type: "RGB", reason: "Visible bark damage or dark lesions" },
     ],
-    maintenanceAction: "Heavy pruning and structural support recommended within 2 weeks",
+    maintenanceAction:
+      "Heavy pruning and structural support recommended within 2 weeks",
   },
   {
     id: "TR-002",
@@ -162,10 +172,16 @@ const trees: Tree[] = [
     lastInspection: "2025-01-20",
     priorityScore: 92,
     riskReasons: [
-      { type: "LiDAR", reason: "Abnormal height-to-DBH ratio (slenderness issue)" },
+      {
+        type: "LiDAR",
+        reason: "Abnormal height-to-DBH ratio (slenderness issue)",
+      },
       { type: "RGB", reason: "Localized defoliation (crown thinning)" },
       { type: "RGB", reason: "Visible bark damage or dark lesions" },
-      { type: "LiDAR", reason: "Excessive trunk tilt detected (18° from vertical)" },
+      {
+        type: "LiDAR",
+        reason: "Excessive trunk tilt detected (18° from vertical)",
+      },
     ],
     maintenanceAction: "Removal recommended - structural failure risk",
   },
@@ -184,23 +200,23 @@ const trees: Tree[] = [
     riskReasons: [{ type: "LiDAR", reason: "Minor canopy gap detected" }],
     maintenanceAction: "Routine monitoring sufficient",
   },
-]
+];
 
 const latLngToSvgCoords = (lat: number, lng: number) => {
-  const x = (lng - 126.998) * 10000 + 100
-  const y = (37.512 - lat) * 10000 + 50
-  return { x, y }
-}
+  const x = (lng - 126.998) * 10000 + 100;
+  const y = (37.512 - lat) * 10000 + 50;
+  return { x, y };
+};
 
 const svgParcels = parcels.map((p) => ({
   id: p.id,
   name: p.name,
   riskLevel: p.highestRisk,
   points: p.polygon.map((point) => latLngToSvgCoords(point.lat, point.lng)),
-}))
+}));
 
 const svgTrees = trees.map((t) => {
-  const coords = latLngToSvgCoords(t.lat, t.lng)
+  const coords = latLngToSvgCoords(t.lat, t.lng);
   return {
     id: t.id,
     parcelId: t.parcelId,
@@ -210,36 +226,37 @@ const svgTrees = trees.map((t) => {
     height: t.height,
     dbh: t.dbh,
     risk: t.risk,
-  }
-})
+  };
+});
 
 export function TreeIdSection() {
-  const [selectedParcel, setSelectedParcel] = useState<Parcel>(parcels[0])
-  const [selectedTree, setSelectedTree] = useState<Tree | null>(null)
-  const [riskFilter, setRiskFilter] = useState("all")
-  const [speciesFilter, setSpeciesFilter] = useState("all")
+  const [selectedParcel, setSelectedParcel] = useState<Parcel>(parcels[0]);
+  const [selectedTree, setSelectedTree] = useState<Tree | null>(null);
+  const [riskFilter, setRiskFilter] = useState("all");
+  const [speciesFilter, setSpeciesFilter] = useState("all");
 
   const treesInParcel = trees.filter((tree) => {
-    if (tree.parcelId !== selectedParcel.id) return false
-    if (riskFilter !== "all" && tree.risk.toLowerCase() !== riskFilter) return false
-    if (speciesFilter !== "all" && tree.species !== speciesFilter) return false
-    return true
-  })
+    if (tree.parcelId !== selectedParcel.id) return false;
+    if (riskFilter !== "all" && tree.risk.toLowerCase() !== riskFilter)
+      return false;
+    if (speciesFilter !== "all" && tree.species !== speciesFilter) return false;
+    return true;
+  });
 
   const getRiskColor = (risk: string) => {
     switch (risk) {
       case "Low":
-        return "bg-green-500/10 text-green-500 border-green-500/20"
+        return "bg-green-500/10 text-green-500 border-green-500/20";
       case "Medium":
-        return "bg-amber-500/10 text-amber-500 border-amber-500/20"
+        return "bg-amber-500/10 text-amber-500 border-amber-500/20";
       case "High":
-        return "bg-orange-500/10 text-orange-500 border-orange-500/20"
+        return "bg-orange-500/10 text-orange-500 border-orange-500/20";
       case "Critical":
-        return "bg-red-500/10 text-red-500 border-red-500/20"
+        return "bg-red-500/10 text-red-500 border-red-500/20";
       default:
-        return ""
+        return "";
     }
-  }
+  };
 
   return (
     <div className="flex flex-col h-screen">
@@ -249,7 +266,9 @@ export function TreeIdSection() {
           <div className="flex items-center justify-between mb-3">
             <div>
               <h1 className="text-xl font-bold text-foreground">Locations</h1>
-              <p className="text-xs text-muted-foreground mt-0.5">Parcel-based tree management view</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Parcel-based tree management view
+              </p>
             </div>
             <div className="flex items-center gap-2">
               <Select value={riskFilter} onValueChange={setRiskFilter}>
@@ -273,16 +292,16 @@ export function TreeIdSection() {
               trees={svgTrees}
               selectedParcelId={selectedParcel.id}
               onSelectParcel={(parcelId) => {
-                const parcel = parcels.find((p) => p.id === parcelId)
+                const parcel = parcels.find((p) => p.id === parcelId);
                 if (parcel) {
-                  setSelectedParcel(parcel)
-                  setSelectedTree(null)
+                  setSelectedParcel(parcel);
+                  setSelectedTree(null);
                 }
               }}
               selectedTreeId={selectedTree?.id}
               onSelectTree={(treeId) => {
-                const tree = trees.find((t) => t.id === treeId)
-                if (tree) setSelectedTree(tree)
+                const tree = trees.find((t) => t.id === treeId);
+                if (tree) setSelectedTree(tree);
               }}
             />
           </div>
@@ -304,16 +323,26 @@ export function TreeIdSection() {
               <table className="w-full text-sm">
                 <thead className="sticky top-0 bg-background">
                   <tr className="border-b">
-                    <th className="text-left py-2 px-2 font-medium text-xs">Tree ID</th>
-                    <th className="text-left py-2 px-2 font-medium text-xs">Species</th>
-                    <th className="text-left py-2 px-2 font-medium text-xs">Height (m)</th>
-                    <th className="text-left py-2 px-2 font-medium text-xs">DBH (cm)</th>
-                    <th className="text-left py-2 px-2 font-medium text-xs">Risk</th>
+                    <th className="text-left py-2 px-2 font-medium text-xs">
+                      Tree ID
+                    </th>
+                    <th className="text-left py-2 px-2 font-medium text-xs">
+                      Species
+                    </th>
+                    <th className="text-left py-2 px-2 font-medium text-xs">
+                      Height (m)
+                    </th>
+                    <th className="text-left py-2 px-2 font-medium text-xs">
+                      DBH (cm)
+                    </th>
+                    <th className="text-left py-2 px-2 font-medium text-xs">
+                      Risk
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   {treesInParcel.map((tree) => {
-                    const isSelected = selectedTree?.id === tree.id
+                    const isSelected = selectedTree?.id === tree.id;
                     return (
                       <tr
                         key={tree.id}
@@ -322,17 +351,22 @@ export function TreeIdSection() {
                         }`}
                         onClick={() => setSelectedTree(tree)}
                       >
-                        <td className="py-2 px-2 font-mono text-xs">{tree.id}</td>
+                        <td className="py-2 px-2 font-mono text-xs">
+                          {tree.id}
+                        </td>
                         <td className="py-2 px-2 text-xs">{tree.species}</td>
                         <td className="py-2 px-2 text-xs">{tree.height}</td>
                         <td className="py-2 px-2 text-xs">{tree.dbh}</td>
                         <td className="py-2 px-2">
-                          <Badge variant="outline" className={`${getRiskColor(tree.risk)} text-xs cursor-pointer`}>
+                          <Badge
+                            variant="outline"
+                            className={`${getRiskColor(tree.risk)} text-xs cursor-pointer`}
+                          >
                             {tree.risk}
                           </Badge>
                         </td>
                       </tr>
-                    )
+                    );
                   })}
                 </tbody>
               </table>
@@ -359,28 +393,52 @@ export function TreeIdSection() {
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <div className="text-xs text-muted-foreground mb-1">Species</div>
-                    <div className="text-sm font-medium">{selectedTree.species}</div>
+                    <div className="text-xs text-muted-foreground mb-1">
+                      Species
+                    </div>
+                    <div className="text-sm font-medium">
+                      {selectedTree.species}
+                    </div>
                   </div>
                   <div>
-                    <div className="text-xs text-muted-foreground mb-1">Priority Score</div>
-                    <div className="text-sm font-bold text-primary">{selectedTree.priorityScore}/100</div>
+                    <div className="text-xs text-muted-foreground mb-1">
+                      Priority Score
+                    </div>
+                    <div className="text-sm font-bold text-primary">
+                      {selectedTree.priorityScore}/100
+                    </div>
                   </div>
                   <div>
-                    <div className="text-xs text-muted-foreground mb-1">Height</div>
-                    <div className="text-sm font-medium">{selectedTree.height} m</div>
+                    <div className="text-xs text-muted-foreground mb-1">
+                      Height
+                    </div>
+                    <div className="text-sm font-medium">
+                      {selectedTree.height} m
+                    </div>
                   </div>
                   <div>
-                    <div className="text-xs text-muted-foreground mb-1">DBH</div>
-                    <div className="text-sm font-medium">{selectedTree.dbh} cm</div>
+                    <div className="text-xs text-muted-foreground mb-1">
+                      DBH
+                    </div>
+                    <div className="text-sm font-medium">
+                      {selectedTree.dbh} cm
+                    </div>
                   </div>
                   <div>
-                    <div className="text-xs text-muted-foreground mb-1">Crown Width</div>
-                    <div className="text-sm font-medium">{selectedTree.crownWidth} m</div>
+                    <div className="text-xs text-muted-foreground mb-1">
+                      Crown Width
+                    </div>
+                    <div className="text-sm font-medium">
+                      {selectedTree.crownWidth} m
+                    </div>
                   </div>
                   <div>
-                    <div className="text-xs text-muted-foreground mb-1">Last Inspection</div>
-                    <div className="text-sm font-medium">{selectedTree.lastInspection}</div>
+                    <div className="text-xs text-muted-foreground mb-1">
+                      Last Inspection
+                    </div>
+                    <div className="text-sm font-medium">
+                      {selectedTree.lastInspection}
+                    </div>
                   </div>
                 </div>
 
@@ -391,7 +449,10 @@ export function TreeIdSection() {
                   </div>
                   <div className="space-y-2.5">
                     {selectedTree.riskReasons.map((reason, idx) => (
-                      <div key={idx} className="flex items-start gap-2.5 text-xs">
+                      <div
+                        key={idx}
+                        className="flex items-start gap-2.5 text-xs"
+                      >
                         <Badge
                           variant="outline"
                           className={
@@ -402,14 +463,18 @@ export function TreeIdSection() {
                         >
                           {reason.type}
                         </Badge>
-                        <span className="text-muted-foreground flex-1 leading-relaxed">{reason.reason}</span>
+                        <span className="text-muted-foreground flex-1 leading-relaxed">
+                          {reason.reason}
+                        </span>
                       </div>
                     ))}
                   </div>
                 </div>
 
                 <div className="pt-3 border-t">
-                  <div className="text-sm font-semibold mb-2">Predicted Maintenance Action</div>
+                  <div className="text-sm font-semibold mb-2">
+                    Predicted Maintenance Action
+                  </div>
                   <div className="text-xs text-muted-foreground bg-muted/50 p-3 rounded-lg leading-relaxed">
                     {selectedTree.maintenanceAction}
                   </div>
@@ -424,5 +489,5 @@ export function TreeIdSection() {
         </Card>
       </div>
     </div>
-  )
+  );
 }

@@ -1,8 +1,12 @@
-import type React from "react"
-import { AdminSidebar } from "@/components/admin-sidebar"
-import { AdminTopBar } from "@/components/admin-topbar"
+import type React from "react";
+import { AdminSidebar } from "@/components/admin-sidebar";
+import { AdminTopBar } from "@/components/admin-topbar";
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+export default function AdminLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <div className="min-h-screen bg-[#F5F7FB]">
       <AdminSidebar />
@@ -11,5 +15,5 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <main className="min-h-screen">{children}</main>
       </div>
     </div>
-  )
+  );
 }

@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Leaf, TreePine, Flower2, TrendingUp, AlertCircle } from "lucide-react"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Button } from "@/components/ui/button"
+import { useState } from "react";
+import { Leaf, TreePine, Flower2, TrendingUp, AlertCircle } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
 import {
   BarChart,
   Bar,
@@ -18,7 +18,7 @@ import {
   PieChart,
   Pie,
   Cell,
-} from "recharts"
+} from "recharts";
 
 const vegetationStructureData = [
   { name: "Trees", value: 45, health: 78 },
@@ -26,7 +26,7 @@ const vegetationStructureData = [
   { name: "Herbaceous", value: 18, health: 71 },
   { name: "Bare Ground", value: 8, health: 0 },
   { name: "Invasive Species", value: 4, health: 0 },
-]
+];
 
 const heightDistributionData = [
   { range: "0-5m", count: 487 },
@@ -34,7 +34,7 @@ const heightDistributionData = [
   { range: "10-15m", count: 1024 },
   { range: "15-20m", count: 394 },
   { range: "20m+", count: 100 },
-]
+];
 
 const biomassData = [
   { area: "Zone A", biomass: 142, lai: 4.2, carbon: 68 },
@@ -42,24 +42,56 @@ const biomassData = [
   { area: "Zone C", biomass: 96, lai: 3.4, carbon: 46 },
   { area: "Zone D", biomass: 203, lai: 5.8, carbon: 97 },
   { area: "Zone E", biomass: 134, lai: 4.5, carbon: 64 },
-]
+];
 
 const invasiveHotspotsData = [
-  { id: "HS-01", species: "Kudzu", coverage: 820, risk: "High", lat: 37.5665, lng: 126.978 },
-  { id: "HS-02", species: "Japanese Knotweed", coverage: 540, risk: "High", lat: 37.5632, lng: 126.982 },
-  { id: "HS-03", species: "Purple Loosestrife", coverage: 320, risk: "Medium", lat: 37.5698, lng: 126.975 },
-  { id: "HS-04", species: "Garlic Mustard", coverage: 180, risk: "Medium", lat: 37.5621, lng: 126.981 },
-]
+  {
+    id: "HS-01",
+    species: "Kudzu",
+    coverage: 820,
+    risk: "High",
+    lat: 37.5665,
+    lng: 126.978,
+  },
+  {
+    id: "HS-02",
+    species: "Japanese Knotweed",
+    coverage: 540,
+    risk: "High",
+    lat: 37.5632,
+    lng: 126.982,
+  },
+  {
+    id: "HS-03",
+    species: "Purple Loosestrife",
+    coverage: 320,
+    risk: "Medium",
+    lat: 37.5698,
+    lng: 126.975,
+  },
+  {
+    id: "HS-04",
+    species: "Garlic Mustard",
+    coverage: 180,
+    risk: "Medium",
+    lat: 37.5621,
+    lng: 126.981,
+  },
+];
 
-const COLORS = ["#10b981", "#22c55e", "#86efac", "#94a3b8", "#ef4444"]
+const COLORS = ["#10b981", "#22c55e", "#86efac", "#94a3b8", "#ef4444"];
 
 interface VegetationStructureAnalysisProps {
-  language: "kr" | "en"
+  language: "kr" | "en";
 }
 
-export function VegetationStructureAnalysis({ language }: VegetationStructureAnalysisProps) {
-  const [activeSection, setActiveSection] = useState("summary")
-  const [mapLayer, setMapLayer] = useState<"standard" | "satellite" | "terrain">("standard")
+export function VegetationStructureAnalysis({
+  language,
+}: VegetationStructureAnalysisProps) {
+  const [activeSection, setActiveSection] = useState("summary");
+  const [mapLayer, setMapLayer] = useState<
+    "standard" | "satellite" | "terrain"
+  >("standard");
 
   const renderMapIframe = (center: [number, number], overlayType: string) => {
     return (
@@ -171,8 +203,8 @@ export function VegetationStructureAnalysis({ language }: VegetationStructureAna
         className="w-full h-full border-0"
         sandbox="allow-scripts allow-same-origin"
       />
-    )
-  }
+    );
+  };
 
   return (
     <div className="space-y-6">
@@ -180,7 +212,9 @@ export function VegetationStructureAnalysis({ language }: VegetationStructureAna
         <TabsList className="bg-white border-2 border-blue-200">
           <TabsTrigger value="summary">
             <Leaf className="w-4 h-4 mr-2" />
-            {language === "kr" ? "식생 구조 요약" : "Vegetation Structure Summary"}
+            {language === "kr"
+              ? "식생 구조 요약"
+              : "Vegetation Structure Summary"}
           </TabsTrigger>
           <TabsTrigger value="tree">
             <TreePine className="w-4 h-4 mr-2" />
@@ -192,7 +226,9 @@ export function VegetationStructureAnalysis({ language }: VegetationStructureAna
           </TabsTrigger>
           <TabsTrigger value="productivity">
             <TrendingUp className="w-4 h-4 mr-2" />
-            {language === "kr" ? "생산성 및 바이오매스" : "Productivity & Biomass"}
+            {language === "kr"
+              ? "생산성 및 바이오매스"
+              : "Productivity & Biomass"}
           </TabsTrigger>
         </TabsList>
 
@@ -201,18 +237,30 @@ export function VegetationStructureAnalysis({ language }: VegetationStructureAna
             {/* Left: Summary Cards */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold text-gray-900">
-                {language === "kr" ? "전체 식생 구조" : "Vegetation Structure Overview"}
+                {language === "kr"
+                  ? "전체 식생 구조"
+                  : "Vegetation Structure Overview"}
               </h3>
 
               <div className="grid grid-cols-2 gap-3">
                 {vegetationStructureData.map((item, idx) => (
-                  <div key={idx} className="rounded-xl border-2 border-blue-200 bg-white p-4 shadow-sm">
-                    <div className="text-xs text-gray-600 mb-1">{item.name}</div>
-                    <div className="text-2xl font-bold text-gray-900">{item.value}%</div>
+                  <div
+                    key={idx}
+                    className="rounded-xl border-2 border-blue-200 bg-white p-4 shadow-sm"
+                  >
+                    <div className="text-xs text-gray-600 mb-1">
+                      {item.name}
+                    </div>
+                    <div className="text-2xl font-bold text-gray-900">
+                      {item.value}%
+                    </div>
                     {item.health > 0 && (
                       <div className="mt-2 flex items-center gap-2">
                         <div className="flex-1 bg-blue-100 rounded-full h-1.5">
-                          <div className="bg-blue-500 h-1.5 rounded-full" style={{ width: `${item.health}%` }} />
+                          <div
+                            className="bg-blue-500 h-1.5 rounded-full"
+                            style={{ width: `${item.health}%` }}
+                          />
                         </div>
                         <span className="text-xs text-gray-600">
                           {language === "kr" ? "건강도: " : "Health: "}
@@ -241,7 +289,10 @@ export function VegetationStructureAnalysis({ language }: VegetationStructureAna
                       dataKey="value"
                     >
                       {vegetationStructureData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        <Cell
+                          key={`cell-${index}`}
+                          fill={COLORS[index % COLORS.length]}
+                        />
                       ))}
                     </Pie>
                     <Tooltip
@@ -260,7 +311,9 @@ export function VegetationStructureAnalysis({ language }: VegetationStructureAna
             <div className="rounded-xl border-2 border-blue-200 bg-white p-4 shadow-sm">
               <div className="flex items-center justify-between mb-3">
                 <h4 className="text-sm font-semibold text-gray-900">
-                  {language === "kr" ? "식생 구조 지도" : "Vegetation Structure Map"}
+                  {language === "kr"
+                    ? "식생 구조 지도"
+                    : "Vegetation Structure Map"}
                 </h4>
                 <div className="flex gap-1">
                   <Button
@@ -326,11 +379,15 @@ export function VegetationStructureAnalysis({ language }: VegetationStructureAna
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="rounded-xl border-2 border-blue-200 bg-white p-4 shadow-sm">
-                  <div className="text-xs text-gray-600 mb-1">{language === "kr" ? "평균 높이" : "Avg Height"}</div>
+                  <div className="text-xs text-gray-600 mb-1">
+                    {language === "kr" ? "평균 높이" : "Avg Height"}
+                  </div>
                   <div className="text-2xl font-bold text-gray-900">12.4m</div>
                 </div>
                 <div className="rounded-xl border-2 border-blue-200 bg-white p-4 shadow-sm">
-                  <div className="text-xs text-gray-600 mb-1">{language === "kr" ? "평균 DBH" : "Avg DBH"}</div>
+                  <div className="text-xs text-gray-600 mb-1">
+                    {language === "kr" ? "평균 DBH" : "Avg DBH"}
+                  </div>
                   <div className="text-2xl font-bold text-gray-900">28.7cm</div>
                 </div>
                 <div className="rounded-xl border-2 border-blue-200 bg-white p-4 shadow-sm">
@@ -349,24 +406,36 @@ export function VegetationStructureAnalysis({ language }: VegetationStructureAna
 
               <div className="rounded-xl border-2 border-blue-200 bg-white p-4 shadow-sm">
                 <h4 className="text-sm font-semibold text-gray-900 mb-2">
-                  {language === "kr" ? "피해 패턴 감지" : "Damage Pattern Detection"}
+                  {language === "kr"
+                    ? "피해 패턴 감지"
+                    : "Damage Pattern Detection"}
                 </h4>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between items-center">
                     <span className="text-gray-700">
-                      {language === "kr" ? "수관 피해 (RGB)" : "Crown damage (RGB)"}
+                      {language === "kr"
+                        ? "수관 피해 (RGB)"
+                        : "Crown damage (RGB)"}
                     </span>
-                    <span className="text-yellow-600 font-semibold">342 trees</span>
+                    <span className="text-yellow-600 font-semibold">
+                      342 trees
+                    </span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-gray-700">
-                      {language === "kr" ? "엽록체 감소 (MS)" : "Chlorophyll decline (MS)"}
+                      {language === "kr"
+                        ? "엽록체 감소 (MS)"
+                        : "Chlorophyll decline (MS)"}
                     </span>
-                    <span className="text-orange-500 font-semibold">178 trees</span>
+                    <span className="text-orange-500 font-semibold">
+                      178 trees
+                    </span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-gray-700">
-                      {language === "kr" ? "구조적 결함 (LiDAR)" : "Structural defect (LiDAR)"}
+                      {language === "kr"
+                        ? "구조적 결함 (LiDAR)"
+                        : "Structural defect (LiDAR)"}
                     </span>
                     <span className="text-red-500 font-semibold">89 trees</span>
                   </div>
@@ -377,7 +446,9 @@ export function VegetationStructureAnalysis({ language }: VegetationStructureAna
             <div className="rounded-xl border-2 border-blue-200 bg-white p-4 shadow-sm">
               <div className="flex items-center justify-between mb-3">
                 <h4 className="text-sm font-semibold text-gray-900">
-                  {language === "kr" ? "수목 밀도 및 건강도 지도" : "Tree Density & Health Map"}
+                  {language === "kr"
+                    ? "수목 밀도 및 건강도 지도"
+                    : "Tree Density & Health Map"}
                 </h4>
                 <div className="flex gap-1">
                   <Button
@@ -422,7 +493,9 @@ export function VegetationStructureAnalysis({ language }: VegetationStructureAna
 
               <div className="rounded-xl border-2 border-blue-200 bg-white p-4 shadow-sm">
                 <h4 className="text-sm font-semibold text-gray-900 mb-3">
-                  {language === "kr" ? "외래종 핫스포츠" : "Invasive Species Hotspots"}
+                  {language === "kr"
+                    ? "외래종 핫스포츠"
+                    : "Invasive Species Hotspots"}
                 </h4>
                 <div className="space-y-3">
                   {invasiveHotspotsData.map((hotspot) => (
@@ -435,13 +508,21 @@ export function VegetationStructureAnalysis({ language }: VegetationStructureAna
                           className={`w-5 h-5 ${hotspot.risk === "High" ? "text-red-500" : "text-yellow-500"}`}
                         />
                         <div>
-                          <div className="text-sm font-semibold text-gray-900">{hotspot.id}</div>
-                          <div className="text-xs text-gray-600">{hotspot.species}</div>
+                          <div className="text-sm font-semibold text-gray-900">
+                            {hotspot.id}
+                          </div>
+                          <div className="text-xs text-gray-600">
+                            {hotspot.species}
+                          </div>
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className="text-sm font-semibold text-gray-900">{hotspot.coverage}㎡</div>
-                        <div className={`text-xs ${hotspot.risk === "High" ? "text-red-500" : "text-yellow-500"}`}>
+                        <div className="text-sm font-semibold text-gray-900">
+                          {hotspot.coverage}㎡
+                        </div>
+                        <div
+                          className={`text-xs ${hotspot.risk === "High" ? "text-red-500" : "text-yellow-500"}`}
+                        >
                           {hotspot.risk}
                         </div>
                       </div>
@@ -452,8 +533,12 @@ export function VegetationStructureAnalysis({ language }: VegetationStructureAna
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="rounded-xl border-2 border-blue-200 bg-white p-4 shadow-sm">
-                  <div className="text-xs text-gray-600 mb-1">{language === "kr" ? "관목 밀도" : "Shrub Density"}</div>
-                  <div className="text-2xl font-bold text-emerald-400">Medium-High</div>
+                  <div className="text-xs text-gray-600 mb-1">
+                    {language === "kr" ? "관목 밀도" : "Shrub Density"}
+                  </div>
+                  <div className="text-2xl font-bold text-emerald-400">
+                    Medium-High
+                  </div>
                 </div>
                 <div className="rounded-xl border-2 border-blue-200 bg-white p-4 shadow-sm">
                   <div className="text-xs text-gray-600 mb-1">
@@ -462,12 +547,16 @@ export function VegetationStructureAnalysis({ language }: VegetationStructureAna
                   <div className="text-2xl font-bold text-blue-400">71%</div>
                 </div>
                 <div className="rounded-xl border-2 border-blue-200 bg-white p-4 shadow-sm">
-                  <div className="text-xs text-gray-600 mb-1">{language === "kr" ? "잡초 인덱스" : "Weed Index"}</div>
+                  <div className="text-xs text-gray-600 mb-1">
+                    {language === "kr" ? "잡초 인덱스" : "Weed Index"}
+                  </div>
                   <div className="text-2xl font-bold text-yellow-400">0.42</div>
                 </div>
                 <div className="rounded-xl border-2 border-blue-200 bg-white p-4 shadow-sm">
                   <div className="text-xs text-gray-600 mb-1">
-                    {language === "kr" ? "외래종 분포 면적" : "Invasive Coverage"}
+                    {language === "kr"
+                      ? "외래종 분포 면적"
+                      : "Invasive Coverage"}
                   </div>
                   <div className="text-2xl font-bold text-red-400">1,860㎡</div>
                 </div>
@@ -477,7 +566,9 @@ export function VegetationStructureAnalysis({ language }: VegetationStructureAna
             <div className="rounded-xl border-2 border-blue-200 bg-white p-4 shadow-sm">
               <div className="flex items-center justify-between mb-3">
                 <h4 className="text-sm font-semibold text-gray-900">
-                  {language === "kr" ? "잡초 및 외래종 분포 지도" : "Weed & Invasive Species Map"}
+                  {language === "kr"
+                    ? "잡초 및 외래종 분포 지도"
+                    : "Weed & Invasive Species Map"}
                 </h4>
                 <div className="flex gap-1">
                   <Button
@@ -517,7 +608,9 @@ export function VegetationStructureAnalysis({ language }: VegetationStructureAna
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="space-y-4">
               <h3 className="text-lg font-semibold text-gray-900">
-                {language === "kr" ? "생산성 및 바이오매스" : "Productivity & Biomass"}
+                {language === "kr"
+                  ? "생산성 및 바이오매스"
+                  : "Productivity & Biomass"}
               </h3>
 
               <div className="rounded-xl border-2 border-blue-200 bg-white p-4 shadow-sm">
@@ -537,7 +630,11 @@ export function VegetationStructureAnalysis({ language }: VegetationStructureAna
                       }}
                     />
                     <Legend />
-                    <Bar dataKey="biomass" fill="#3b82f6" name="Biomass (t/ha)" />
+                    <Bar
+                      dataKey="biomass"
+                      fill="#3b82f6"
+                      name="Biomass (t/ha)"
+                    />
                     <Bar dataKey="carbon" fill="#3b82f6" name="Carbon (t/ha)" />
                   </BarChart>
                 </ResponsiveContainer>
@@ -559,7 +656,13 @@ export function VegetationStructureAnalysis({ language }: VegetationStructureAna
                         borderRadius: "8px",
                       }}
                     />
-                    <Line type="monotone" dataKey="lai" stroke="#a855f7" strokeWidth={2} name="LAI" />
+                    <Line
+                      type="monotone"
+                      dataKey="lai"
+                      stroke="#a855f7"
+                      strokeWidth={2}
+                      name="LAI"
+                    />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
@@ -567,15 +670,21 @@ export function VegetationStructureAnalysis({ language }: VegetationStructureAna
               <div className="grid grid-cols-2 gap-3">
                 <div className="rounded-xl border-2 border-blue-200 bg-white p-4 shadow-sm">
                   <div className="text-xs text-gray-600 mb-1">
-                    {language === "kr" ? "생산성 점수 (NDVI)" : "Productivity Score (NDVI)"}
+                    {language === "kr"
+                      ? "생산성 점수 (NDVI)"
+                      : "Productivity Score (NDVI)"}
                   </div>
-                  <div className="text-2xl font-bold text-emerald-400">0.78</div>
+                  <div className="text-2xl font-bold text-emerald-400">
+                    0.78
+                  </div>
                 </div>
                 <div className="rounded-xl border-2 border-blue-200 bg-white p-4 shadow-sm">
                   <div className="text-xs text-gray-600 mb-1">
                     {language === "kr" ? "탄소 추정치" : "Carbon Estimation"}
                   </div>
-                  <div className="text-2xl font-bold text-blue-400">72 t/ha</div>
+                  <div className="text-2xl font-bold text-blue-400">
+                    72 t/ha
+                  </div>
                 </div>
               </div>
             </div>
@@ -583,7 +692,9 @@ export function VegetationStructureAnalysis({ language }: VegetationStructureAna
             <div className="rounded-xl border-2 border-blue-200 bg-white p-4 shadow-sm">
               <div className="flex items-center justify-between mb-3">
                 <h4 className="text-sm font-semibold text-gray-900">
-                  {language === "kr" ? "생산성 분포 지도" : "Productivity Distribution Map"}
+                  {language === "kr"
+                    ? "생산성 분포 지도"
+                    : "Productivity Distribution Map"}
                 </h4>
                 <div className="flex gap-1">
                   <Button
@@ -620,5 +731,5 @@ export function VegetationStructureAnalysis({ language }: VegetationStructureAna
         </TabsContent>
       </Tabs>
     </div>
-  )
+  );
 }

@@ -1,31 +1,38 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { LayoutDashboard, TrendingDown, TrendingUp, Leaf } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { LayoutDashboard, TrendingDown, TrendingUp, Leaf } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface ProjectSidebarProps {
-  projectId: string
-  projectName: string
+  projectId: string;
+  projectName: string;
 }
 
-export function ProjectSidebar({ projectId, projectName }: ProjectSidebarProps) {
-  const pathname = usePathname()
+export function ProjectSidebar({
+  projectId,
+  projectName,
+}: ProjectSidebarProps) {
+  const pathname = usePathname();
 
   const isActive = (path: string) => {
-    return pathname === path || pathname.startsWith(path + "/")
-  }
+    return pathname === path || pathname.startsWith(path + "/");
+  };
 
-  const baseUrl = `/app/projects/${projectId}`
+  const baseUrl = `/app/projects/${projectId}`;
 
   return (
     <div className="w-64 h-screen bg-slate-50 dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col">
       {/* Project Header */}
       <div className="p-6 border-b border-slate-200 dark:border-slate-800">
-        <h2 className="font-semibold text-slate-900 dark:text-slate-100 truncate">{projectName}</h2>
-        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Project Workspace</p>
+        <h2 className="font-semibold text-slate-900 dark:text-slate-100 truncate">
+          {projectName}
+        </h2>
+        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+          Project Workspace
+        </p>
       </div>
 
       {/* Navigation */}
@@ -35,7 +42,8 @@ export function ProjectSidebar({ projectId, projectName }: ProjectSidebarProps) 
             variant="ghost"
             className={cn(
               "w-full justify-start gap-3 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800",
-              pathname === baseUrl && "bg-blue-50 dark:bg-blue-950/30 text-[#118DFF] dark:text-[#118DFF] font-medium",
+              pathname === baseUrl &&
+                "bg-blue-50 dark:bg-blue-950/30 text-[#118DFF] dark:text-[#118DFF] font-medium",
             )}
           >
             <LayoutDashboard className="w-5 h-5" />
@@ -86,5 +94,5 @@ export function ProjectSidebar({ projectId, projectName }: ProjectSidebarProps) 
         </Link>
       </nav>
     </div>
-  )
+  );
 }

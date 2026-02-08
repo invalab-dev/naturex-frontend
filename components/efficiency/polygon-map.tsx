@@ -1,32 +1,40 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { MapPin, Trash2, Circle, MoveHorizontal } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { useState, useEffect } from "react";
+import { MapPin, Trash2, Circle, MoveHorizontal } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface Point {
-  x: number
-  y: number
-  lat: number
-  lng: number
+  x: number;
+  y: number;
+  lat: number;
+  lng: number;
 }
 
 interface Polygon {
-  id: string
-  points: Point[]
-  completed: boolean
+  id: string;
+  points: Point[];
+  completed: boolean;
 }
 
 interface PolygonMapProps {
-  onPolygonsChange?: (polygons: Polygon[]) => void
-  bufferRadius: number
-  language?: "ko" | "en"
+  onPolygonsChange?: (polygons: Polygon[]) => void;
+  bufferRadius: number;
+  language?: "ko" | "en";
 }
 
-export function PolygonMap({ onPolygonsChange, bufferRadius, language = "ko" }: PolygonMapProps) {
-  const [polygons, setPolygons] = useState<Polygon[]>([])
-  const [drawMode, setDrawMode] = useState<"off" | "point" | "line" | "polygon">("off")
-  const [mapLayer, setMapLayer] = useState<"normal" | "satellite" | "terrain">("normal")
+export function PolygonMap({
+  onPolygonsChange,
+  bufferRadius,
+  language = "ko",
+}: PolygonMapProps) {
+  const [polygons, setPolygons] = useState<Polygon[]>([]);
+  const [drawMode, setDrawMode] = useState<
+    "off" | "point" | "line" | "polygon"
+  >("off");
+  const [mapLayer, setMapLayer] = useState<"normal" | "satellite" | "terrain">(
+    "normal",
+  );
 
   const translations = {
     ko: {
@@ -59,62 +67,77 @@ export function PolygonMap({ onPolygonsChange, bufferRadius, language = "ko" }: 
       terrain: "Terrain",
       instruction: "Click on the map to draw.",
     },
-  }
+  };
 
-  const t = translations[language]
+  const t = translations[language];
 
   const calculateStats = () => {
-    const totalPolygons = polygons.length
-    const totalArea = polygons.reduce((sum, poly) => sum + poly.points.length * 0.5, 0)
+    const totalPolygons = polygons.length;
+    const totalArea = polygons.reduce(
+      (sum, poly) => sum + poly.points.length * 0.5,
+      0,
+    );
 
-    let totalLat = 0
-    let totalLng = 0
-    let totalPoints = 0
+    let totalLat = 0;
+    let totalLng = 0;
+    let totalPoints = 0;
 
     polygons.forEach((poly) => {
       poly.points.forEach((point) => {
-        totalLat += point.lat
-        totalLng += point.lng
-        totalPoints++
-      })
-    })
+        totalLat += point.lat;
+        totalLng += point.lng;
+        totalPoints++;
+      });
+    });
 
-    const centerLat = totalPoints > 0 ? (totalLat / totalPoints).toFixed(4) : "0.0000"
-    const centerLng = totalPoints > 0 ? (totalLng / totalPoints).toFixed(4) : "0.0000"
+    const centerLat =
+      totalPoints > 0 ? (totalLat / totalPoints).toFixed(4) : "0.0000";
+    const centerLng =
+      totalPoints > 0 ? (totalLng / totalPoints).toFixed(4) : "0.0000";
 
     return {
       count: totalPolygons,
       area: totalArea.toFixed(1),
       center: { lat: centerLat, lng: centerLng },
-    }
-  }
+    };
+  };
 
-  const stats = calculateStats()
+  const stats = calculateStats();
 
   const getTileUrl = () => {
     switch (mapLayer) {
       case "satellite":
-        return "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+        return "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
       case "terrain":
-        return "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png"
+        return "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png";
       default:
-        return "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        return "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
     }
-  }
+  };
 
   useEffect(() => {
-    const iframe = document.getElementById("polygon-map-iframe") as HTMLIFrameElement
+    const iframe = document.getElementById(
+      "polygon-map-iframe",
+    ) as HTMLIFrameElement;
     if (iframe && iframe.contentWindow) {
-      iframe.contentWindow.postMessage({ type: "changeLayer", tileUrl: getTileUrl() }, "*")
+      iframe.contentWindow.postMessage(
+        { type: "changeLayer", tileUrl: getTileUrl() },
+        "*",
+      );
     }
-  }, [mapLayer])
+  }, [mapLayer]);
 
   useEffect(() => {
-    const iframe = document.getElementById("polygon-map-iframe") as HTMLIFrameElement
+    const iframe = document.getElementById(
+      "polygon-map-iframe",
+    ) as HTMLIFrameElement;
     if (iframe && iframe.contentWindow) {
-      iframe.contentWindow.postMessage({ type: "setDrawMode", drawMode, bufferRadius }, "*")
+      iframe.contentWindow.postMessage(
+        { type: "setDrawMode", drawMode, bufferRadius },
+        "*",
+      );
     }
-  }, [drawMode, bufferRadius])
+  }, [drawMode, bufferRadius]);
 
   useEffect(() => {
     const handleMessage = (e: MessageEvent) => {
@@ -123,29 +146,31 @@ export function PolygonMap({ onPolygonsChange, bufferRadius, language = "ko" }: 
           id: Date.now().toString(),
           points: e.data.points,
           completed: true,
-        }
-        const updatedPolygons = [...polygons, newPolygon]
-        setPolygons(updatedPolygons)
+        };
+        const updatedPolygons = [...polygons, newPolygon];
+        setPolygons(updatedPolygons);
         if (onPolygonsChange) {
-          onPolygonsChange(updatedPolygons)
+          onPolygonsChange(updatedPolygons);
         }
       }
-    }
+    };
 
-    window.addEventListener("message", handleMessage)
-    return () => window.removeEventListener("message", handleMessage)
-  }, [polygons, onPolygonsChange])
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, [polygons, onPolygonsChange]);
 
   const handleDeleteAll = () => {
-    setPolygons([])
+    setPolygons([]);
     if (onPolygonsChange) {
-      onPolygonsChange([])
+      onPolygonsChange([]);
     }
-    const iframe = document.getElementById("polygon-map-iframe") as HTMLIFrameElement
+    const iframe = document.getElementById(
+      "polygon-map-iframe",
+    ) as HTMLIFrameElement;
     if (iframe && iframe.contentWindow) {
-      iframe.contentWindow.postMessage({ type: "clearAll" }, "*")
+      iframe.contentWindow.postMessage({ type: "clearAll" }, "*");
     }
-  }
+  };
 
   const mapHtml = `
 <!DOCTYPE html>
@@ -344,7 +369,7 @@ export function PolygonMap({ onPolygonsChange, bufferRadius, language = "ko" }: 
   </script>
 </body>
 </html>
-`
+`;
 
   return (
     <div className="space-y-4">
@@ -371,7 +396,9 @@ export function PolygonMap({ onPolygonsChange, bufferRadius, language = "ko" }: 
           </Button>
 
           <Button
-            onClick={() => setDrawMode(drawMode === "polygon" ? "off" : "polygon")}
+            onClick={() =>
+              setDrawMode(drawMode === "polygon" ? "off" : "polygon")
+            }
             variant={drawMode === "polygon" ? "default" : "outline"}
             size="sm"
             className="rounded-lg"
@@ -381,7 +408,12 @@ export function PolygonMap({ onPolygonsChange, bufferRadius, language = "ko" }: 
           </Button>
 
           {polygons.length > 0 && (
-            <Button onClick={handleDeleteAll} variant="destructive" size="sm" className="rounded-lg">
+            <Button
+              onClick={handleDeleteAll}
+              variant="destructive"
+              size="sm"
+              className="rounded-lg"
+            >
               <Trash2 size={16} className="mr-2" />
               {t.deleteAll}
             </Button>
@@ -405,7 +437,10 @@ export function PolygonMap({ onPolygonsChange, bufferRadius, language = "ko" }: 
         </div>
       </div>
 
-      <div className="rounded-2xl border border-slate-700 relative overflow-hidden" style={{ height: "500px" }}>
+      <div
+        className="rounded-2xl border border-slate-700 relative overflow-hidden"
+        style={{ height: "500px" }}
+      >
         <iframe
           id="polygon-map-iframe"
           srcDoc={mapHtml}
@@ -418,11 +453,15 @@ export function PolygonMap({ onPolygonsChange, bufferRadius, language = "ko" }: 
           <div className="absolute bottom-4 right-4 bg-slate-900/95 border border-slate-700 rounded-lg p-4 text-xs space-y-1.5 backdrop-blur-sm z-10">
             <div className="flex items-center justify-between gap-4">
               <span className="text-slate-400">{t.selectedAreas}:</span>
-              <span className="text-emerald-400 font-semibold">{stats.count}</span>
+              <span className="text-emerald-400 font-semibold">
+                {stats.count}
+              </span>
             </div>
             <div className="flex items-center justify-between gap-4">
               <span className="text-slate-400">{t.totalArea}:</span>
-              <span className="text-slate-200 font-medium">{stats.area} ha</span>
+              <span className="text-slate-200 font-medium">
+                {stats.area} ha
+              </span>
             </div>
             <div className="flex items-center justify-between gap-4">
               <span className="text-slate-400">{t.centerPoint}:</span>
@@ -438,5 +477,5 @@ export function PolygonMap({ onPolygonsChange, bufferRadius, language = "ko" }: 
         )}
       </div>
     </div>
-  )
+  );
 }

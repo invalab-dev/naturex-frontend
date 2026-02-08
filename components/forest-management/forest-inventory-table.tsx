@@ -1,5 +1,12 @@
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 
 const inventoryData = [
   {
@@ -34,8 +41,15 @@ const inventoryData = [
     avgDbh: "31.2 cm",
     health: "Good",
   },
-  { species: "Abies holophylla", common: "전나무", count: 44, avgHeight: "17.3 m", avgDbh: "26.8 cm", health: "Fair" },
-]
+  {
+    species: "Abies holophylla",
+    common: "전나무",
+    count: 44,
+    avgHeight: "17.3 m",
+    avgDbh: "26.8 cm",
+    health: "Fair",
+  },
+];
 
 export function ForestInventoryTable() {
   return (
@@ -54,14 +68,28 @@ export function ForestInventoryTable() {
         <TableBody>
           {inventoryData.map((item, index) => (
             <TableRow key={index}>
-              <TableCell className="font-medium text-xs">{item.species}</TableCell>
+              <TableCell className="font-medium text-xs">
+                {item.species}
+              </TableCell>
               <TableCell className="text-xs">{item.common}</TableCell>
-              <TableCell className="text-right font-mono text-xs">{item.count}</TableCell>
-              <TableCell className="text-right font-mono text-xs">{item.avgHeight}</TableCell>
-              <TableCell className="text-right font-mono text-xs">{item.avgDbh}</TableCell>
+              <TableCell className="text-right font-mono text-xs">
+                {item.count}
+              </TableCell>
+              <TableCell className="text-right font-mono text-xs">
+                {item.avgHeight}
+              </TableCell>
+              <TableCell className="text-right font-mono text-xs">
+                {item.avgDbh}
+              </TableCell>
               <TableCell>
                 <Badge
-                  variant={item.health === "Excellent" ? "default" : item.health === "Good" ? "secondary" : "outline"}
+                  variant={
+                    item.health === "Excellent"
+                      ? "default"
+                      : item.health === "Good"
+                        ? "secondary"
+                        : "outline"
+                  }
                   className="text-xs"
                 >
                   {item.health}
@@ -72,5 +100,5 @@ export function ForestInventoryTable() {
         </TableBody>
       </Table>
     </div>
-  )
+  );
 }

@@ -1,19 +1,23 @@
-"use client"
+"use client";
 
-import { Home, Clipboard, BarChart3, Settings } from "lucide-react"
+import { Home, Clipboard, BarChart3, Settings } from "lucide-react";
 import {
   SharedMultiStepSidebar,
   efficiencyTheme,
   type StepItem,
-} from "@/components/sidebar/shared-multi-step-sidebar"
+} from "@/components/sidebar/shared-multi-step-sidebar";
 
 interface MultiStepSidebarProps {
-  currentStep: "home" | "planning" | "analysis" | "management"
-  onStepChange: (step: "home" | "planning" | "analysis" | "management") => void
-  language: "kr" | "en"
+  currentStep: "home" | "planning" | "analysis" | "management";
+  onStepChange: (step: "home" | "planning" | "analysis" | "management") => void;
+  language: "kr" | "en";
 }
 
-export function MultiStepSidebar({ currentStep, onStepChange, language }: MultiStepSidebarProps) {
+export function MultiStepSidebar({
+  currentStep,
+  onStepChange,
+  language,
+}: MultiStepSidebarProps) {
   const steps: StepItem[] = [
     {
       id: "home" as const,
@@ -43,7 +47,7 @@ export function MultiStepSidebar({ currentStep, onStepChange, language }: MultiS
       en: "Management",
       description: { kr: "비용관리·우선순위", en: "Cost & Priority" },
     },
-  ]
+  ];
 
   return (
     <SharedMultiStepSidebar
@@ -55,5 +59,5 @@ export function MultiStepSidebar({ currentStep, onStepChange, language }: MultiS
       subtitle={{ kr: "단계별 진행", en: "Step by Step" }}
       theme={efficiencyTheme}
     />
-  )
+  );
 }

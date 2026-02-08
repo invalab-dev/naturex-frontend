@@ -1,119 +1,127 @@
 export interface Organization {
-  orgId: string
-  name: string
-  industry: string
-  contact: string
-  status: "active" | "onboarding" | "paused" | "archived"
-  lastActivity?: string
-  createdAt: string
+  orgId: string;
+  name: string;
+  industry: string;
+  contact: string;
+  status: "active" | "onboarding" | "paused" | "archived";
+  lastActivity?: string;
+  createdAt: string;
   activeProjectsByStage?: {
-    pending: number
-    analyzing: number
-    delivering: number
-    executing: number
-    completed: number
-  }
+    pending: number;
+    analyzing: number;
+    delivering: number;
+    executing: number;
+    completed: number;
+  };
 }
 
 export interface User {
-  userId: string
-  email: string
-  name: string
-  role: "admin" | "customer"
-  orgId?: string
-  createdAt: string
+  userId: string;
+  email: string;
+  name: string;
+  role: "admin" | "customer";
+  orgId?: string;
+  createdAt: string;
 }
 
-export type DeliveryStage = "pending" | "analyzing" | "delivering" | "executing" | "completed"
+export type DeliveryStage =
+  | "pending"
+  | "analyzing"
+  | "delivering"
+  | "executing"
+  | "completed";
 
-export const DELIVERY_STAGES: Record<DeliveryStage, { kr: string; en: string; color: string }> = {
+export const DELIVERY_STAGES: Record<
+  DeliveryStage,
+  { kr: string; en: string; color: string }
+> = {
   pending: { kr: "대기", en: "Pending", color: "#6B7280" },
   analyzing: { kr: "분석 중", en: "Analyzing", color: "#3B82F6" },
   delivering: { kr: "제공 중", en: "Delivering", color: "#10B981" },
   executing: { kr: "실행 중", en: "Executing", color: "#8B5CF6" },
   completed: { kr: "완료", en: "Completed", color: "#059669" },
-}
+};
 
 // Result configuration for planned deliverables
 export interface ResultConfig {
   map: {
-    enabled: boolean
-    types: ("geojson" | "tiles3d" | "laz")[]
-  }
+    enabled: boolean;
+    types: ("geojson" | "tiles3d" | "laz")[];
+  };
   downloads: {
-    enabled: boolean
-  }
+    enabled: boolean;
+  };
   tables: {
-    enabled: boolean
-    types: ("table" | "bar" | "line" | "kpi")[]
-  }
+    enabled: boolean;
+    types: ("table" | "bar" | "line" | "kpi")[];
+  };
 }
 
 // Project interface - deliverables-based, no widgets
 export interface Project {
-  projectId: string
-  orgId: string
-  name: string
-  theme: "efficiency" | "asset" | "biodiversity"
-  location: string
-  description?: string
-  deliveryStage: DeliveryStage
-  lastActivityAt: string
-  createdAt: string
-  updatedAt?: string
-  resultConfig?: ResultConfig
+  projectId: string;
+  orgId: string;
+  name: string;
+  theme: "efficiency" | "asset" | "biodiversity";
+  location: string;
+  description?: string;
+  deliveryStage: DeliveryStage;
+  lastActivityAt: string;
+  createdAt: string;
+  updatedAt?: string;
+  resultConfig?: ResultConfig;
 }
 
 // Deliverables Types
 export interface MapLayer {
-  id: string
-  name: string
-  dataType: "geojson" | "laz" | "tiles3d"
-  fileName: string
-  fileSize: number
-  uploadedAt: string
-  isPublic: boolean
-  geojsonData?: object
+  id: string;
+  name: string;
+  dataType: "geojson" | "laz" | "tiles3d";
+  fileName: string;
+  fileSize: number;
+  uploadedAt: string;
+  isPublic: boolean;
+  geojsonData?: object;
 }
 
 export interface DeliverableFile {
-  id: string
-  name: string
-  fileType: "hwp" | "xlsx" | "pdf"
-  fileName: string
-  fileSize: number
-  description?: string
-  uploadedAt: string
-  downloadUrl?: string
-  isPublic: boolean
+  id: string;
+  name: string;
+  fileType: "hwp" | "xlsx" | "pdf";
+  fileName: string;
+  fileSize: number;
+  description?: string;
+  uploadedAt: string;
+  downloadUrl?: string;
+  isPublic: boolean;
 }
 
 export interface ChartDataset {
-  id: string
-  title: string
-  description?: string
-  visualizationType: "table" | "bar_chart" | "line_chart" | "kpi"
+  id: string;
+  title: string;
+  description?: string;
+  visualizationType: "table" | "bar_chart" | "line_chart" | "kpi";
   data: Array<{
-    metric_name: string
-    value: number
-    unit?: string
-    category?: string
-    timestamp?: string
-  }>
+    metric_name: string;
+    value: number;
+    unit?: string;
+    category?: string;
+    timestamp?: string;
+  }>;
   axisLabels?: {
-    x?: string
-    y?: string
-  }
-  isPublic: boolean
-  uploadedAt: string
+    x?: string;
+    y?: string;
+  };
+  isPublic: boolean;
+  uploadedAt: string;
 }
 
 export interface ProjectDeliverables {
-  projectId: string
-  maps: MapLayer[]
-  downloads: DeliverableFile[]
-  visuals: ChartDataset[]
-  updatedAt: string
+  projectId: string;
+  maps: MapLayer[];
+  downloads: DeliverableFile[];
+  visuals: ChartDataset[];
+  updatedAt: string;
 }
 
 // Storage keys
@@ -122,14 +130,14 @@ const STORAGE_KEYS = {
   users: "naturex_users",
   projects: "naturex_projects",
   deliverables: (projectId: string) => `naturex_deliverables__${projectId}`,
-}
+};
 
 // Theme label mapping for UI display
 export const themeLabels = {
   efficiency: "운영비 절감",
   asset: "자산 가치 향상",
   biodiversity: "생물다양성",
-} as const
+} as const;
 
 // Initialize default data if not exists
 export function initializeDefaultData() {
@@ -160,8 +168,8 @@ export function initializeDefaultData() {
         status: "active",
         createdAt: new Date().toISOString(),
       },
-    ]
-    localStorage.setItem(STORAGE_KEYS.orgs, JSON.stringify(defaultOrgs))
+    ];
+    localStorage.setItem(STORAGE_KEYS.orgs, JSON.stringify(defaultOrgs));
   }
 
   // Default users
@@ -198,8 +206,8 @@ export function initializeDefaultData() {
         orgId: "org-customer-003",
         createdAt: new Date().toISOString(),
       },
-    ]
-    localStorage.setItem(STORAGE_KEYS.users, JSON.stringify(defaultUsers))
+    ];
+    localStorage.setItem(STORAGE_KEYS.users, JSON.stringify(defaultUsers));
   }
 
   // Default projects with demo deliverables
@@ -227,8 +235,11 @@ export function initializeDefaultData() {
         lastActivityAt: new Date().toISOString(),
         createdAt: new Date().toISOString(),
       },
-    ]
-    localStorage.setItem(STORAGE_KEYS.projects, JSON.stringify(defaultProjects))
+    ];
+    localStorage.setItem(
+      STORAGE_KEYS.projects,
+      JSON.stringify(defaultProjects),
+    );
 
     // Initialize demo deliverables for proj-demo-1
     const demoDeliverables: ProjectDeliverables = {
@@ -277,112 +288,125 @@ export function initializeDefaultData() {
       ],
       visuals: [],
       updatedAt: new Date().toISOString(),
-    }
-    localStorage.setItem(STORAGE_KEYS.deliverables("proj-demo-1"), JSON.stringify(demoDeliverables))
+    };
+    localStorage.setItem(
+      STORAGE_KEYS.deliverables("proj-demo-1"),
+      JSON.stringify(demoDeliverables),
+    );
   }
 }
 
 // Organizations CRUD
 export function getOrganizations(): Organization[] {
-  const data = localStorage.getItem(STORAGE_KEYS.orgs)
-  return data ? JSON.parse(data) : []
+  const data = localStorage.getItem(STORAGE_KEYS.orgs);
+  return data ? JSON.parse(data) : [];
 }
 
 export function getOrganizationById(orgId: string): Organization | undefined {
-  return getOrganizations().find((o) => o.orgId === orgId)
+  return getOrganizations().find((o) => o.orgId === orgId);
 }
 
 export function saveOrganization(org: Organization): void {
-  const orgs = getOrganizations()
-  const index = orgs.findIndex((o) => o.orgId === org.orgId)
+  const orgs = getOrganizations();
+  const index = orgs.findIndex((o) => o.orgId === org.orgId);
   if (index >= 0) {
-    orgs[index] = org
+    orgs[index] = org;
   } else {
-    orgs.push(org)
+    orgs.push(org);
   }
-  localStorage.setItem(STORAGE_KEYS.orgs, JSON.stringify(orgs))
+  localStorage.setItem(STORAGE_KEYS.orgs, JSON.stringify(orgs));
 }
 
 export function deleteOrganization(orgId: string): void {
-  const orgs = getOrganizations().filter((o) => o.orgId !== orgId)
-  localStorage.setItem(STORAGE_KEYS.orgs, JSON.stringify(orgs))
+  const orgs = getOrganizations().filter((o) => o.orgId !== orgId);
+  localStorage.setItem(STORAGE_KEYS.orgs, JSON.stringify(orgs));
 }
 
 // Users CRUD
 export function getUsers(): User[] {
-  const data = localStorage.getItem(STORAGE_KEYS.users)
-  return data ? JSON.parse(data) : []
+  const data = localStorage.getItem(STORAGE_KEYS.users);
+  return data ? JSON.parse(data) : [];
 }
 
 export function getUserById(userId: string): User | undefined {
-  return getUsers().find((u) => u.userId === userId)
+  return getUsers().find((u) => u.userId === userId);
 }
 
 export function saveUser(user: User): void {
-  const users = getUsers()
-  const index = users.findIndex((u) => u.userId === user.userId)
+  const users = getUsers();
+  const index = users.findIndex((u) => u.userId === user.userId);
   if (index >= 0) {
-    users[index] = user
+    users[index] = user;
   } else {
-    users.push(user)
+    users.push(user);
   }
-  localStorage.setItem(STORAGE_KEYS.users, JSON.stringify(users))
+  localStorage.setItem(STORAGE_KEYS.users, JSON.stringify(users));
 }
 
 export function deleteUser(userId: string): void {
-  const users = getUsers().filter((u) => u.userId !== userId)
-  localStorage.setItem(STORAGE_KEYS.users, JSON.stringify(users))
+  const users = getUsers().filter((u) => u.userId !== userId);
+  localStorage.setItem(STORAGE_KEYS.users, JSON.stringify(users));
 }
 
 // Projects CRUD
-export function getProjects(userRole?: "admin" | "customer", userOrgId?: string): Project[] {
-  const data = localStorage.getItem(STORAGE_KEYS.projects)
-  const projects = data ? JSON.parse(data) : []
+export function getProjects(
+  userRole?: "admin" | "customer",
+  userOrgId?: string,
+): Project[] {
+  const data = localStorage.getItem(STORAGE_KEYS.projects);
+  const projects = data ? JSON.parse(data) : [];
 
-  if (userRole === "admin") return projects
+  if (userRole === "admin") return projects;
   if (userRole === "customer" && userOrgId) {
-    return projects.filter((p: Project) => p.orgId === userOrgId)
+    return projects.filter((p: Project) => p.orgId === userOrgId);
   }
-  return projects
+  return projects;
 }
 
 export function getProjectById(projectId: string): Project | undefined {
-  return getProjects().find((p) => p.projectId === projectId)
+  return getProjects().find((p) => p.projectId === projectId);
 }
 
 export function getProjectsByOrg(orgId: string): Project[] {
-  return getProjects().filter((p) => p.orgId === orgId)
+  return getProjects().filter((p) => p.orgId === orgId);
 }
 
 export function saveProject(project: Project): void {
-  const projects = getProjects()
-  const index = projects.findIndex((p) => p.projectId === project.projectId)
+  const projects = getProjects();
+  const index = projects.findIndex((p) => p.projectId === project.projectId);
   if (index >= 0) {
-    projects[index] = { ...project, updatedAt: new Date().toISOString() }
+    projects[index] = { ...project, updatedAt: new Date().toISOString() };
   } else {
-    projects.push(project)
+    projects.push(project);
   }
-  localStorage.setItem(STORAGE_KEYS.projects, JSON.stringify(projects))
+  localStorage.setItem(STORAGE_KEYS.projects, JSON.stringify(projects));
 }
 
 export function deleteProject(projectId: string): void {
-  const projects = getProjects().filter((p) => p.projectId !== projectId)
-  localStorage.setItem(STORAGE_KEYS.projects, JSON.stringify(projects))
+  const projects = getProjects().filter((p) => p.projectId !== projectId);
+  localStorage.setItem(STORAGE_KEYS.projects, JSON.stringify(projects));
   // Also delete deliverables
-  localStorage.removeItem(STORAGE_KEYS.deliverables(projectId))
+  localStorage.removeItem(STORAGE_KEYS.deliverables(projectId));
 }
 
-export function updateProjectDeliveryStage(projectId: string, stage: DeliveryStage): void {
-  const project = getProjectById(projectId)
-  if (!project) return
-  saveProject({ ...project, deliveryStage: stage, lastActivityAt: new Date().toISOString() })
+export function updateProjectDeliveryStage(
+  projectId: string,
+  stage: DeliveryStage,
+): void {
+  const project = getProjectById(projectId);
+  if (!project) return;
+  saveProject({
+    ...project,
+    deliveryStage: stage,
+    lastActivityAt: new Date().toISOString(),
+  });
 }
 
 // Deliverables CRUD
 export function getProjectDeliverables(projectId: string): ProjectDeliverables {
-  const data = localStorage.getItem(STORAGE_KEYS.deliverables(projectId))
-  if (data) return JSON.parse(data)
-  
+  const data = localStorage.getItem(STORAGE_KEYS.deliverables(projectId));
+  if (data) return JSON.parse(data);
+
   // Return empty deliverables structure if none exists
   return {
     projectId,
@@ -390,107 +414,142 @@ export function getProjectDeliverables(projectId: string): ProjectDeliverables {
     downloads: [],
     visuals: [],
     updatedAt: new Date().toISOString(),
-  }
+  };
 }
 
-export function saveProjectDeliverables(deliverables: ProjectDeliverables): void {
-  deliverables.updatedAt = new Date().toISOString()
-  localStorage.setItem(STORAGE_KEYS.deliverables(deliverables.projectId), JSON.stringify(deliverables))
+export function saveProjectDeliverables(
+  deliverables: ProjectDeliverables,
+): void {
+  deliverables.updatedAt = new Date().toISOString();
+  localStorage.setItem(
+    STORAGE_KEYS.deliverables(deliverables.projectId),
+    JSON.stringify(deliverables),
+  );
 }
 
 // Map Layer operations
-export function addMapLayer(projectId: string, layer: Omit<MapLayer, "id" | "uploadedAt">): MapLayer {
-  const deliverables = getProjectDeliverables(projectId)
+export function addMapLayer(
+  projectId: string,
+  layer: Omit<MapLayer, "id" | "uploadedAt">,
+): MapLayer {
+  const deliverables = getProjectDeliverables(projectId);
   const newLayer: MapLayer = {
     ...layer,
     id: `map-${Date.now()}`,
     uploadedAt: new Date().toISOString(),
-  }
-  deliverables.maps.push(newLayer)
-  saveProjectDeliverables(deliverables)
-  return newLayer
+  };
+  deliverables.maps.push(newLayer);
+  saveProjectDeliverables(deliverables);
+  return newLayer;
 }
 
-export function updateMapLayer(projectId: string, layerId: string, updates: Partial<MapLayer>): void {
-  const deliverables = getProjectDeliverables(projectId)
-  const index = deliverables.maps.findIndex((m) => m.id === layerId)
+export function updateMapLayer(
+  projectId: string,
+  layerId: string,
+  updates: Partial<MapLayer>,
+): void {
+  const deliverables = getProjectDeliverables(projectId);
+  const index = deliverables.maps.findIndex((m) => m.id === layerId);
   if (index >= 0) {
-    deliverables.maps[index] = { ...deliverables.maps[index], ...updates }
-    saveProjectDeliverables(deliverables)
+    deliverables.maps[index] = { ...deliverables.maps[index], ...updates };
+    saveProjectDeliverables(deliverables);
   }
 }
 
 export function deleteMapLayer(projectId: string, layerId: string): void {
-  const deliverables = getProjectDeliverables(projectId)
-  deliverables.maps = deliverables.maps.filter((m) => m.id !== layerId)
-  saveProjectDeliverables(deliverables)
+  const deliverables = getProjectDeliverables(projectId);
+  deliverables.maps = deliverables.maps.filter((m) => m.id !== layerId);
+  saveProjectDeliverables(deliverables);
 }
 
 // Downloadable File operations
-export function addDeliverableFile(projectId: string, file: Omit<DeliverableFile, "id" | "uploadedAt">): DeliverableFile {
-  const deliverables = getProjectDeliverables(projectId)
+export function addDeliverableFile(
+  projectId: string,
+  file: Omit<DeliverableFile, "id" | "uploadedAt">,
+): DeliverableFile {
+  const deliverables = getProjectDeliverables(projectId);
   const newFile: DeliverableFile = {
     ...file,
     id: `file-${Date.now()}`,
     uploadedAt: new Date().toISOString(),
-  }
-  deliverables.downloads.push(newFile)
-  saveProjectDeliverables(deliverables)
-  return newFile
+  };
+  deliverables.downloads.push(newFile);
+  saveProjectDeliverables(deliverables);
+  return newFile;
 }
 
-export function updateDeliverableFile(projectId: string, fileId: string, updates: Partial<DeliverableFile>): void {
-  const deliverables = getProjectDeliverables(projectId)
-  const index = deliverables.downloads.findIndex((f) => f.id === fileId)
+export function updateDeliverableFile(
+  projectId: string,
+  fileId: string,
+  updates: Partial<DeliverableFile>,
+): void {
+  const deliverables = getProjectDeliverables(projectId);
+  const index = deliverables.downloads.findIndex((f) => f.id === fileId);
   if (index >= 0) {
-    deliverables.downloads[index] = { ...deliverables.downloads[index], ...updates }
-    saveProjectDeliverables(deliverables)
+    deliverables.downloads[index] = {
+      ...deliverables.downloads[index],
+      ...updates,
+    };
+    saveProjectDeliverables(deliverables);
   }
 }
 
 export function deleteDeliverableFile(projectId: string, fileId: string): void {
-  const deliverables = getProjectDeliverables(projectId)
-  deliverables.downloads = deliverables.downloads.filter((f) => f.id !== fileId)
-  saveProjectDeliverables(deliverables)
+  const deliverables = getProjectDeliverables(projectId);
+  deliverables.downloads = deliverables.downloads.filter(
+    (f) => f.id !== fileId,
+  );
+  saveProjectDeliverables(deliverables);
 }
 
 // Chart/Visual operations
-export function addChartDataset(projectId: string, chart: Omit<ChartDataset, "id" | "uploadedAt">): ChartDataset {
-  const deliverables = getProjectDeliverables(projectId)
+export function addChartDataset(
+  projectId: string,
+  chart: Omit<ChartDataset, "id" | "uploadedAt">,
+): ChartDataset {
+  const deliverables = getProjectDeliverables(projectId);
   const newChart: ChartDataset = {
     ...chart,
     id: `chart-${Date.now()}`,
     uploadedAt: new Date().toISOString(),
-  }
-  deliverables.visuals.push(newChart)
-  saveProjectDeliverables(deliverables)
-  return newChart
+  };
+  deliverables.visuals.push(newChart);
+  saveProjectDeliverables(deliverables);
+  return newChart;
 }
 
-export function updateChartDataset(projectId: string, chartId: string, updates: Partial<ChartDataset>): void {
-  const deliverables = getProjectDeliverables(projectId)
-  const index = deliverables.visuals.findIndex((c) => c.id === chartId)
+export function updateChartDataset(
+  projectId: string,
+  chartId: string,
+  updates: Partial<ChartDataset>,
+): void {
+  const deliverables = getProjectDeliverables(projectId);
+  const index = deliverables.visuals.findIndex((c) => c.id === chartId);
   if (index >= 0) {
-    deliverables.visuals[index] = { ...deliverables.visuals[index], ...updates }
-    saveProjectDeliverables(deliverables)
+    deliverables.visuals[index] = {
+      ...deliverables.visuals[index],
+      ...updates,
+    };
+    saveProjectDeliverables(deliverables);
   }
 }
 
 export function deleteChartDataset(projectId: string, chartId: string): void {
-  const deliverables = getProjectDeliverables(projectId)
-  deliverables.visuals = deliverables.visuals.filter((c) => c.id !== chartId)
-  saveProjectDeliverables(deliverables)
+  const deliverables = getProjectDeliverables(projectId);
+  deliverables.visuals = deliverables.visuals.filter((c) => c.id !== chartId);
+  saveProjectDeliverables(deliverables);
 }
 
 // Stats and aggregates
 export function getProjectStats() {
-  const projects = getProjects()
+  const projects = getProjects();
   return {
     total: projects.length,
     byDeliveryStage: {
       pending: projects.filter((p) => p.deliveryStage === "pending").length,
       analyzing: projects.filter((p) => p.deliveryStage === "analyzing").length,
-      delivering: projects.filter((p) => p.deliveryStage === "delivering").length,
+      delivering: projects.filter((p) => p.deliveryStage === "delivering")
+        .length,
       executing: projects.filter((p) => p.deliveryStage === "executing").length,
       completed: projects.filter((p) => p.deliveryStage === "completed").length,
     },
@@ -499,32 +558,40 @@ export function getProjectStats() {
       asset: projects.filter((p) => p.theme === "asset").length,
       biodiversity: projects.filter((p) => p.theme === "biodiversity").length,
     },
-  }
+  };
 }
 
 export function getOrgWithAggregates(orgId: string): Organization | undefined {
-  const org = getOrganizationById(orgId)
-  if (!org) return undefined
+  const org = getOrganizationById(orgId);
+  if (!org) return undefined;
 
-  const orgProjects = getProjectsByOrg(orgId)
+  const orgProjects = getProjectsByOrg(orgId);
   return {
     ...org,
     activeProjectsByStage: {
       pending: orgProjects.filter((p) => p.deliveryStage === "pending").length,
-      analyzing: orgProjects.filter((p) => p.deliveryStage === "analyzing").length,
-      delivering: orgProjects.filter((p) => p.deliveryStage === "delivering").length,
-      executing: orgProjects.filter((p) => p.deliveryStage === "executing").length,
-      completed: orgProjects.filter((p) => p.deliveryStage === "completed").length,
+      analyzing: orgProjects.filter((p) => p.deliveryStage === "analyzing")
+        .length,
+      delivering: orgProjects.filter((p) => p.deliveryStage === "delivering")
+        .length,
+      executing: orgProjects.filter((p) => p.deliveryStage === "executing")
+        .length,
+      completed: orgProjects.filter((p) => p.deliveryStage === "completed")
+        .length,
     },
-  }
+  };
 }
 
 // Get public deliverables count for a project
-export function getDeliverablesCount(projectId: string): { maps: number; downloads: number; visuals: number } {
-  const deliverables = getProjectDeliverables(projectId)
+export function getDeliverablesCount(projectId: string): {
+  maps: number;
+  downloads: number;
+  visuals: number;
+} {
+  const deliverables = getProjectDeliverables(projectId);
   return {
     maps: deliverables.maps.filter((m) => m.isPublic).length,
     downloads: deliverables.downloads.filter((d) => d.isPublic).length,
     visuals: deliverables.visuals.filter((v) => v.isPublic).length,
-  }
+  };
 }

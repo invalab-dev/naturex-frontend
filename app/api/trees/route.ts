@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server"
+import { NextResponse } from "next/server";
 
 // Sample tree data for Seoul area
 const treeData = [
@@ -72,8 +72,8 @@ const treeData = [
     location: "Myeongdong St. #78",
     dataSource: "ai",
   },
-]
+];
 
 export async function GET() {
-  return NextResponse.json(treeData)
+  return NextResponse.json(treeData);
 }

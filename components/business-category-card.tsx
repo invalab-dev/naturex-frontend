@@ -1,19 +1,19 @@
-"use client"
+"use client";
 
-import { Card } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import type { LucideIcon } from "lucide-react"
-import Link from "next/link"
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import type { LucideIcon } from "lucide-react";
+import Link from "next/link";
 
 interface BusinessCategoryCardProps {
-  icon: LucideIcon
-  title: string
-  titleEn: string
-  subtitle: string
-  bullets: string[]
-  uspBullet: string
-  ctaLabel: string
-  ctaHref: string
+  icon: LucideIcon;
+  title: string;
+  titleEn: string;
+  subtitle: string;
+  bullets: string[];
+  uspBullet: string;
+  ctaLabel: string;
+  ctaHref: string;
 }
 
 export function BusinessCategoryCard({
@@ -56,7 +56,9 @@ export function BusinessCategoryCard({
           {/* USP Bullet */}
           <li className="flex items-start gap-2">
             <span className="text-emerald-400 mt-0.5">•</span>
-            <span className="italic text-emerald-300 font-medium">{uspBullet}</span>
+            <span className="italic text-emerald-300 font-medium">
+              {uspBullet}
+            </span>
           </li>
         </ul>
       </div>
@@ -68,5 +70,5 @@ export function BusinessCategoryCard({
         </Button>
       </Link>
     </Card>
-  )
+  );
 }

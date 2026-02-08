@@ -1,14 +1,23 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { Home, FolderOpen, BarChart3, Settings, FileText, Map, Activity, Zap } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import {
+  Home,
+  FolderOpen,
+  BarChart3,
+  Settings,
+  FileText,
+  Map,
+  Activity,
+  Zap,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface TrackSidebarProps {
-  projectId: string
-  track: "efficiency" | "asset-value" | "esg-tnfd"
+  projectId: string;
+  track: "efficiency" | "asset-value" | "esg-tnfd";
 }
 
 const trackConfigs = {
@@ -39,32 +48,36 @@ const trackConfigs = {
       { href: "/reporting", label: "Reporting", icon: FileText },
     ],
   },
-}
+};
 
 export function TrackSidebar({ projectId, track }: TrackSidebarProps) {
-  const pathname = usePathname()
-  const config = trackConfigs[track]
-  const baseUrl = `/app/projects/${projectId}/${track}`
+  const pathname = usePathname();
+  const config = trackConfigs[track];
+  const baseUrl = `/app/projects/${projectId}/${track}`;
 
   const isActive = (path: string) => {
     if (path === "") {
-      return pathname === baseUrl
+      return pathname === baseUrl;
     }
-    return pathname === baseUrl + path || pathname.startsWith(baseUrl + path + "/")
-  }
+    return (
+      pathname === baseUrl + path || pathname.startsWith(baseUrl + path + "/")
+    );
+  };
 
   return (
     <div className="w-56 h-screen bg-slate-50 dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col">
       {/* Track Header */}
       <div className="p-4 border-b border-slate-200 dark:border-slate-800">
-        <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400">{config.title}</h3>
+        <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400">
+          {config.title}
+        </h3>
       </div>
 
       {/* Navigation */}
       <nav className="flex-1 p-3 space-y-1">
         {config.items.map((item) => {
-          const Icon = item.icon
-          const href = baseUrl + item.href
+          const Icon = item.icon;
+          const href = baseUrl + item.href;
           return (
             <Link key={item.href} href={href}>
               <Button
@@ -80,9 +93,9 @@ export function TrackSidebar({ projectId, track }: TrackSidebarProps) {
                 {item.label}
               </Button>
             </Link>
-          )
+          );
         })}
       </nav>
     </div>
-  )
+  );
 }

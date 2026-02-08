@@ -1,9 +1,16 @@
-"use client"
+"use client";
 
-import { AlertTriangle, Clock, CheckCircle2, MapPin, TrendingUp, Eye } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Card } from "@/components/ui/card"
+import {
+  AlertTriangle,
+  Clock,
+  CheckCircle2,
+  MapPin,
+  TrendingUp,
+  Eye,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 
 export function EfficiencyPriorityActions() {
   const actions = [
@@ -84,30 +91,37 @@ export function EfficiencyPriorityActions() {
         },
       ],
     },
-  ]
+  ];
 
   return (
     <div className="space-y-6">
       {actions.map((category) => {
-        const Icon = category.icon
+        const Icon = category.icon;
         const colorClass = {
           red: "border-red-500 bg-red-500/5",
           yellow: "border-yellow-500 bg-yellow-500/5",
           emerald: "border-emerald-500 bg-emerald-500/5",
-        }[category.color]
+        }[category.color];
 
         const iconColorClass = {
           red: "text-red-400",
           yellow: "text-yellow-400",
           emerald: "text-emerald-400",
-        }[category.color]
+        }[category.color];
 
         return (
-          <div key={category.priority} className={`rounded-xl border ${colorClass} p-6`}>
+          <div
+            key={category.priority}
+            className={`rounded-xl border ${colorClass} p-6`}
+          >
             <div className="flex items-center gap-3 mb-4">
               <Icon size={20} className={iconColorClass} />
-              <h3 className="text-lg font-semibold text-foreground">{category.priority}</h3>
-              <span className="text-sm text-muted-foreground">({category.items.length}건)</span>
+              <h3 className="text-lg font-semibold text-foreground">
+                {category.priority}
+              </h3>
+              <span className="text-sm text-muted-foreground">
+                ({category.items.length}건)
+              </span>
             </div>
 
             <div className="space-y-3">
@@ -119,13 +133,17 @@ export function EfficiencyPriorityActions() {
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-xs font-mono text-slate-400">{item.id}</span>
+                        <span className="text-xs font-mono text-slate-400">
+                          {item.id}
+                        </span>
                         <Badge variant="outline" className="text-xs">
                           <TrendingUp size={12} className="mr-1" />
                           Priority {item.priorityScore}
                         </Badge>
                       </div>
-                      <h4 className="font-semibold text-foreground">{item.issue}</h4>
+                      <h4 className="font-semibold text-foreground">
+                        {item.issue}
+                      </h4>
                     </div>
                     <Button size="sm" variant="ghost" className="gap-1">
                       <MapPin size={14} />
@@ -139,10 +157,15 @@ export function EfficiencyPriorityActions() {
                   </p>
 
                   <div className="space-y-1">
-                    <p className="text-xs font-medium text-muted-foreground">원인 및 근거:</p>
+                    <p className="text-xs font-medium text-muted-foreground">
+                      원인 및 근거:
+                    </p>
                     <div className="flex flex-wrap gap-2">
                       {item.causes.map((cause, idx) => (
-                        <span key={idx} className="text-xs bg-slate-800 text-slate-300 px-2 py-1 rounded">
+                        <span
+                          key={idx}
+                          className="text-xs bg-slate-800 text-slate-300 px-2 py-1 rounded"
+                        >
                           {cause}
                         </span>
                       ))}
@@ -152,7 +175,7 @@ export function EfficiencyPriorityActions() {
               ))}
             </div>
           </div>
-        )
+        );
       })}
 
       <Card className="rounded-xl border border-slate-700 bg-slate-900/50 p-6">
@@ -168,9 +191,12 @@ export function EfficiencyPriorityActions() {
         </div>
 
         <p className="text-sm text-slate-400 mb-4">
-          식물 다양성, 토양 조건, 병해충 분포, 기후 패턴, 교통 밀도 등을 종합 고려한 AI 추천 관리 전략입니다.
+          식물 다양성, 토양 조건, 병해충 분포, 기후 패턴, 교통 밀도 등을 종합
+          고려한 AI 추천 관리 전략입니다.
           <br />
-          <span className="text-emerald-400">상세보기를 클릭하면 더 자세한 맵과 분석 결과를 확인할 수 있습니다.</span>
+          <span className="text-emerald-400">
+            상세보기를 클릭하면 더 자세한 맵과 분석 결과를 확인할 수 있습니다.
+          </span>
         </p>
 
         <div className="rounded-lg border border-slate-700 overflow-hidden mb-4">
@@ -257,11 +283,12 @@ export function EfficiencyPriorityActions() {
 
         <div className="mt-4 p-3 bg-slate-800/50 rounded-lg border border-slate-700">
           <p className="text-xs text-slate-400">
-            <strong className="text-emerald-400">고려 요소:</strong> 식물 다양성 지수, 토양 pH/영양도, 병해충 발생 이력,
-            기후 패턴(온도/습도), 교통 밀도, 보행자 안전, 미세먼지 흡수율
+            <strong className="text-emerald-400">고려 요소:</strong> 식물 다양성
+            지수, 토양 pH/영양도, 병해충 발생 이력, 기후 패턴(온도/습도), 교통
+            밀도, 보행자 안전, 미세먼지 흡수율
           </p>
         </div>
       </Card>
     </div>
-  )
+  );
 }

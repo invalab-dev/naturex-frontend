@@ -1,15 +1,23 @@
-"use client"
+"use client";
 
-import { Home, MapPin, BarChart3, FileText } from "lucide-react"
-import { SharedMultiStepSidebar, reportingTheme, type StepItem } from "@/components/sidebar/shared-multi-step-sidebar"
+import { Home, MapPin, BarChart3, FileText } from "lucide-react";
+import {
+  SharedMultiStepSidebar,
+  reportingTheme,
+  type StepItem,
+} from "@/components/sidebar/shared-multi-step-sidebar";
 
 interface MultiStepSidebarProps {
-  currentStep: "home" | "leap" | "assessment" | "disclosure"
-  onStepChange: (step: "home" | "leap" | "assessment" | "disclosure") => void
-  language: "kr" | "en"
+  currentStep: "home" | "leap" | "assessment" | "disclosure";
+  onStepChange: (step: "home" | "leap" | "assessment" | "disclosure") => void;
+  language: "kr" | "en";
 }
 
-export function ReportingMultiStepSidebar({ currentStep, onStepChange, language }: MultiStepSidebarProps) {
+export function ReportingMultiStepSidebar({
+  currentStep,
+  onStepChange,
+  language,
+}: MultiStepSidebarProps) {
   const steps: StepItem[] = [
     {
       id: "home" as const,
@@ -39,7 +47,7 @@ export function ReportingMultiStepSidebar({ currentStep, onStepChange, language 
       en: "Disclosure",
       description: { kr: "자동 문서 생성", en: "Auto Document" },
     },
-  ]
+  ];
 
   return (
     <SharedMultiStepSidebar
@@ -51,5 +59,5 @@ export function ReportingMultiStepSidebar({ currentStep, onStepChange, language 
       subtitle={{ kr: "단계별 진행", en: "Step by Step" }}
       theme={reportingTheme}
     />
-  )
+  );
 }

@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useRouter } from "next/navigation"
+import type React from "react";
+import { useRouter } from "next/navigation";
 
 export function NatureXHeader({ children }: { children?: React.ReactNode }) {
-  const router = useRouter()
+  const router = useRouter();
 
   return (
     <header className="border-b border-blue-200 bg-white/90 backdrop-blur-sm sticky top-0 z-50 shadow-sm">
@@ -25,5 +25,5 @@ export function NatureXHeader({ children }: { children?: React.ReactNode }) {
         {children}
       </div>
     </header>
-  )
+  );
 }

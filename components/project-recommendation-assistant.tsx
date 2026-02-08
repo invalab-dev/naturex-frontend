@@ -1,27 +1,37 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
-import { Sparkles, TrendingDown, TrendingUp, FileCheck, ArrowRight } from "lucide-react"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Sparkles,
+  TrendingDown,
+  TrendingUp,
+  FileCheck,
+  ArrowRight,
+} from "lucide-react";
 
-type Language = "ko" | "en"
+type Language = "ko" | "en";
 
-type ServiceType = "efficiency" | "asset-value" | "esg-tnfd"
+type ServiceType = "efficiency" | "asset-value" | "esg-tnfd";
 
 interface Recommendation {
-  service: ServiceType
-  reason: string
+  service: ServiceType;
+  reason: string;
 }
 
 interface ProjectRecommendationAssistantProps {
-  language: Language
+  language: Language;
 }
 
-export function ProjectRecommendationAssistant({ language }: ProjectRecommendationAssistantProps) {
-  const [input, setInput] = useState("")
-  const [recommendation, setRecommendation] = useState<Recommendation | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
+export function ProjectRecommendationAssistant({
+  language,
+}: ProjectRecommendationAssistantProps) {
+  const [input, setInput] = useState("");
+  const [recommendation, setRecommendation] = useState<Recommendation | null>(
+    null,
+  );
+  const [isLoading, setIsLoading] = useState(false);
 
   const content = {
     header: {
@@ -74,10 +84,10 @@ export function ProjectRecommendationAssistant({ language }: ProjectRecommendati
       ko: "이 프로젝트는 다른 서비스와 함께 사용하면 더 효과적입니다",
       en: "This project can be more effective when combined with other services",
     },
-  }
+  };
 
   const analyzeInput = (userInput: string): Recommendation => {
-    const lowerInput = userInput.toLowerCase()
+    const lowerInput = userInput.toLowerCase();
 
     // Keywords for efficiency
     const efficiencyKeywords = [
@@ -93,7 +103,7 @@ export function ProjectRecommendationAssistant({ language }: ProjectRecommendati
       "risk",
       "priority",
       "efficiency",
-    ]
+    ];
 
     // Keywords for asset value
     const assetKeywords = [
@@ -110,7 +120,7 @@ export function ProjectRecommendationAssistant({ language }: ProjectRecommendati
       "asset",
       "investment",
       "return",
-    ]
+    ];
 
     // Keywords for ESG/TNFD
     const esgKeywords = [
@@ -126,23 +136,23 @@ export function ProjectRecommendationAssistant({ language }: ProjectRecommendati
       "compliance",
       "regulation",
       "transparency",
-    ]
+    ];
 
-    let efficiencyScore = 0
-    let assetScore = 0
-    let esgScore = 0
+    let efficiencyScore = 0;
+    let assetScore = 0;
+    let esgScore = 0;
 
     efficiencyKeywords.forEach((keyword) => {
-      if (lowerInput.includes(keyword)) efficiencyScore++
-    })
+      if (lowerInput.includes(keyword)) efficiencyScore++;
+    });
 
     assetKeywords.forEach((keyword) => {
-      if (lowerInput.includes(keyword)) assetScore++
-    })
+      if (lowerInput.includes(keyword)) assetScore++;
+    });
 
     esgKeywords.forEach((keyword) => {
-      if (lowerInput.includes(keyword)) esgScore++
-    })
+      if (lowerInput.includes(keyword)) esgScore++;
+    });
 
     // Determine recommendation
     if (esgScore > efficiencyScore && esgScore > assetScore) {
@@ -152,7 +162,7 @@ export function ProjectRecommendationAssistant({ language }: ProjectRecommendati
           language === "ko"
             ? "ESG 공시, TNFD 규제 대응, 투명한 보고 체계에 대한 니즈가 중심이기 때문에 ESG·TNFD 공시 서비스가 가장 적합합니다."
             : "Your focus on ESG disclosure, TNFD compliance, and transparent reporting makes the ESG·TNFD Disclosure service most suitable.",
-      }
+      };
     } else if (assetScore > efficiencyScore) {
       return {
         service: "asset-value",
@@ -160,7 +170,7 @@ export function ProjectRecommendationAssistant({ language }: ProjectRecommendati
           language === "ko"
             ? "생산성 향상, 자산 가치 측정, 탄소 관리 및 투자 수익에 대한 고민이 중심이기 때문에 자산 가치 향상 서비스가 가장 적합합니다."
             : "Your focus on productivity improvement, asset valuation, carbon management, and investment returns makes the Asset Value Enhancement service most suitable.",
-      }
+      };
     } else {
       return {
         service: "efficiency",
@@ -168,44 +178,44 @@ export function ProjectRecommendationAssistant({ language }: ProjectRecommendati
           language === "ko"
             ? "유지관리 비용, 우선관리 대상, 현장 작업 효율에 대한 고민이 중심이기 때문에 운영비 절감 서비스가 가장 적합합니다."
             : "Your focus on maintenance costs, priority management, and operational efficiency makes the Operational Efficiency service most suitable.",
-      }
+      };
     }
-  }
+  };
 
   const handleSubmit = async () => {
-    if (!input.trim()) return
+    if (!input.trim()) return;
 
-    setIsLoading(true)
+    setIsLoading(true);
 
     // Simulate AI processing delay
     setTimeout(() => {
-      const result = analyzeInput(input)
-      setRecommendation(result)
-      setIsLoading(false)
-    }, 1500)
-  }
+      const result = analyzeInput(input);
+      setRecommendation(result);
+      setIsLoading(false);
+    }, 1500);
+  };
 
   const getServiceIcon = (service: ServiceType) => {
     switch (service) {
       case "efficiency":
-        return TrendingDown
+        return TrendingDown;
       case "asset-value":
-        return TrendingUp
+        return TrendingUp;
       case "esg-tnfd":
-        return FileCheck
+        return FileCheck;
     }
-  }
+  };
 
   const getServiceRoute = (service: ServiceType) => {
     switch (service) {
       case "efficiency":
-        return "/app/projects/new?track=efficiency"
+        return "/app/projects/new?track=efficiency";
       case "asset-value":
-        return "/app/projects/new?track=asset-value"
+        return "/app/projects/new?track=asset-value";
       case "esg-tnfd":
-        return "/app/projects/new?track=esg-tnfd"
+        return "/app/projects/new?track=esg-tnfd";
     }
-  }
+  };
 
   return (
     <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-8 shadow-sm">
@@ -218,7 +228,9 @@ export function ProjectRecommendationAssistant({ language }: ProjectRecommendati
           <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-2 leading-tight">
             {content.header[language]}
           </h2>
-          <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">{content.subheader[language]}</p>
+          <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+            {content.subheader[language]}
+          </p>
         </div>
       </div>
 
@@ -259,7 +271,7 @@ export function ProjectRecommendationAssistant({ language }: ProjectRecommendati
 
             <div className="flex items-center gap-3 mb-4">
               {(() => {
-                const Icon = getServiceIcon(recommendation.service)
+                const Icon = getServiceIcon(recommendation.service);
                 return (
                   <>
                     <div className="p-2 bg-blue-100 dark:bg-blue-900/50 rounded-lg">
@@ -269,7 +281,7 @@ export function ProjectRecommendationAssistant({ language }: ProjectRecommendati
                       {content.services[recommendation.service][language]}
                     </h3>
                   </>
-                )
+                );
               })()}
             </div>
 
@@ -277,12 +289,17 @@ export function ProjectRecommendationAssistant({ language }: ProjectRecommendati
               <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
                 {content.reasonLabel[language]}
               </p>
-              <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">{recommendation.reason}</p>
+              <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                {recommendation.reason}
+              </p>
             </div>
           </div>
 
           {/* CTA Button */}
-          <Button asChild className="w-full bg-blue-500 hover:bg-blue-600 text-white py-6 text-base">
+          <Button
+            asChild
+            className="w-full bg-blue-500 hover:bg-blue-600 text-white py-6 text-base"
+          >
             <a href={getServiceRoute(recommendation.service)}>
               {content.ctaButton[language]}
               <ArrowRight className="w-4 h-4 ml-2" />
@@ -304,5 +321,5 @@ export function ProjectRecommendationAssistant({ language }: ProjectRecommendati
         </div>
       )}
     </div>
-  )
+  );
 }

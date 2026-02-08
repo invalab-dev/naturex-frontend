@@ -1,15 +1,24 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { GlobalHeader } from "@/components/global-header"
-import { Building2, TreePine, Sprout, Factory, Landmark, Globe, TrendingUp, FileCheck } from "lucide-react"
+import { useState } from "react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { GlobalHeader } from "@/components/global-header";
+import {
+  Building2,
+  TreePine,
+  Sprout,
+  Factory,
+  Landmark,
+  Globe,
+  TrendingUp,
+  FileCheck,
+} from "lucide-react";
 
-type Language = "ko" | "en"
+type Language = "ko" | "en";
 
 const AboutPage = () => {
-  const [language, setLanguage] = useState<Language>("ko")
+  const [language, setLanguage] = useState<Language>("ko");
 
   const content = {
     tagline: {
@@ -68,7 +77,10 @@ const AboutPage = () => {
           },
           {
             icon: Globe,
-            label: { ko: "탄소·자연자본 프로젝트", en: "Carbon & Natural Capital" },
+            label: {
+              ko: "탄소·자연자본 프로젝트",
+              en: "Carbon & Natural Capital",
+            },
           },
           {
             icon: Factory,
@@ -93,7 +105,10 @@ const AboutPage = () => {
         industries: [
           {
             icon: Building2,
-            label: { ko: "대기업·글로벌 기업", en: "Enterprise & Global Corp." },
+            label: {
+              ko: "대기업·글로벌 기업",
+              en: "Enterprise & Global Corp.",
+            },
           },
           {
             icon: TrendingUp,
@@ -113,7 +128,7 @@ const AboutPage = () => {
     cta: {
       button: { ko: "프로젝트 시작하기", en: "Start a Project" },
     },
-  }
+  };
 
   return (
     <div className="flex flex-col min-h-screen bg-[#F5F7FB]">
@@ -128,7 +143,9 @@ const AboutPage = () => {
             <h1 className="text-5xl font-bold text-[#111827] mb-6 leading-tight text-balance">
               {content.tagline[language]}
             </h1>
-            <p className="text-xl text-[#6B7280] leading-relaxed text-pretty">{content.subtitle[language]}</p>
+            <p className="text-xl text-[#6B7280] leading-relaxed text-pretty">
+              {content.subtitle[language]}
+            </p>
           </div>
 
           {/* Services Section */}
@@ -148,15 +165,22 @@ const AboutPage = () => {
 
                 <div className="mb-6">
                   <div className="grid grid-cols-2 gap-3">
-                    {content.services.efficiency.industries.map((industry, idx) => {
-                      const Icon = industry.icon
-                      return (
-                        <div key={idx} className="flex items-center gap-2 bg-[#D1E3FF] rounded-lg p-2.5">
-                          <Icon className="w-4 h-4 text-[#118DFF] flex-shrink-0" />
-                          <span className="text-xs text-[#374151] leading-tight">{industry.label[language]}</span>
-                        </div>
-                      )
-                    })}
+                    {content.services.efficiency.industries.map(
+                      (industry, idx) => {
+                        const Icon = industry.icon;
+                        return (
+                          <div
+                            key={idx}
+                            className="flex items-center gap-2 bg-[#D1E3FF] rounded-lg p-2.5"
+                          >
+                            <Icon className="w-4 h-4 text-[#118DFF] flex-shrink-0" />
+                            <span className="text-xs text-[#374151] leading-tight">
+                              {industry.label[language]}
+                            </span>
+                          </div>
+                        );
+                      },
+                    )}
                   </div>
                 </div>
 
@@ -179,13 +203,18 @@ const AboutPage = () => {
                 <div className="mb-6">
                   <div className="grid grid-cols-2 gap-3">
                     {content.services.assets.industries.map((industry, idx) => {
-                      const Icon = industry.icon
+                      const Icon = industry.icon;
                       return (
-                        <div key={idx} className="flex items-center gap-2 bg-[#ECFDF5] rounded-lg p-2.5">
+                        <div
+                          key={idx}
+                          className="flex items-center gap-2 bg-[#ECFDF5] rounded-lg p-2.5"
+                        >
                           <Icon className="w-4 h-4 text-[#10B981] flex-shrink-0" />
-                          <span className="text-xs text-[#374151] leading-tight">{industry.label[language]}</span>
+                          <span className="text-xs text-[#374151] leading-tight">
+                            {industry.label[language]}
+                          </span>
                         </div>
-                      )
+                      );
                     })}
                   </div>
                 </div>
@@ -208,15 +237,22 @@ const AboutPage = () => {
 
                 <div className="mb-6">
                   <div className="grid grid-cols-2 gap-3">
-                    {content.services.reporting.industries.map((industry, idx) => {
-                      const Icon = industry.icon
-                      return (
-                        <div key={idx} className="flex items-center gap-2 bg-[#E5E7EB] rounded-lg p-2.5">
-                          <Icon className="w-4 h-4 text-[#8B5CF6] flex-shrink-0" />
-                          <span className="text-xs text-[#374151] leading-tight">{industry.label[language]}</span>
-                        </div>
-                      )
-                    })}
+                    {content.services.reporting.industries.map(
+                      (industry, idx) => {
+                        const Icon = industry.icon;
+                        return (
+                          <div
+                            key={idx}
+                            className="flex items-center gap-2 bg-[#E5E7EB] rounded-lg p-2.5"
+                          >
+                            <Icon className="w-4 h-4 text-[#8B5CF6] flex-shrink-0" />
+                            <span className="text-xs text-[#374151] leading-tight">
+                              {industry.label[language]}
+                            </span>
+                          </div>
+                        );
+                      },
+                    )}
                   </div>
                 </div>
 
@@ -240,7 +276,7 @@ const AboutPage = () => {
         </div>
       </main>
     </div>
-  )
-}
+  );
+};
 
-export default AboutPage
+export default AboutPage;

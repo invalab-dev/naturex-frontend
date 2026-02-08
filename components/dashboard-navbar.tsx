@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import { ChevronDown, User, Bell } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { ChevronDown, User, Bell } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,10 +9,10 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { NatureXLogo } from "@/components/naturex-logo"
-import Link from "next/link"
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { NatureXLogo } from "@/components/naturex-logo";
+import Link from "next/link";
 
 export function DashboardNavbar() {
   return (
@@ -77,5 +77,5 @@ export function DashboardNavbar() {
         </div>
       </div>
     </header>
-  )
+  );
 }

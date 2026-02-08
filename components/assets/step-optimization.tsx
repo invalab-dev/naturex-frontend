@@ -1,12 +1,14 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { TrendingUp, Target, AlertCircle, CheckCircle } from "lucide-react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { TrendingUp, Target, AlertCircle, CheckCircle } from "lucide-react";
 
 interface AssetsStepOptimizationProps {
-  language: "kr" | "en"
+  language: "kr" | "en";
 }
 
-export function AssetsStepOptimization({ language }: AssetsStepOptimizationProps) {
+export function AssetsStepOptimization({
+  language,
+}: AssetsStepOptimizationProps) {
   const recommendations = [
     {
       priority: "high",
@@ -22,32 +24,40 @@ export function AssetsStepOptimization({ language }: AssetsStepOptimizationProps
       priority: "medium",
       titleKr: "밀도 조정",
       titleEn: "Density Adjustment",
-      descKr: "과밀 구역의 간벌을 통해 개체당 성장률을 높이고 장기적인 탄소 저장량을 증가시킬 수 있습니다.",
-      descEn: "Increase individual growth rates and long-term carbon storage through thinning in overcrowded areas.",
+      descKr:
+        "과밀 구역의 간벌을 통해 개체당 성장률을 높이고 장기적인 탄소 저장량을 증가시킬 수 있습니다.",
+      descEn:
+        "Increase individual growth rates and long-term carbon storage through thinning in overcrowded areas.",
       impact: "+12%",
     },
     {
       priority: "medium",
       titleKr: "토양 개선",
       titleEn: "Soil Improvement",
-      descKr: "토양 분석 결과를 바탕으로 영양분 보충과 배수 개선을 통해 수목 건강도를 향상시킬 수 있습니다.",
-      descEn: "Improve tree health through nutrient supplementation and drainage improvement based on soil analysis.",
+      descKr:
+        "토양 분석 결과를 바탕으로 영양분 보충과 배수 개선을 통해 수목 건강도를 향상시킬 수 있습니다.",
+      descEn:
+        "Improve tree health through nutrient supplementation and drainage improvement based on soil analysis.",
       impact: "+9%",
     },
     {
       priority: "low",
       titleKr: "모니터링 강화",
       titleEn: "Enhanced Monitoring",
-      descKr: "정기적인 LiDAR 스캔과 AI 분석을 통해 성장 추이를 추적하고 문제를 조기에 발견할 수 있습니다.",
-      descEn: "Track growth trends and detect issues early through regular LiDAR scans and AI analysis.",
+      descKr:
+        "정기적인 LiDAR 스캔과 AI 분석을 통해 성장 추이를 추적하고 문제를 조기에 발견할 수 있습니다.",
+      descEn:
+        "Track growth trends and detect issues early through regular LiDAR scans and AI analysis.",
       impact: "+5%",
     },
-  ]
+  ];
 
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold mb-2">{language === "kr" ? "최적화 분석" : "Optimization Analysis"}</h2>
+        <h2 className="text-2xl font-bold mb-2">
+          {language === "kr" ? "최적화 분석" : "Optimization Analysis"}
+        </h2>
         <p className="text-muted-foreground">
           {language === "kr"
             ? "자산 가치를 극대화하기 위한 맞춤형 관리 전략을 제안합니다"
@@ -95,9 +105,9 @@ export function AssetsStepOptimization({ language }: AssetsStepOptimizationProps
               icon: CheckCircle,
               label: language === "kr" ? "낮음" : "Low",
             },
-          }[rec.priority]
+          }[rec.priority];
 
-          const Icon = priorityConfig.icon
+          const Icon = priorityConfig.icon;
 
           return (
             <Card key={index} className={`${priorityConfig.color} border`}>
@@ -109,29 +119,45 @@ export function AssetsStepOptimization({ language }: AssetsStepOptimizationProps
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <CardTitle className="text-lg">{language === "kr" ? rec.titleKr : rec.titleEn}</CardTitle>
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${priorityConfig.badge}`}>
+                        <CardTitle className="text-lg">
+                          {language === "kr" ? rec.titleKr : rec.titleEn}
+                        </CardTitle>
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs font-medium ${priorityConfig.badge}`}
+                        >
                           {priorityConfig.label}
                         </span>
                       </div>
-                      <p className="text-sm text-muted-foreground">{language === "kr" ? rec.descKr : rec.descEn}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {language === "kr" ? rec.descKr : rec.descEn}
+                      </p>
                     </div>
                   </div>
                   <div className="text-right flex-shrink-0 ml-4">
-                    <div className="text-lg font-bold text-emerald-400">{rec.impact}</div>
-                    <div className="text-xs text-muted-foreground">{language === "kr" ? "예상 효과" : "Impact"}</div>
+                    <div className="text-lg font-bold text-emerald-400">
+                      {rec.impact}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {language === "kr" ? "예상 효과" : "Impact"}
+                    </div>
                   </div>
                 </div>
               </CardHeader>
             </Card>
-          )
+          );
         })}
       </div>
 
       <div className="flex justify-end gap-3">
-        <Button variant="outline">{language === "kr" ? "실행 계획 다운로드" : "Download Action Plan"}</Button>
-        <Button>{language === "kr" ? "전문가 상담 신청" : "Request Expert Consultation"}</Button>
+        <Button variant="outline">
+          {language === "kr" ? "실행 계획 다운로드" : "Download Action Plan"}
+        </Button>
+        <Button>
+          {language === "kr"
+            ? "전문가 상담 신청"
+            : "Request Expert Consultation"}
+        </Button>
       </div>
     </div>
-  )
+  );
 }

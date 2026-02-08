@@ -1,14 +1,14 @@
-"use client"
+"use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Label } from "@/components/ui/label"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { cn } from "@/lib/utils"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { cn } from "@/lib/utils";
 
 interface DataLayersPanelProps {
-  enabledLayers: string[]
-  onToggleLayer: (layerId: string) => void
+  enabledLayers: string[];
+  onToggleLayer: (layerId: string) => void;
 }
 
 const dataLayers = [
@@ -25,9 +25,12 @@ const dataLayers = [
   { id: "species-grade1", label: "Grade I Species", color: "bg-red-600" },
   { id: "species-grade2", label: "Grade II Species", color: "bg-orange-500" },
   { id: "protected-area", label: "Protected Area", color: "bg-pink-500" },
-]
+];
 
-export function DataLayersPanel({ enabledLayers, onToggleLayer }: DataLayersPanelProps) {
+export function DataLayersPanel({
+  enabledLayers,
+  onToggleLayer,
+}: DataLayersPanelProps) {
   return (
     <Card className="h-full flex flex-col">
       <CardHeader className="pb-3">
@@ -44,7 +47,10 @@ export function DataLayersPanel({ enabledLayers, onToggleLayer }: DataLayersPane
                   onCheckedChange={() => onToggleLayer(layer.id)}
                 />
                 <div className={cn("w-3 h-3 rounded-sm", layer.color)} />
-                <Label htmlFor={layer.id} className="text-sm cursor-pointer flex-1">
+                <Label
+                  htmlFor={layer.id}
+                  className="text-sm cursor-pointer flex-1"
+                >
                   {layer.label}
                 </Label>
               </div>
@@ -53,5 +59,5 @@ export function DataLayersPanel({ enabledLayers, onToggleLayer }: DataLayersPane
         </ScrollArea>
       </CardContent>
     </Card>
-  )
+  );
 }

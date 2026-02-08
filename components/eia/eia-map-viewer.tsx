@@ -1,12 +1,12 @@
-"use client"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { EIAChartsView } from "./eia-charts-view"
-import { EIARawDataView } from "./eia-raw-data-view"
-import { MapPin } from "lucide-react"
+"use client";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { EIAChartsView } from "./eia-charts-view";
+import { EIARawDataView } from "./eia-raw-data-view";
+import { MapPin } from "lucide-react";
 
 interface EIAMapViewerProps {
-  enabledLayers: string[]
+  enabledLayers: string[];
 }
 
 export function EIAMapViewer({ enabledLayers }: EIAMapViewerProps) {
@@ -23,7 +23,10 @@ export function EIAMapViewer({ enabledLayers }: EIAMapViewerProps) {
             <TabsTrigger value="data">Raw Data</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="map" className="flex-1 mt-4 data-[state=inactive]:hidden">
+          <TabsContent
+            value="map"
+            className="flex-1 mt-4 data-[state=inactive]:hidden"
+          >
             <div className="relative h-full bg-muted rounded-lg overflow-hidden border border-border">
               <img
                 src="/aerial-satellite-view-of-forest-development-site-w.jpg"
@@ -54,7 +57,9 @@ export function EIAMapViewer({ enabledLayers }: EIAMapViewerProps) {
 
               <div className="absolute bottom-4 left-4 flex gap-2">
                 <div className="bg-background/95 backdrop-blur-sm rounded-lg px-3 py-2 border border-border">
-                  <div className="text-xs text-muted-foreground">Project Area</div>
+                  <div className="text-xs text-muted-foreground">
+                    Project Area
+                  </div>
                   <div className="text-sm font-semibold">127.4 ha</div>
                 </div>
                 <div className="bg-background/95 backdrop-blur-sm rounded-lg px-3 py-2 border border-border">
@@ -69,15 +74,21 @@ export function EIAMapViewer({ enabledLayers }: EIAMapViewerProps) {
             </div>
           </TabsContent>
 
-          <TabsContent value="charts" className="flex-1 mt-4 data-[state=inactive]:hidden">
+          <TabsContent
+            value="charts"
+            className="flex-1 mt-4 data-[state=inactive]:hidden"
+          >
             <EIAChartsView />
           </TabsContent>
 
-          <TabsContent value="data" className="flex-1 mt-4 data-[state=inactive]:hidden">
+          <TabsContent
+            value="data"
+            className="flex-1 mt-4 data-[state=inactive]:hidden"
+          >
             <EIARawDataView />
           </TabsContent>
         </Tabs>
       </CardContent>
     </Card>
-  )
+  );
 }

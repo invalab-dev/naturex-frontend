@@ -1,9 +1,9 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { TreeDeciduous, MapPin, Upload, Plus } from "lucide-react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { TreeDeciduous, MapPin, Upload, Plus } from "lucide-react";
 
 interface AssetsStepPortfolioProps {
-  language: "kr" | "en"
+  language: "kr" | "en";
 }
 
 export function AssetsStepPortfolio({ language }: AssetsStepPortfolioProps) {
@@ -20,7 +20,8 @@ export function AssetsStepPortfolio({ language }: AssetsStepPortfolioProps) {
     {
       id: 2,
       name: language === "kr" ? "경기 산림 B" : "Gyeonggi Forest B",
-      location: language === "kr" ? "경기도 남양주시" : "Namyangju-si, Gyeonggi",
+      location:
+        language === "kr" ? "경기도 남양주시" : "Namyangju-si, Gyeonggi",
       area: "42.8 ha",
       trees: 5621,
       carbonStock: "7,890 tCO2",
@@ -35,13 +36,15 @@ export function AssetsStepPortfolio({ language }: AssetsStepPortfolioProps) {
       carbonStock: "1,120 tCO2",
       status: language === "kr" ? "분석중" : "Analyzing",
     },
-  ]
+  ];
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold mb-2">{language === "kr" ? "자산 포트폴리오" : "Asset Portfolio"}</h2>
+          <h2 className="text-2xl font-bold mb-2">
+            {language === "kr" ? "자산 포트폴리오" : "Asset Portfolio"}
+          </h2>
           <p className="text-muted-foreground">
             {language === "kr"
               ? "보유한 자연자산 현황을 관리하고 모니터링합니다"
@@ -62,7 +65,10 @@ export function AssetsStepPortfolio({ language }: AssetsStepPortfolioProps) {
 
       <div className="grid gap-4">
         {mockAssets.map((asset) => (
-          <Card key={asset.id} className="border-slate-700 bg-slate-900/50 hover:bg-slate-900/70 transition-colors">
+          <Card
+            key={asset.id}
+            className="border-slate-700 bg-slate-900/50 hover:bg-slate-900/70 transition-colors"
+          >
             <CardHeader>
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
@@ -73,7 +79,9 @@ export function AssetsStepPortfolio({ language }: AssetsStepPortfolioProps) {
                     <CardTitle className="text-lg">{asset.name}</CardTitle>
                     <div className="flex items-center gap-2 mt-1">
                       <MapPin className="w-3 h-3 text-muted-foreground" />
-                      <span className="text-sm text-muted-foreground">{asset.location}</span>
+                      <span className="text-sm text-muted-foreground">
+                        {asset.location}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -91,18 +99,26 @@ export function AssetsStepPortfolio({ language }: AssetsStepPortfolioProps) {
             <CardContent>
               <div className="grid grid-cols-4 gap-4">
                 <div>
-                  <div className="text-xs text-muted-foreground mb-1">{language === "kr" ? "면적" : "Area"}</div>
+                  <div className="text-xs text-muted-foreground mb-1">
+                    {language === "kr" ? "면적" : "Area"}
+                  </div>
                   <div className="text-sm font-semibold">{asset.area}</div>
                 </div>
                 <div>
-                  <div className="text-xs text-muted-foreground mb-1">{language === "kr" ? "수목 수" : "Trees"}</div>
-                  <div className="text-sm font-semibold">{asset.trees.toLocaleString()}</div>
+                  <div className="text-xs text-muted-foreground mb-1">
+                    {language === "kr" ? "수목 수" : "Trees"}
+                  </div>
+                  <div className="text-sm font-semibold">
+                    {asset.trees.toLocaleString()}
+                  </div>
                 </div>
                 <div>
                   <div className="text-xs text-muted-foreground mb-1">
                     {language === "kr" ? "탄소 저장량" : "Carbon Stock"}
                   </div>
-                  <div className="text-sm font-semibold">{asset.carbonStock}</div>
+                  <div className="text-sm font-semibold">
+                    {asset.carbonStock}
+                  </div>
                 </div>
                 <div className="flex items-end justify-end">
                   <Button variant="outline" size="sm">
@@ -115,5 +131,5 @@ export function AssetsStepPortfolio({ language }: AssetsStepPortfolioProps) {
         ))}
       </div>
     </div>
-  )
+  );
 }
