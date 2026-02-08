@@ -3,7 +3,6 @@ import type { Metadata } from "next"
 import { Analytics } from "@vercel/analytics/next"
 import { AuthProvider } from "@/lib/auth-context"
 import { AuthGuard } from "@/components/auth-guard"
-import { DataInitializer } from "@/components/data-initializer"
 import "./globals.css"
 
 export const metadata: Metadata = {
@@ -47,7 +46,6 @@ export default function RootLayout({
       </head>
       <body className="antialiased">
         <AuthProvider>
-          <DataInitializer />
           <AuthGuard>{children}</AuthGuard>
         </AuthProvider>
         <Analytics />

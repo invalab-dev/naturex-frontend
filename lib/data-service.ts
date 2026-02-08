@@ -25,9 +25,14 @@ export interface User {
   userId: string
   email: string
   name: string
-  role: 'admin' | 'customer'
+  role: UserRole
   orgId?: string
   createdAt: string
+}
+
+export enum UserRole {
+  ADMIN = 'ADMIN',
+  USER = 'USER',
 }
 
 export type DeliveryStage = 'pending' | 'analyzing' | 'delivering' | 'executing' | 'completed'
