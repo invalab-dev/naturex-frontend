@@ -1,5 +1,11 @@
 import { apiFetch } from './api-client';
-import { Organization, Project, ProjectStatus, User, UserRole } from './data-type';
+import {
+  Organization,
+  Project,
+  ProjectStatus,
+  User,
+  UserRole,
+} from './data-type';
 
 // META
 export type ProjectThemeMeta = {
@@ -65,7 +71,9 @@ export async function deleteOrganization(id: string): Promise<void> {
 }
 
 // PROJECTS
-export async function getProjectsByOrganization(organizationId: string): Promise<Project[]> {
+export async function getProjectsByOrganization(
+  organizationId: string,
+): Promise<Project[]> {
   return apiFetch(`/projects/organization/${organizationId}`);
 }
 
@@ -101,7 +109,9 @@ export async function createProject(input: {
       changedBy: input.changedBy,
       // backend expects description for status log; keep separate if needed
       // we'll pass statusDescription if provided
-      ...(input.statusDescription ? { statusDescription: input.statusDescription } : {}),
+      ...(input.statusDescription
+        ? { statusDescription: input.statusDescription }
+        : {}),
     },
   });
 }

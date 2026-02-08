@@ -20,7 +20,9 @@ interface Recommendation {
 
 export function ProjectRecommendationAssistant({
   language,
-}: { language: string }) {
+}: {
+  language: string;
+}) {
   const [input, setInput] = useState('');
   const [recommendation, setRecommendation] = useState<Recommendation | null>(
     null,
@@ -29,7 +31,8 @@ export function ProjectRecommendationAssistant({
 
   const content = {
     header: '어떤 프로젝트를 고민 중이신가요?',
-    subheader: '자연자산 관리 목적을 입력하면 NatureX AI가 적합한 서비스를 추천해 드립니다.',
+    subheader:
+      '자연자산 관리 목적을 입력하면 NatureX AI가 적합한 서비스를 추천해 드립니다.',
     placeholder: '예: 가로수 유지관리 비용이 너무 많이 들어요.',
     button: 'AI에게 물어보기',
     recommendationTitle: '추천 서비스',

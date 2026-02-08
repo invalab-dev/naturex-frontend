@@ -7,15 +7,12 @@ import { getAdminOverviewStats } from '@/lib/data-service';
 
 export default function AdminHomePage() {
   const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState<
-    | {
-        orgsCount: number;
-        projectsCount: number;
-        byTheme: Record<string, number>;
-        byStatus: Record<string, number>;
-      }
-    | null
-  >(null);
+  const [stats, setStats] = useState<{
+    orgsCount: number;
+    projectsCount: number;
+    byTheme: Record<string, number>;
+    byStatus: Record<string, number>;
+  } | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -60,10 +57,7 @@ export default function AdminHomePage() {
               {stats.projectsCount}
             </div>
             <div className="mt-4">
-              <Link
-                className="text-sm text-[#118DFF]"
-                href="/admin/projects"
-              >
+              <Link className="text-sm text-[#118DFF]" href="/admin/projects">
                 프로젝트 관리 →
               </Link>
             </div>

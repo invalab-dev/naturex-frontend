@@ -150,8 +150,7 @@ export function ContactModal({
               htmlFor="name"
               className="text-sm font-medium text-[#374151]"
             >
-              {content.nameLabel}{' '}
-              <span className="text-red-500">*</span>
+              {content.nameLabel} <span className="text-red-500">*</span>
             </Label>
             <Input
               id="name"
@@ -176,8 +175,7 @@ export function ContactModal({
               htmlFor="email"
               className="text-sm font-medium text-[#374151]"
             >
-              {content.emailLabel}{' '}
-              <span className="text-red-500">*</span>
+              {content.emailLabel} <span className="text-red-500">*</span>
             </Label>
             <Input
               id="email"
@@ -223,8 +221,7 @@ export function ContactModal({
               htmlFor="message"
               className="text-sm font-medium text-[#374151]"
             >
-              {content.messageLabel}{' '}
-              <span className="text-red-500">*</span>
+              {content.messageLabel} <span className="text-red-500">*</span>
             </Label>
             <Textarea
               id="message"

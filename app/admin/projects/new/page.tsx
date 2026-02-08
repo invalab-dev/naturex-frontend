@@ -35,7 +35,13 @@ export default function AdminNewProjectPage() {
     (async () => {
       setOrgs(await getOrganizations());
       const meta = await getProjectThemeMeta();
-      setThemes(meta.map((m) => ({ value: m.value, label: m.label, description: m.description })));
+      setThemes(
+        meta.map((m) => ({
+          value: m.value,
+          label: m.label,
+          description: m.description,
+        })),
+      );
     })();
   }, []);
 

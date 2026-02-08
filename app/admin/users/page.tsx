@@ -4,7 +4,12 @@ import { useEffect, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { createUser, deleteUser, getOrganizations, getUsers } from '@/lib/data-service';
+import {
+  createUser,
+  deleteUser,
+  getOrganizations,
+  getUsers,
+} from '@/lib/data-service';
 import type { Organization, User } from '@/lib/data-type';
 
 export default function AdminUsersPage() {
@@ -49,7 +54,13 @@ export default function AdminUsersPage() {
       language: 'ko',
       timezone: 'Asia/Seoul',
     });
-    setForm({ email: '', password: '', name: '', organizationId: '', roles: 'USER' });
+    setForm({
+      email: '',
+      password: '',
+      name: '',
+      organizationId: '',
+      roles: 'USER',
+    });
     await reload();
   };
 
@@ -68,17 +79,37 @@ export default function AdminUsersPage() {
 
       <Card className="p-4 bg-white border-[#E5E7EB] space-y-2 mb-6">
         <div className="font-semibold">사용자 생성</div>
-        <Input placeholder="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
-        <Input placeholder="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
-        <Input placeholder="name (optional)" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+        <Input
+          placeholder="email"
+          value={form.email}
+          onChange={(e) => setForm({ ...form, email: e.target.value })}
+        />
+        <Input
+          placeholder="password"
+          value={form.password}
+          onChange={(e) => setForm({ ...form, password: e.target.value })}
+        />
+        <Input
+          placeholder="name (optional)"
+          value={form.name}
+          onChange={(e) => setForm({ ...form, name: e.target.value })}
+        />
         <Input
           placeholder={`organizationId (optional, e.g. ${orgs.at(0)?.id ?? ''})`}
           value={form.organizationId}
           onChange={(e) => setForm({ ...form, organizationId: e.target.value })}
         />
-        <div className="text-xs text-[#6B7280]">조직 목록: {orgs.map((o) => `${o.id}:${o.name}`).join(', ') || '-'}</div>
-        <Input placeholder="roles (ADMIN or USER)" value={form.roles} onChange={(e) => setForm({ ...form, roles: e.target.value })} />
-        <Button onClick={submit} className="bg-[#118DFF] text-white">생성</Button>
+        <div className="text-xs text-[#6B7280]">
+          조직 목록: {orgs.map((o) => `${o.id}:${o.name}`).join(', ') || '-'}
+        </div>
+        <Input
+          placeholder="roles (ADMIN or USER)"
+          value={form.roles}
+          onChange={(e) => setForm({ ...form, roles: e.target.value })}
+        />
+        <Button onClick={submit} className="bg-[#118DFF] text-white">
+          생성
+        </Button>
       </Card>
 
       {loading ? (
@@ -91,7 +122,8 @@ export default function AdminUsersPage() {
                 <div>
                   <div className="font-semibold text-[#111827]">{u.email}</div>
                   <div className="text-xs text-[#6B7280] mt-1">
-                    id={u.id} · roles={u.roles.join(',')} · org={u.organizationId ?? '-'}
+                    id={u.id} · roles={u.roles.join(',')} · org=
+                    {u.organizationId ?? '-'}
                   </div>
                 </div>
                 <Button variant="outline" onClick={() => remove(u.id)}>
