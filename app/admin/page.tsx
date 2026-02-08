@@ -15,7 +15,6 @@ export default function AdminHomePage() {
     deliveringCount: 0,
     executingCount: 0,
     completedCount: 0,
-    unconfiguredCount: 0,
   })
 
   const [serviceDelivery, setServiceDelivery] = useState({
@@ -37,7 +36,6 @@ export default function AdminHomePage() {
       deliveringCount: projectStats.byDeliveryStage.delivering,
       executingCount: projectStats.byDeliveryStage.executing,
       completedCount: projectStats.byDeliveryStage.completed,
-      unconfiguredCount: projectStats.widgetStatus.unconfigured,
     })
 
     // Calculate service delivery by theme
@@ -83,7 +81,7 @@ export default function AdminHomePage() {
       {/* Delivery Stage KPI Cards */}
       <div className="mb-8">
         <h2 className="text-lg font-semibold text-[#111827] mb-4">서비스 제공 단계별 현황</h2>
-        <div className="grid md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div className="grid md:grid-cols-3 lg:grid-cols-5 gap-4">
           <Link href="/admin/projects?stage=pending">
             <Card className="p-5 bg-white border-[#E5E7EB] hover:border-gray-400 cursor-pointer transition-colors">
               <div className="flex items-center justify-between mb-3">
@@ -146,19 +144,6 @@ export default function AdminHomePage() {
               <div className="text-3xl font-bold text-green-700 mb-1">{stats.completedCount}</div>
               <h3 className="text-sm font-medium text-[#111827]">완료</h3>
               <p className="text-xs text-[#6B7280] mt-1">서비스 종료</p>
-            </Card>
-          </Link>
-
-          <Link href="/admin/projects?stage=unconfigured">
-            <Card className="p-5 bg-white border-[#E5E7EB] hover:border-orange-500 cursor-pointer transition-colors">
-              <div className="flex items-center justify-between mb-3">
-                <div className="p-2 bg-orange-100 rounded-lg">
-                  <AlertCircle className="w-5 h-5 text-orange-600" />
-                </div>
-              </div>
-              <div className="text-3xl font-bold text-orange-600 mb-1">{stats.unconfiguredCount}</div>
-              <h3 className="text-sm font-medium text-[#111827]">위젯 미구성</h3>
-              <p className="text-xs text-[#6B7280] mt-1">구성 필요</p>
             </Card>
           </Link>
         </div>

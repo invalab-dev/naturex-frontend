@@ -33,8 +33,12 @@ import {
   type DeliveryStage,
 } from "@/lib/data-service"
 import { startImpersonation } from "@/lib/impersonation"
+import { ResultDeliveryModal } from "@/components/result-delivery-modal"
+import { useToast } from "@/hooks/use-toast"
 
 export default function AdminProjectsPage() {
+  const router = useRouter()
+  const { toast } = useToast()
   const [projects, setProjects] = useState<Project[]>([])
   const [filteredProjects, setFilteredProjects] = useState<Project[]>([])
   const [orgs, setOrgs] = useState<Array<{ orgId: string; name: string }>>([])
@@ -42,6 +46,8 @@ export default function AdminProjectsPage() {
   const [isStageEditOpen, setIsStageEditOpen] = useState(false)
   const [stageChangeMemo, setStageChangeMemo] = useState("")
   const [newStage, setNewStage] = useState<DeliveryStage>("pending")
+  const [isResultModalOpen, setIsResultModalOpen] = useState(false)
+  const [resultModalProject, setResultModalProject] = useState<Project | null>(null)
 
   // Filters
   const [filterOrg, setFilterOrg] = useState<string>("all")
@@ -79,11 +85,7 @@ export default function AdminProjectsPage() {
       filtered = filtered.filter((p) => p.theme === filterTheme)
     }
     if (filterStage !== "all") {
-      if (filterStage === "unconfigured") {
-        filtered = filtered.filter((p) => p.widgetStatus === "none")
-      } else {
-        filtered = filtered.filter((p) => p.deliveryStage === filterStage)
-      }
+      filtered = filtered.filter((p) => p.deliveryStage === filterStage)
     }
     if (searchQuery) {
       filtered = filtered.filter(
@@ -113,16 +115,11 @@ export default function AdminProjectsPage() {
     setStageChangeMemo("")
   }
 
-  const handleImpersonateCustomer = (project: Project) => {
-    const users = getUsers()
-    const customerUser = users.find((u) => u.role === "customer" && u.orgId === project.orgId)
-
-    if (!customerUser) {
-      alert("이 조직에 등록된 고객 사용자가 없습니다.")
-      return
-    }
-
-    startImpersonation(project.orgId, customerUser.userId)
+  const handleViewCustomerDashboard = (project: Project) => {
+    toast({
+      title: "고객 화면으로 이동합니다",
+      description: `${project.name} 대시보드를 새 탭에서 엽니다`,
+    })
     window.open(`/app/projects/${project.projectId}`, "_blank")
   }
 
@@ -185,28 +182,29 @@ export default function AdminProjectsPage() {
     )
   }
 
-  const getWidgetStatusBadge = (project: Project) => {
-    const { widgetStatus } = project
-    if (widgetStatus === "complete") {
+  const getResultDeliveryStatus = (project: Project) => {
+    // Check if project has any results delivered
+    const stage = project.deliveryStage
+    if (stage === "completed") {
       return (
         <div className="flex items-center gap-1 text-xs text-green-700 font-medium">
           <CheckCircle2 className="w-4 h-4" />
-          구성됨
+          납품 완료
         </div>
       )
     }
-    if (widgetStatus === "partial") {
+    if (stage === "delivering" || stage === "executing") {
       return (
         <div className="flex items-center gap-1 text-xs text-blue-600 font-medium">
           <Clock className="w-4 h-4" />
-          부분 구성
+          진행 중
         </div>
       )
     }
     return (
       <div className="flex items-center gap-1 text-xs text-orange-600 font-medium">
         <AlertCircle className="w-4 h-4" />
-        미설정
+        준비 중
       </div>
     )
   }
@@ -219,10 +217,10 @@ export default function AdminProjectsPage() {
           <div className="flex items-center justify-between mb-6">
             <div>
               <h1 className="text-3xl font-bold text-[#111827] mb-2">프로젝트 관리</h1>
-              <p className="text-[#6B7280]">서비스 제공 단계와 위젯을 관리합니다</p>
+              <p className="text-[#6B7280]">분석 결과 납품 및 고객 화면을 관리합니다</p>
             </div>
             <Link href="/admin/projects/new">
-              <Button className="bg-[#118DFF] hover:bg-[#0D6FCC] gap-2">
+              <Button className="bg-[#118DFF] hover:bg-[#0D6FCC] gap-2 text-white">
                 <Plus className="w-4 h-4" />
                 프로젝트 생성
               </Button>
@@ -279,7 +277,6 @@ export default function AdminProjectsPage() {
                   </SelectTrigger>
                   <SelectContent className="bg-white">
                     <SelectItem value="all">전체 단계</SelectItem>
-                    <SelectItem value="unconfigured">위젯 미설정</SelectItem>
                     {Object.entries(DELIVERY_STAGES).map(([key, { kr }]) => (
                       <SelectItem key={key} value={key}>
                         {kr}
@@ -297,25 +294,25 @@ export default function AdminProjectsPage() {
               <table className="w-full">
                 <thead className="bg-[#F5F7FB] border-b border-[#E5E7EB]">
                   <tr>
-                    <th className="text-left px-6 py-3 text-xs font-semibold text-[#6B7280] uppercase tracking-wider">
+                    <th className="text-left px-6 py-3 text-xs font-semibold text-[#6B7280] uppercase tracking-wider whitespace-nowrap">
                       프로젝트명
                     </th>
-                    <th className="text-left px-6 py-3 text-xs font-semibold text-[#6B7280] uppercase tracking-wider">
+                    <th className="text-left px-6 py-3 text-xs font-semibold text-[#6B7280] uppercase tracking-wider whitespace-nowrap">
                       조직명
                     </th>
-                    <th className="text-left px-6 py-3 text-xs font-semibold text-[#6B7280] uppercase tracking-wider">
+                    <th className="text-left px-6 py-3 text-xs font-semibold text-[#6B7280] uppercase tracking-wider whitespace-nowrap">
                       테마
                     </th>
-                    <th className="text-left px-6 py-3 text-xs font-semibold text-[#6B7280] uppercase tracking-wider">
+                    <th className="text-left px-6 py-3 text-xs font-semibold text-[#6B7280] uppercase tracking-wider whitespace-nowrap">
                       서비스 제공 단계
                     </th>
-                    <th className="text-left px-6 py-3 text-xs font-semibold text-[#6B7280] uppercase tracking-wider">
-                      위젯 구성
+                    <th className="text-left px-6 py-3 text-xs font-semibold text-[#6B7280] uppercase tracking-wider whitespace-nowrap">
+                      결과 납품
                     </th>
-                    <th className="text-left px-6 py-3 text-xs font-semibold text-[#6B7280] uppercase tracking-wider">
+                    <th className="text-left px-6 py-3 text-xs font-semibold text-[#6B7280] uppercase tracking-wider whitespace-nowrap">
                       최근 활동
                     </th>
-                    <th className="text-right px-6 py-3 text-xs font-semibold text-[#6B7280] uppercase tracking-wider">
+                    <th className="text-right px-6 py-3 text-xs font-semibold text-[#6B7280] uppercase tracking-wider whitespace-nowrap">
                       작업
                     </th>
                   </tr>
@@ -327,21 +324,21 @@ export default function AdminProjectsPage() {
                       className="hover:bg-[#F9FAFB] cursor-pointer transition-colors"
                       onClick={() => setSelectedProject(project)}
                     >
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium text-[#111827]">{project.name}</span>
+                      <td className="px-6 py-4 max-w-[320px]">
+                        <div className="flex items-center gap-2" title={project.name}>
+                          <span className="font-medium text-[#111827] whitespace-nowrap overflow-hidden text-ellipsis">{project.name}</span>
                         </div>
-                        <div className="flex items-center gap-1 text-xs text-[#6B7280] mt-1">
-                          <MapPin className="w-3 h-3" />
-                          {project.location}
+                        <div className="flex items-center gap-1 text-xs text-[#6B7280] mt-1 whitespace-nowrap overflow-hidden text-ellipsis" title={project.location}>
+                          <MapPin className="w-3 h-3 flex-shrink-0" />
+                          <span className="truncate">{project.location}</span>
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-sm text-[#6B7280]">{getOrgName(project.orgId)}</td>
-                      <td className="px-6 py-4">{getThemeBadge(project.theme)}</td>
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-4 text-sm text-[#6B7280] whitespace-nowrap">{getOrgName(project.orgId)}</td>
+                      <td className="px-6 py-4 whitespace-nowrap max-w-[140px]">{getThemeBadge(project.theme)}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">
                         <div className="space-y-1.5">
                           <div
-                            className="text-xs font-medium"
+                            className="text-xs font-medium whitespace-nowrap"
                             style={{ color: DELIVERY_STAGES[project.deliveryStage].color }}
                           >
                             {DELIVERY_STAGES[project.deliveryStage].kr}
@@ -349,31 +346,37 @@ export default function AdminProjectsPage() {
                           {renderMiniPipeline(project.deliveryStage)}
                         </div>
                       </td>
-                      <td className="px-6 py-4">{getWidgetStatusBadge(project)}</td>
-                      <td className="px-6 py-4 text-sm text-[#6B7280]">
+                      <td className="px-6 py-4 whitespace-nowrap max-w-[160px]">{getResultDeliveryStatus(project)}</td>
+                      <td className="px-6 py-4 text-sm text-[#6B7280] whitespace-nowrap">
                         {project.lastActivityAt
                           ? new Date(project.lastActivityAt).toLocaleDateString("ko-KR")
                           : new Date(project.createdAt).toLocaleDateString("ko-KR")}
                       </td>
-                      <td className="px-6 py-4">
+                        <td className="px-6 py-4">
                         <div className="flex justify-end gap-2">
-                          <Link href={`/admin/projects/${project.projectId}/builder`}>
-                            <Button size="sm" className="gap-2 bg-[#118DFF] hover:bg-[#0D6FCC]">
-                              <Settings className="w-4 h-4" />
-                              빌더 열기
-                            </Button>
-                          </Link>
+                          <Button
+                            size="sm"
+                            className="gap-2 bg-[#118DFF] hover:bg-[#0D6FCC] text-white"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              setResultModalProject(project)
+                              setIsResultModalOpen(true)
+                            }}
+                          >
+                            <Settings className="w-4 h-4" />
+                            프로젝트 관리
+                          </Button>
                           <Button
                             size="sm"
                             variant="ghost"
                             className="gap-2"
                             onClick={(e) => {
                               e.stopPropagation()
-                              handleImpersonateCustomer(project)
+                              handleViewCustomerDashboard(project)
                             }}
                           >
                             <Eye className="w-4 h-4" />
-                            고객 화면
+                            고객화면 보기
                           </Button>
                           <Button
                             size="sm"
@@ -549,33 +552,25 @@ export default function AdminProjectsPage() {
               </div>
             </div>
 
-            {/* Widget Status */}
-            <div className="mb-6">
-              <h3 className="text-sm font-semibold text-[#6B7280] mb-3">위젯 구성 상태</h3>
-              <div className="p-4 rounded-lg border border-[#E5E7EB] bg-[#F9FAFB]">
-                {getWidgetStatusBadge(selectedProject)}
-                <div className="mt-2 text-xs text-[#6B7280]">
-                  {selectedProject.widgetCompletion.configured}/{selectedProject.widgetCompletion.total} 위젯 활성화
-                </div>
-                <p className="text-xs text-[#6B7280] mt-2">위젯 빌더에서 고객이 볼 대시보드를 구성하세요</p>
-              </div>
-            </div>
-
             {/* Actions */}
             <div className="space-y-2">
-              <Link href={`/admin/projects/${selectedProject.projectId}/builder`} className="block">
-                <Button className="w-full bg-[#118DFF] hover:bg-[#0D6FCC] gap-2">
-                  <Settings className="w-4 h-4" />
-                  위젯 빌더 열기
-                </Button>
-              </Link>
+              <Button 
+                className="w-full bg-[#118DFF] hover:bg-[#0D6FCC] gap-2 text-white"
+                onClick={() => {
+                  setResultModalProject(selectedProject)
+                  setIsResultModalOpen(true)
+                }}
+              >
+                <Settings className="w-4 h-4" />
+                프로젝트 관리
+              </Button>
               <Button
                 variant="outline"
                 className="w-full gap-2 bg-transparent"
-                onClick={() => handleImpersonateCustomer(selectedProject)}
+                onClick={() => handleViewCustomerDashboard(selectedProject)}
               >
                 <Eye className="w-4 h-4" />
-                고객 화면 미리보기
+                고객화면 보기
               </Button>
               <Button
                 variant="outline"
@@ -589,6 +584,17 @@ export default function AdminProjectsPage() {
           </div>
         </div>
       )}
+
+      {/* Result Delivery Modal */}
+      <ResultDeliveryModal
+        project={resultModalProject}
+        isOpen={isResultModalOpen}
+        onClose={() => {
+          setIsResultModalOpen(false)
+          setResultModalProject(null)
+        }}
+        isAdmin={true}
+      />
     </div>
   )
 }

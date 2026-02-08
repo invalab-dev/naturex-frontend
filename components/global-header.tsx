@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 export function GlobalHeader() {
+  const pathname = usePathname()
   const router = useRouter()
   const { user, logout } = useAuth()
   const [language, setLanguage] = useState<"ko" | "en">("ko")

@@ -26,7 +26,6 @@ import {
   saveOrganization,
   deleteOrganization,
   getProjects,
-  getWidgetConfig,
   themeLabels,
   DELIVERY_STAGES,
   type Organization,
@@ -81,40 +80,19 @@ export default function AdminOrgsPage() {
     return themes
   }
 
-  const getWidgetStatusByOrg = (orgId: string) => {
-    const orgProjects = getProjectsByOrg(orgId)
-    const themeStatus: Record<string, "configured" | "unconfigured" | "unused"> = {
-      efficiency: "unused",
-      asset: "unused",
-      biodiversity: "unused",
-    }
-
-    orgProjects.forEach((project) => {
-      const config = getWidgetConfig(project.projectId)
-      if (config && config.widgets.length > 0) {
-        themeStatus[project.theme] = "configured"
-      } else if (themeStatus[project.theme] === "unused") {
-        themeStatus[project.theme] = "unconfigured"
-      }
-    })
-
-    return themeStatus
-  }
-
   const getDeliveryHeatmap = (orgId: string) => {
     const orgProjects = getProjectsByOrg(orgId)
 
     const heatmap: Record<
       string,
       {
-        widgetStatus: "none" | "partial" | "complete" | "unused"
         dominantStage: DeliveryStage | null
         projectCount: number
       }
     > = {
-      efficiency: { widgetStatus: "unused", dominantStage: null, projectCount: 0 },
-      asset: { widgetStatus: "unused", dominantStage: null, projectCount: 0 },
-      biodiversity: { widgetStatus: "unused", dominantStage: null, projectCount: 0 },
+      efficiency: { dominantStage: null, projectCount: 0 },
+      asset: { dominantStage: null, projectCount: 0 },
+      biodiversity: { dominantStage: null, projectCount: 0 },
     }
 
     orgProjects.forEach((project) => {
@@ -127,15 +105,6 @@ export default function AdminOrgsPage() {
         getStageOrder(project.deliveryStage) > getStageOrder(heatmap[theme].dominantStage!)
       ) {
         heatmap[theme].dominantStage = project.deliveryStage
-      }
-
-      // Determine widget status (worst case)
-      if (project.widgetStatus === "none" || heatmap[theme].widgetStatus === "none") {
-        heatmap[theme].widgetStatus = "none"
-      } else if (project.widgetStatus === "partial" && heatmap[theme].widgetStatus !== "none") {
-        heatmap[theme].widgetStatus = "partial"
-      } else if (project.widgetStatus === "complete" && heatmap[theme].widgetStatus === "unused") {
-        heatmap[theme].widgetStatus = "complete"
       }
     })
 
@@ -332,7 +301,7 @@ export default function AdminOrgsPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="조직명, Org ID, 담당자 검색..."
-                className="pl-10 bg-white border-[#E5E7EB]"
+                className="pl-10 bg-white border-[#E5E7EB] placeholder:text-slate-400"
               />
             </div>
 
@@ -417,7 +386,7 @@ export default function AdminOrgsPage() {
 
             {/* Create Button */}
             <Link href="/admin/orgs/new">
-              <Button className="bg-[#118DFF] hover:bg-[#0D6FCC] gap-2 ml-auto">
+              <Button className="bg-[#118DFF] hover:bg-[#0D6FCC] gap-2 ml-auto text-white">
                 <Plus className="w-4 h-4" />
                 조직 생성
               </Button>
@@ -510,21 +479,15 @@ export default function AdminOrgsPage() {
                       <td className="px-6 py-4">
                         <div className="flex flex-col gap-1.5">
                           {Object.entries(heatmap).map(([theme, data]) => {
-                            const widgetColor =
-                              data.widgetStatus === "complete"
-                                ? "bg-green-100 border-green-400"
-                                : data.widgetStatus === "partial"
-                                  ? "bg-yellow-100 border-yellow-400"
-                                  : data.widgetStatus === "none"
-                                    ? "bg-red-100 border-red-400"
-                                    : "bg-gray-50 border-gray-200"
-
                             const stageInfo = data.dominantStage ? DELIVERY_STAGES[data.dominantStage] : null
+                            const stageColor = stageInfo 
+                              ? `bg-opacity-20 border-opacity-40`
+                              : "bg-gray-50 border-gray-200"
 
                             return (
                               <div
                                 key={theme}
-                                className={`flex items-center justify-between px-2 py-1 rounded border ${widgetColor} text-xs group relative`}
+                                className={`flex items-center justify-between px-2 py-1 rounded border ${data.projectCount > 0 ? 'bg-blue-50 border-blue-200' : 'bg-gray-50 border-gray-200'} text-xs group relative`}
                               >
                                 <span className="font-medium text-[#111827] truncate">
                                   {themeLabels[theme as keyof typeof themeLabels].split(" ")[0]}
@@ -549,14 +512,6 @@ export default function AdminOrgsPage() {
                                 {data.projectCount > 0 && (
                                   <div className="absolute left-0 top-full mt-1 p-2 bg-[#111827] text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 pointer-events-none z-10 whitespace-nowrap">
                                     <div>프로젝트: {data.projectCount}건</div>
-                                    <div>
-                                      위젯:{" "}
-                                      {data.widgetStatus === "complete"
-                                        ? "구성 완료"
-                                        : data.widgetStatus === "partial"
-                                          ? "부분 구성"
-                                          : "미설정"}
-                                    </div>
                                     {stageInfo && <div>단계: {stageInfo.kr}</div>}
                                   </div>
                                 )}
@@ -790,21 +745,12 @@ export default function AdminOrgsPage() {
               <h3 className="text-sm font-medium text-[#6B7280] mb-3">서비스 제공 현황</h3>
               <div className="space-y-2">
                 {Object.entries(getDeliveryHeatmap(selectedOrg.orgId)).map(([theme, data]) => {
-                  const widgetColor =
-                    data.widgetStatus === "complete"
-                      ? "bg-green-100 border-green-400"
-                      : data.widgetStatus === "partial"
-                        ? "bg-yellow-100 border-yellow-400"
-                        : data.widgetStatus === "none"
-                          ? "bg-red-100 border-red-400"
-                          : "bg-gray-50 border-gray-200"
-
                   const stageInfo = data.dominantStage ? DELIVERY_STAGES[data.dominantStage] : null
 
                   return (
                     <div
                       key={theme}
-                      className={`flex items-center justify-between px-3 py-2 rounded border ${widgetColor}`}
+                      className={`flex items-center justify-between px-3 py-2 rounded border ${data.projectCount > 0 ? 'bg-blue-50 border-blue-200' : 'bg-gray-50 border-gray-200'}`}
                     >
                       <span className="text-sm text-[#111827]">{themeLabels[theme as keyof typeof themeLabels]}</span>
                       <div className="flex items-center gap-2">
@@ -845,16 +791,11 @@ export default function AdminOrgsPage() {
                   variant="outline"
                   className="w-full justify-start bg-transparent"
                   onClick={() => {
-                    const orgProjects = getProjectsByOrg(selectedOrg.orgId)
-                    if (orgProjects.length > 0) {
-                      router.push(`/admin/projects/${orgProjects[0].projectId}/builder`)
-                    } else {
-                      alert("먼저 프로젝트를 생성하세요.")
-                    }
+                    router.push(`/admin/projects?org=${selectedOrg.orgId}`)
                   }}
                 >
                   <Settings className="w-4 h-4 mr-2" />
-                  위젯 빌더 열기
+                  프로젝트 관리
                 </Button>
                 <Button
                   variant="outline"

@@ -90,7 +90,7 @@ export default function NewOrgPage() {
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     placeholder="예: 서울시청"
                     required
-                    className="bg-white border-[#E5E7EB]"
+                    className="bg-white border-[#E5E7EB] placeholder:text-slate-400"
                   />
                 </div>
 
@@ -104,7 +104,7 @@ export default function NewOrgPage() {
                     onChange={(e) => setFormData({ ...formData, orgId: e.target.value })}
                     placeholder="예: seoul-city"
                     required
-                    className="bg-white border-[#E5E7EB]"
+                    className="bg-white border-[#E5E7EB] placeholder:text-slate-400"
                   />
                   <p className="text-xs text-[#6B7280]">영문, 숫자, 하이픈만 사용 가능</p>
                 </div>
@@ -119,7 +119,7 @@ export default function NewOrgPage() {
                   value={formData.industry}
                   onChange={(e) => setFormData({ ...formData, industry: e.target.value })}
                   placeholder="예: 지자체, 기업, 공공기관"
-                  className="bg-white border-[#E5E7EB]"
+                  className="bg-white border-[#E5E7EB] placeholder:text-slate-400"
                 />
               </div>
 
@@ -133,7 +133,7 @@ export default function NewOrgPage() {
                     value={formData.contactName}
                     onChange={(e) => setFormData({ ...formData, contactName: e.target.value })}
                     placeholder="예: 홍길동"
-                    className="bg-white border-[#E5E7EB]"
+                    className="bg-white border-[#E5E7EB] placeholder:text-slate-400"
                   />
                 </div>
 
@@ -147,7 +147,7 @@ export default function NewOrgPage() {
                     value={formData.contact}
                     onChange={(e) => setFormData({ ...formData, contact: e.target.value })}
                     placeholder="contact@example.com"
-                    className="bg-white border-[#E5E7EB]"
+                    className="bg-white border-[#E5E7EB] placeholder:text-slate-400"
                   />
                 </div>
               </div>
@@ -219,7 +219,7 @@ export default function NewOrgPage() {
                   취소
                 </Button>
               </Link>
-              <Button type="submit" size="lg" className="bg-[#118DFF] hover:bg-[#0D6FCC]">
+              <Button type="submit" size="lg" className="bg-[#118DFF] hover:bg-[#0D6FCC] text-white">
                 조직 생성
               </Button>
             </div>

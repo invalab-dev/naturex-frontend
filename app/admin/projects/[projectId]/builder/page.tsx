@@ -29,6 +29,7 @@ import {
   getProjectById,
   getWidgetConfig,
   saveWidgetConfig,
+  setProjectWidgets,
   type Project,
   type Widget,
   type WidgetConfig,
@@ -184,6 +185,7 @@ export default function WidgetBuilderPage() {
     if (!project) return
     setIsSaving(true)
 
+    // Save widget config (legacy format for builder)
     const config: WidgetConfig = {
       projectId: project.projectId,
       theme: project.theme,
@@ -192,6 +194,14 @@ export default function WidgetBuilderPage() {
     }
     saveWidgetConfig(config)
 
+    // Update project's assignedWidgetIds - Single Source of Truth
+    const enabledWidgetIds = widgets
+      .filter((w) => w.enabled)
+      .sort((a, b) => a.order - b.order)
+      .map((w) => w.id)
+    setProjectWidgets(project.projectId, enabledWidgetIds)
+
+    // Handle project-specific overrides
     projectOverrides.forEach((hasOverride, widgetId) => {
       if (hasOverride) {
         const widget = widgets.find((w) => w.id === widgetId)
@@ -223,7 +233,7 @@ export default function WidgetBuilderPage() {
       setIsSaving(false)
       toast({
         title: "저장 완료",
-        description: "위젯 구성이 성공적으로 저장되었습니다",
+        description: "위젯 구성이 저장되었습니다. 고객 대시보드에 즉시 반영됩니다.",
       })
     }, 500)
   }
@@ -293,10 +303,10 @@ export default function WidgetBuilderPage() {
       <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3">
         <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
         <div className="text-sm text-blue-800">
-          <p className="font-medium mb-1">위젯 카탈로그 연동</p>
+          <p className="font-medium mb-1">위젯 카탈로그 연동 (Single Source of Truth)</p>
           <p>
-            이 빌더는 <strong>위젯 설정</strong>에서 정의한 글로벌 위젯 카탈로그를 사용합니다. 프로젝트별
-            설정(Override)을 활성화하면 이 프로젝트만의 커스텀 설정을 적용할 수 있습니다.
+            위젯은 <strong>위젯 설정</strong>에서 중앙 관리됩니다. 여기서는 어떤 위젯을 이 프로젝트에 제공할지 선택합니다. 
+            위젯 내용이 업데이트되면 해당 위젯을 사용하는 모든 프로젝트에 자동 반영됩니다.
           </p>
         </div>
       </div>

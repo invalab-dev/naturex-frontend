@@ -24,64 +24,96 @@ export interface User {
   createdAt: string
 }
 
+export type DeliveryStage = "pending" | "analyzing" | "delivering" | "executing" | "completed"
+
+export const DELIVERY_STAGES: Record<DeliveryStage, { kr: string; en: string; color: string }> = {
+  pending: { kr: "대기", en: "Pending", color: "#6B7280" },
+  analyzing: { kr: "분석 중", en: "Analyzing", color: "#3B82F6" },
+  delivering: { kr: "제공 중", en: "Delivering", color: "#10B981" },
+  executing: { kr: "실행 중", en: "Executing", color: "#8B5CF6" },
+  completed: { kr: "완료", en: "Completed", color: "#059669" },
+}
+
+// Result configuration for planned deliverables
+export interface ResultConfig {
+  map: {
+    enabled: boolean
+    types: ("geojson" | "tiles3d" | "laz")[]
+  }
+  downloads: {
+    enabled: boolean
+  }
+  tables: {
+    enabled: boolean
+    types: ("table" | "bar" | "line" | "kpi")[]
+  }
+}
+
+// Project interface - deliverables-based, no widgets
 export interface Project {
   projectId: string
   orgId: string
   name: string
   theme: "efficiency" | "asset" | "biodiversity"
   location: string
+  description?: string
   deliveryStage: DeliveryStage
-  widgetCompletion: {
-    total: number
-    configured: number
-  }
-  widgetStatus: "none" | "partial" | "complete"
   lastActivityAt: string
   createdAt: string
   updatedAt?: string
+  resultConfig?: ResultConfig
 }
 
-export interface Widget {
+// Deliverables Types
+export interface MapLayer {
+  id: string
+  name: string
+  dataType: "geojson" | "laz" | "tiles3d"
+  fileName: string
+  fileSize: number
+  uploadedAt: string
+  isPublic: boolean
+  geojsonData?: object
+}
+
+export interface DeliverableFile {
+  id: string
+  name: string
+  fileType: "hwp" | "xlsx" | "pdf"
+  fileName: string
+  fileSize: number
+  description?: string
+  uploadedAt: string
+  downloadUrl?: string
+  isPublic: boolean
+}
+
+export interface ChartDataset {
   id: string
   title: string
-  description: string
-  enabled: boolean
-  permission: "customer_view" | "admin_only"
-  order: number
-  component: string
+  description?: string
+  visualizationType: "table" | "bar_chart" | "line_chart" | "kpi"
+  data: Array<{
+    metric_name: string
+    value: number
+    unit?: string
+    category?: string
+    timestamp?: string
+  }>
+  axisLabels?: {
+    x?: string
+    y?: string
+  }
+  isPublic: boolean
+  uploadedAt: string
 }
 
-export interface WidgetConfig {
+export interface ProjectDeliverables {
   projectId: string
-  theme: "efficiency" | "asset" | "biodiversity"
-  widgets: Widget[]
+  maps: MapLayer[]
+  downloads: DeliverableFile[]
+  visuals: ChartDataset[]
   updatedAt: string
-}
-
-export interface ProjectRequest {
-  requestId: string
-  orgId: string
-  orgName: string
-  requestedBy: string
-  requestedByEmail: string
-
-  // Request details
-  purpose: "efficiency" | "asset" | "biodiversity"
-  location: string
-  availableData: ("drone_rgb" | "lidar" | "satellite" | "none")[]
-  expectedOutputs: ("dashboard" | "pdf_report" | "data_download")[]
-  additionalNotes?: string
-
-  // Status tracking
-  status: "pending" | "approved" | "rejected" | "converted"
-  convertedToProjectId?: string
-  reviewedBy?: string
-  reviewNotes?: string
-
-  // Timestamps
-  requestedAt: string
-  reviewedAt?: string
-  createdAt: string
 }
 
 // Storage keys
@@ -89,9 +121,15 @@ const STORAGE_KEYS = {
   orgs: "naturex_orgs",
   users: "naturex_users",
   projects: "naturex_projects",
-  widgetConfig: (projectId: string) => `naturex_widget_config__${projectId}`,
-  projectRequests: "naturex_project_requests",
+  deliverables: (projectId: string) => `naturex_deliverables__${projectId}`,
 }
+
+// Theme label mapping for UI display
+export const themeLabels = {
+  efficiency: "운영비 절감",
+  asset: "자산 가치 향상",
+  biodiversity: "생물다양성",
+} as const
 
 // Initialize default data if not exists
 export function initializeDefaultData() {
@@ -100,41 +138,25 @@ export function initializeDefaultData() {
     const defaultOrgs: Organization[] = [
       {
         orgId: "org-customer-001",
-        name: "테스트 고객 1",
+        name: "서울특별시 녹지과",
         industry: "지자체",
-        contact: "customer1@test.com",
+        contact: "green@seoul.go.kr",
         status: "active",
         createdAt: new Date().toISOString(),
       },
       {
         orgId: "org-customer-002",
-        name: "테스트 고객 2",
-        industry: "기업",
-        contact: "customer2@test.com",
+        name: "한국환경공단",
+        industry: "공공기관",
+        contact: "eco@keco.or.kr",
         status: "active",
         createdAt: new Date().toISOString(),
       },
       {
         orgId: "org-customer-003",
-        name: "테스트 고객 3",
+        name: "삼성물산 조경팀",
         industry: "기업",
-        contact: "customer3@test.com",
-        status: "active",
-        createdAt: new Date().toISOString(),
-      },
-      {
-        orgId: "org-customer-004",
-        name: "테스트 고객 4",
-        industry: "지자체",
-        contact: "customer4@test.com",
-        status: "active",
-        createdAt: new Date().toISOString(),
-      },
-      {
-        orgId: "org-customer-005",
-        name: "테스트 고객 5",
-        industry: "기업",
-        contact: "customer5@test.com",
+        contact: "landscape@samsung.com",
         status: "active",
         createdAt: new Date().toISOString(),
       },
@@ -154,49 +176,33 @@ export function initializeDefaultData() {
       },
       {
         userId: "customer-001",
-        email: "customer1@test.com",
-        name: "고객1 담당자",
+        email: "green@seoul.go.kr",
+        name: "서울시 담당자",
         role: "customer",
         orgId: "org-customer-001",
         createdAt: new Date().toISOString(),
       },
       {
         userId: "customer-002",
-        email: "customer2@test.com",
-        name: "고객2 담당자",
+        email: "eco@keco.or.kr",
+        name: "환경공단 담당자",
         role: "customer",
         orgId: "org-customer-002",
         createdAt: new Date().toISOString(),
       },
       {
         userId: "customer-003",
-        email: "customer3@test.com",
-        name: "고객3 담당자",
+        email: "landscape@samsung.com",
+        name: "삼성물산 담당자",
         role: "customer",
         orgId: "org-customer-003",
-        createdAt: new Date().toISOString(),
-      },
-      {
-        userId: "customer-004",
-        email: "customer4@test.com",
-        name: "고객4 담당자",
-        role: "customer",
-        orgId: "org-customer-004",
-        createdAt: new Date().toISOString(),
-      },
-      {
-        userId: "customer-005",
-        email: "customer5@test.com",
-        name: "고객5 담당자",
-        role: "customer",
-        orgId: "org-customer-005",
         createdAt: new Date().toISOString(),
       },
     ]
     localStorage.setItem(STORAGE_KEYS.users, JSON.stringify(defaultUsers))
   }
 
-  // Default projects
+  // Default projects with demo deliverables
   if (!localStorage.getItem(STORAGE_KEYS.projects)) {
     const defaultProjects: Project[] = [
       {
@@ -205,9 +211,8 @@ export function initializeDefaultData() {
         name: "서울숲 생태복원 프로젝트",
         theme: "biodiversity",
         location: "서울시 성동구",
-        deliveryStage: "pending",
-        widgetCompletion: { total: 0, configured: 0 },
-        widgetStatus: "none",
+        description: "서울숲 생태계 복원 및 생물다양성 증진 프로젝트",
+        deliveryStage: "delivering",
         lastActivityAt: new Date().toISOString(),
         createdAt: new Date().toISOString(),
       },
@@ -217,32 +222,74 @@ export function initializeDefaultData() {
         name: "청계천 수목 관리",
         theme: "efficiency",
         location: "서울시 중구",
-        deliveryStage: "pending",
-        widgetCompletion: { total: 0, configured: 0 },
-        widgetStatus: "none",
+        description: "청계천 일대 수목 유지관리 효율화",
+        deliveryStage: "analyzing",
         lastActivityAt: new Date().toISOString(),
         createdAt: new Date().toISOString(),
       },
     ]
     localStorage.setItem(STORAGE_KEYS.projects, JSON.stringify(defaultProjects))
-  }
 
-  // Default project requests
-  if (!localStorage.getItem(STORAGE_KEYS.projectRequests)) {
-    const defaultProjectRequests: ProjectRequest[] = []
-    localStorage.setItem(STORAGE_KEYS.projectRequests, JSON.stringify(defaultProjectRequests))
+    // Initialize demo deliverables for proj-demo-1
+    const demoDeliverables: ProjectDeliverables = {
+      projectId: "proj-demo-1",
+      maps: [
+        {
+          id: "map-1",
+          name: "서식지 분포 지도",
+          dataType: "geojson",
+          fileName: "habitat_map.geojson",
+          fileSize: 245000,
+          uploadedAt: new Date().toISOString(),
+          isPublic: true,
+        },
+        {
+          id: "map-2",
+          name: "포인트클라우드 원본",
+          dataType: "laz",
+          fileName: "seoul_forest.laz",
+          fileSize: 52000000,
+          uploadedAt: new Date().toISOString(),
+          isPublic: false,
+        },
+      ],
+      downloads: [
+        {
+          id: "file-1",
+          name: "생태복원 분석 보고서",
+          fileType: "hwp",
+          fileName: "restoration_report.hwp",
+          fileSize: 3200000,
+          description: "2024년 상반기 생태복원 분석 결과 보고서",
+          uploadedAt: new Date().toISOString(),
+          isPublic: true,
+        },
+        {
+          id: "file-2",
+          name: "수종별 데이터",
+          fileType: "xlsx",
+          fileName: "species_data.xlsx",
+          fileSize: 156000,
+          description: "조사된 수종별 상세 데이터",
+          uploadedAt: new Date().toISOString(),
+          isPublic: true,
+        },
+      ],
+      visuals: [],
+      updatedAt: new Date().toISOString(),
+    }
+    localStorage.setItem(STORAGE_KEYS.deliverables("proj-demo-1"), JSON.stringify(demoDeliverables))
   }
 }
 
-// Organizations
+// Organizations CRUD
 export function getOrganizations(): Organization[] {
   const data = localStorage.getItem(STORAGE_KEYS.orgs)
   return data ? JSON.parse(data) : []
 }
 
 export function getOrganizationById(orgId: string): Organization | undefined {
-  const orgs = getOrganizations()
-  return orgs.find((o) => o.orgId === orgId)
+  return getOrganizations().find((o) => o.orgId === orgId)
 }
 
 export function saveOrganization(org: Organization): void {
@@ -261,15 +308,14 @@ export function deleteOrganization(orgId: string): void {
   localStorage.setItem(STORAGE_KEYS.orgs, JSON.stringify(orgs))
 }
 
-// Users
+// Users CRUD
 export function getUsers(): User[] {
   const data = localStorage.getItem(STORAGE_KEYS.users)
   return data ? JSON.parse(data) : []
 }
 
 export function getUserById(userId: string): User | undefined {
-  const users = getUsers()
-  return users.find((u) => u.userId === userId)
+  return getUsers().find((u) => u.userId === userId)
 }
 
 export function saveUser(user: User): void {
@@ -288,35 +334,31 @@ export function deleteUser(userId: string): void {
   localStorage.setItem(STORAGE_KEYS.users, JSON.stringify(users))
 }
 
-// Projects
+// Projects CRUD
 export function getProjects(userRole?: "admin" | "customer", userOrgId?: string): Project[] {
   const data = localStorage.getItem(STORAGE_KEYS.projects)
   const projects = data ? JSON.parse(data) : []
 
-  // Admin sees all projects
-  if (userRole === "admin") {
-    return projects
-  }
-
-  // Customer sees only their org's projects
+  if (userRole === "admin") return projects
   if (userRole === "customer" && userOrgId) {
     return projects.filter((p: Project) => p.orgId === userOrgId)
   }
-
-  // Default: return all
   return projects
 }
 
 export function getProjectById(projectId: string): Project | undefined {
-  const projects = getProjects()
-  return projects.find((p) => p.projectId === projectId)
+  return getProjects().find((p) => p.projectId === projectId)
+}
+
+export function getProjectsByOrg(orgId: string): Project[] {
+  return getProjects().filter((p) => p.orgId === orgId)
 }
 
 export function saveProject(project: Project): void {
   const projects = getProjects()
   const index = projects.findIndex((p) => p.projectId === project.projectId)
   if (index >= 0) {
-    projects[index] = project
+    projects[index] = { ...project, updatedAt: new Date().toISOString() }
   } else {
     projects.push(project)
   }
@@ -324,202 +366,123 @@ export function saveProject(project: Project): void {
 }
 
 export function deleteProject(projectId: string): void {
-  const projects = getProjects()
-  const filtered = projects.filter((p) => p.projectId !== projectId)
-  localStorage.setItem(STORAGE_KEYS.projects, JSON.stringify(filtered))
-  // Also delete widget config
-  localStorage.removeItem(STORAGE_KEYS.widgetConfig(projectId))
+  const projects = getProjects().filter((p) => p.projectId !== projectId)
+  localStorage.setItem(STORAGE_KEYS.projects, JSON.stringify(projects))
+  // Also delete deliverables
+  localStorage.removeItem(STORAGE_KEYS.deliverables(projectId))
 }
 
-// Widget Config
-export function getWidgetConfig(projectId: string): WidgetConfig | null {
-  const data = localStorage.getItem(STORAGE_KEYS.widgetConfig(projectId))
-  return data ? JSON.parse(data) : null
+export function updateProjectDeliveryStage(projectId: string, stage: DeliveryStage): void {
+  const project = getProjectById(projectId)
+  if (!project) return
+  saveProject({ ...project, deliveryStage: stage, lastActivityAt: new Date().toISOString() })
 }
 
-export function saveWidgetConfig(config: WidgetConfig): void {
-  localStorage.setItem(STORAGE_KEYS.widgetConfig(config.projectId), JSON.stringify(config))
-}
-
-export function deleteWidgetConfig(projectId: string): void {
-  localStorage.removeItem(STORAGE_KEYS.widgetConfig(projectId))
-}
-
-// Default widget templates by theme
-export function getDefaultWidgetsByTheme(theme: "efficiency" | "asset" | "biodiversity"): Widget[] {
-  const templates: Record<string, Widget[]> = {
-    efficiency: [
-      {
-        id: "w-eff-1",
-        title: "관리 우선순위 맵",
-        description: "AI 기반 수목 관리 우선순위 시각화",
-        enabled: true,
-        permission: "customer_view",
-        order: 1,
-        component: "PriorityMapWidget",
-      },
-      {
-        id: "w-eff-2",
-        title: "작업 효율 분석",
-        description: "유지관리 작업 효율성 및 비용 절감 분석",
-        enabled: true,
-        permission: "customer_view",
-        order: 2,
-        component: "EfficiencyAnalysisWidget",
-      },
-      {
-        id: "w-eff-3",
-        title: "수목 건강도 대시보드",
-        description: "전체 수목의 건강 상태 요약",
-        enabled: true,
-        permission: "customer_view",
-        order: 3,
-        component: "TreeHealthWidget",
-      },
-      {
-        id: "w-eff-4",
-        title: "작업 스케줄",
-        description: "월별 권장 관리 작업 일정",
-        enabled: false,
-        permission: "customer_view",
-        order: 4,
-        component: "ScheduleWidget",
-      },
-    ],
-    asset: [
-      {
-        id: "w-asset-1",
-        title: "자산 가치 평가",
-        description: "자연자산의 경제적 가치 정량화",
-        enabled: true,
-        permission: "customer_view",
-        order: 1,
-        component: "AssetValueWidget",
-      },
-      {
-        id: "w-asset-2",
-        title: "바이오매스 분석",
-        description: "생산성 및 바이오매스 측정",
-        enabled: true,
-        permission: "customer_view",
-        order: 2,
-        component: "BiomassWidget",
-      },
-      {
-        id: "w-asset-3",
-        title: "탄소 저장량",
-        description: "탄소 흡수 및 저장 능력 분석",
-        enabled: true,
-        permission: "customer_view",
-        order: 3,
-        component: "CarbonWidget",
-      },
-      {
-        id: "w-asset-4",
-        title: "투자 수익 예측",
-        description: "장기 자산 가치 및 ROI 전망",
-        enabled: false,
-        permission: "admin_only",
-        order: 4,
-        component: "ROIWidget",
-      },
-    ],
-    biodiversity: [
-      {
-        id: "w-bio-1",
-        title: "생물다양성 지수",
-        description: "종 다양성 및 생태계 건강도 측정",
-        enabled: true,
-        permission: "customer_view",
-        order: 1,
-        component: "BiodiversityIndexWidget",
-      },
-      {
-        id: "w-bio-2",
-        title: "서식지 분석",
-        description: "주요 서식지 현황 및 변화 추적",
-        enabled: true,
-        permission: "customer_view",
-        order: 2,
-        component: "HabitatWidget",
-      },
-      {
-        id: "w-bio-3",
-        title: "복원 프로젝트 현황",
-        description: "생태 복원 작업 진행 상황",
-        enabled: true,
-        permission: "customer_view",
-        order: 3,
-        component: "RestorationWidget",
-      },
-      {
-        id: "w-bio-4",
-        title: "TNFD 공시 준비",
-        description: "TNFD 프레임워크 기반 데이터 정리",
-        enabled: false,
-        permission: "customer_view",
-        order: 4,
-        component: "TNFDWidget",
-      },
-    ],
-  }
-  return templates[theme] || []
-}
-
-// Theme label mapping for UI display
-export const themeLabels = {
-  efficiency: "운영비 절감",
-  asset: "자산 가치 향상",
-  biodiversity: "생물다양성",
-} as const
-
-// Customer org mapping for display
-export const customerOrgMap = {
-  "org-customer-001": "고객 1",
-  "org-customer-002": "고객 2",
-  "org-customer-003": "고객 3",
-  "org-customer-004": "고객 4",
-  "org-customer-005": "고객 5",
-} as const
-
-// Migration function for existing projects without orgId
-export function migrateProjectsWithOrgId(currentUser: { role: "admin" | "customer"; orgId?: string }) {
-  const data = localStorage.getItem(STORAGE_KEYS.projects)
-  if (!data) return
-
-  const projects: Project[] = JSON.parse(data)
-  let needsSave = false
-
-  const migratedProjects = projects.map((project) => {
-    if (!project.orgId) {
-      needsSave = true
-      return {
-        ...project,
-        orgId: currentUser.role === "customer" ? currentUser.orgId || "org-unknown" : "org-unknown",
-      }
-    }
-    return project
-  })
-
-  if (needsSave) {
-    localStorage.setItem(STORAGE_KEYS.projects, JSON.stringify(migratedProjects))
+// Deliverables CRUD
+export function getProjectDeliverables(projectId: string): ProjectDeliverables {
+  const data = localStorage.getItem(STORAGE_KEYS.deliverables(projectId))
+  if (data) return JSON.parse(data)
+  
+  // Return empty deliverables structure if none exists
+  return {
+    projectId,
+    maps: [],
+    downloads: [],
+    visuals: [],
+    updatedAt: new Date().toISOString(),
   }
 }
 
-export type DeliveryStage = "pending" | "analyzing" | "delivering" | "executing" | "completed"
-
-export const DELIVERY_STAGES: Record<DeliveryStage, { kr: string; en: string; color: string }> = {
-  pending: { kr: "대기", en: "Pending", color: "#6B7280" },
-  analyzing: { kr: "분석 중", en: "Analyzing", color: "#3B82F6" },
-  delivering: { kr: "제공 중", en: "Delivering", color: "#10B981" },
-  executing: { kr: "실행 중", en: "Executing", color: "#8B5CF6" },
-  completed: { kr: "완료", en: "Completed", color: "#059669" },
+export function saveProjectDeliverables(deliverables: ProjectDeliverables): void {
+  deliverables.updatedAt = new Date().toISOString()
+  localStorage.setItem(STORAGE_KEYS.deliverables(deliverables.projectId), JSON.stringify(deliverables))
 }
 
-export function getProjectsByDeliveryStage(stage: DeliveryStage): Project[] {
-  return getProjects().filter((p) => p.deliveryStage === stage)
+// Map Layer operations
+export function addMapLayer(projectId: string, layer: Omit<MapLayer, "id" | "uploadedAt">): MapLayer {
+  const deliverables = getProjectDeliverables(projectId)
+  const newLayer: MapLayer = {
+    ...layer,
+    id: `map-${Date.now()}`,
+    uploadedAt: new Date().toISOString(),
+  }
+  deliverables.maps.push(newLayer)
+  saveProjectDeliverables(deliverables)
+  return newLayer
 }
 
+export function updateMapLayer(projectId: string, layerId: string, updates: Partial<MapLayer>): void {
+  const deliverables = getProjectDeliverables(projectId)
+  const index = deliverables.maps.findIndex((m) => m.id === layerId)
+  if (index >= 0) {
+    deliverables.maps[index] = { ...deliverables.maps[index], ...updates }
+    saveProjectDeliverables(deliverables)
+  }
+}
+
+export function deleteMapLayer(projectId: string, layerId: string): void {
+  const deliverables = getProjectDeliverables(projectId)
+  deliverables.maps = deliverables.maps.filter((m) => m.id !== layerId)
+  saveProjectDeliverables(deliverables)
+}
+
+// Downloadable File operations
+export function addDeliverableFile(projectId: string, file: Omit<DeliverableFile, "id" | "uploadedAt">): DeliverableFile {
+  const deliverables = getProjectDeliverables(projectId)
+  const newFile: DeliverableFile = {
+    ...file,
+    id: `file-${Date.now()}`,
+    uploadedAt: new Date().toISOString(),
+  }
+  deliverables.downloads.push(newFile)
+  saveProjectDeliverables(deliverables)
+  return newFile
+}
+
+export function updateDeliverableFile(projectId: string, fileId: string, updates: Partial<DeliverableFile>): void {
+  const deliverables = getProjectDeliverables(projectId)
+  const index = deliverables.downloads.findIndex((f) => f.id === fileId)
+  if (index >= 0) {
+    deliverables.downloads[index] = { ...deliverables.downloads[index], ...updates }
+    saveProjectDeliverables(deliverables)
+  }
+}
+
+export function deleteDeliverableFile(projectId: string, fileId: string): void {
+  const deliverables = getProjectDeliverables(projectId)
+  deliverables.downloads = deliverables.downloads.filter((f) => f.id !== fileId)
+  saveProjectDeliverables(deliverables)
+}
+
+// Chart/Visual operations
+export function addChartDataset(projectId: string, chart: Omit<ChartDataset, "id" | "uploadedAt">): ChartDataset {
+  const deliverables = getProjectDeliverables(projectId)
+  const newChart: ChartDataset = {
+    ...chart,
+    id: `chart-${Date.now()}`,
+    uploadedAt: new Date().toISOString(),
+  }
+  deliverables.visuals.push(newChart)
+  saveProjectDeliverables(deliverables)
+  return newChart
+}
+
+export function updateChartDataset(projectId: string, chartId: string, updates: Partial<ChartDataset>): void {
+  const deliverables = getProjectDeliverables(projectId)
+  const index = deliverables.visuals.findIndex((c) => c.id === chartId)
+  if (index >= 0) {
+    deliverables.visuals[index] = { ...deliverables.visuals[index], ...updates }
+    saveProjectDeliverables(deliverables)
+  }
+}
+
+export function deleteChartDataset(projectId: string, chartId: string): void {
+  const deliverables = getProjectDeliverables(projectId)
+  deliverables.visuals = deliverables.visuals.filter((c) => c.id !== chartId)
+  saveProjectDeliverables(deliverables)
+}
+
+// Stats and aggregates
 export function getProjectStats() {
   const projects = getProjects()
   return {
@@ -536,176 +499,32 @@ export function getProjectStats() {
       asset: projects.filter((p) => p.theme === "asset").length,
       biodiversity: projects.filter((p) => p.theme === "biodiversity").length,
     },
-    widgetStatus: {
-      unconfigured: projects.filter((p) => p.widgetStatus === "none").length,
-      partial: projects.filter((p) => p.widgetStatus === "partial").length,
-      configured: projects.filter((p) => p.widgetStatus === "complete").length,
+  }
+}
+
+export function getOrgWithAggregates(orgId: string): Organization | undefined {
+  const org = getOrganizationById(orgId)
+  if (!org) return undefined
+
+  const orgProjects = getProjectsByOrg(orgId)
+  return {
+    ...org,
+    activeProjectsByStage: {
+      pending: orgProjects.filter((p) => p.deliveryStage === "pending").length,
+      analyzing: orgProjects.filter((p) => p.deliveryStage === "analyzing").length,
+      delivering: orgProjects.filter((p) => p.deliveryStage === "delivering").length,
+      executing: orgProjects.filter((p) => p.deliveryStage === "executing").length,
+      completed: orgProjects.filter((p) => p.deliveryStage === "completed").length,
     },
   }
 }
 
-export function updateProjectDeliveryStage(projectId: string, stage: DeliveryStage, memo?: string): void {
-  const project = getProjectById(projectId)
-  if (!project) return
-
-  const updatedProject = {
-    ...project,
-    deliveryStage: stage,
-    lastActivityAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+// Get public deliverables count for a project
+export function getDeliverablesCount(projectId: string): { maps: number; downloads: number; visuals: number } {
+  const deliverables = getProjectDeliverables(projectId)
+  return {
+    maps: deliverables.maps.filter((m) => m.isPublic).length,
+    downloads: deliverables.downloads.filter((d) => d.isPublic).length,
+    visuals: deliverables.visuals.filter((v) => v.isPublic).length,
   }
-
-  saveProject(updatedProject)
-
-  // Optionally log stage change
-  if (memo) {
-    console.log(`[Stage Change] ${projectId}: ${stage} - ${memo}`)
-  }
-}
-
-export function calculateWidgetCompletion(projectId: string): { total: number; configured: number } {
-  const config = getWidgetConfig(projectId)
-  if (!config) return { total: 0, configured: 0 }
-
-  const totalWidgets = config.widgets.length
-  const configuredWidgets = config.widgets.filter((w) => w.enabled).length
-
-  return { total: totalWidgets, configured: configuredWidgets }
-}
-
-export function migrateProjectsToDeliveryStage() {
-  const data = localStorage.getItem("naturex_projects")
-  if (!data) return
-
-  const projects: any[] = JSON.parse(data)
-  let needsSave = false
-
-  const migrated = projects.map((project) => {
-    // If already has deliveryStage, skip
-    if (project.deliveryStage) return project
-
-    needsSave = true
-
-    // Map old status to new deliveryStage
-    let deliveryStage: DeliveryStage = "pending"
-    if (project.status === "analyzing") deliveryStage = "analyzing"
-    else if (project.status === "delivered") deliveryStage = "delivering"
-    else if (project.status === "executing") deliveryStage = "executing"
-    else if (project.status === "closed") deliveryStage = "completed"
-    else deliveryStage = "pending"
-
-    // Calculate widget completion
-    const completion = calculateWidgetCompletion(project.projectId)
-    let widgetStatus: "none" | "partial" | "complete" = "none"
-    if (completion.configured === 0) widgetStatus = "none"
-    else if (completion.configured < completion.total) widgetStatus = "partial"
-    else widgetStatus = "complete"
-
-    return {
-      ...project,
-      deliveryStage,
-      widgetCompletion: completion,
-      widgetStatus,
-      lastActivityAt: project.updatedAt || project.createdAt,
-    }
-  })
-
-  if (needsSave) {
-    localStorage.setItem("naturex_projects", JSON.stringify(migrated))
-    console.log("[Migration] Projects migrated to new deliveryStage model")
-  }
-}
-
-// Project Requests
-export function getProjectRequests(role?: "admin" | "customer", orgId?: string): ProjectRequest[] {
-  const requests = JSON.parse(localStorage.getItem(STORAGE_KEYS.projectRequests) || "[]")
-
-  if (role === "admin") {
-    return requests
-  }
-
-  if (role === "customer" && orgId) {
-    return requests.filter((r: ProjectRequest) => r.orgId === orgId)
-  }
-
-  return requests
-}
-
-export function createProjectRequest(
-  request: Omit<ProjectRequest, "requestId" | "status" | "createdAt" | "requestedAt">,
-): ProjectRequest {
-  const requests = getProjectRequests()
-
-  const newRequest: ProjectRequest = {
-    ...request,
-    requestId: `req-${Date.now()}`,
-    status: "pending",
-    requestedAt: new Date().toISOString(),
-    createdAt: new Date().toISOString(),
-  }
-
-  requests.push(newRequest)
-  localStorage.setItem(STORAGE_KEYS.projectRequests, JSON.stringify(requests))
-
-  return newRequest
-}
-
-export function updateProjectRequest(requestId: string, updates: Partial<ProjectRequest>): ProjectRequest {
-  const requests = getProjectRequests()
-  const index = requests.findIndex((r: ProjectRequest) => r.requestId === requestId)
-
-  if (index === -1) {
-    throw new Error("Project request not found")
-  }
-
-  requests[index] = { ...requests[index], ...updates }
-  localStorage.setItem(STORAGE_KEYS.projectRequests, JSON.stringify(requests))
-
-  return requests[index]
-}
-
-export function deleteProjectRequest(requestId: string): void {
-  const requests = getProjectRequests()
-  const filtered = requests.filter((r: ProjectRequest) => r.requestId !== requestId)
-  localStorage.setItem(STORAGE_KEYS.projectRequests, JSON.stringify(filtered))
-}
-
-export function convertRequestToProject(requestId: string, adminUserId: string): Project {
-  const request = getProjectRequests().find((r: ProjectRequest) => r.requestId === requestId)
-
-  if (!request) {
-    throw new Error("Project request not found")
-  }
-
-  // Create the project
-  const project = createProject({
-    orgId: request.orgId,
-    name: `${request.purpose === "efficiency" ? "운영비 절감" : request.purpose === "asset" ? "자산 가치 향상" : "생물다양성"} - ${request.location}`,
-    theme: request.purpose,
-    location: request.location,
-    deliveryStage: "analyzing",
-  })
-
-  // Update request status
-  updateProjectRequest(requestId, {
-    status: "converted",
-    convertedToProjectId: project.projectId,
-    reviewedBy: adminUserId,
-    reviewedAt: new Date().toISOString(),
-  })
-
-  return project
-}
-
-function createProject(project: Omit<Project, "projectId" | "createdAt" | "lastActivityAt" | "updatedAt">): Project {
-  const projects = getProjects()
-  const newProject: Project = {
-    ...project,
-    projectId: `proj-${Date.now()}`,
-    createdAt: new Date().toISOString(),
-    lastActivityAt: new Date().toISOString(),
-  }
-  projects.push(newProject)
-  localStorage.setItem(STORAGE_KEYS.projects, JSON.stringify(projects))
-  return newProject
 }

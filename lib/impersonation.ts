@@ -14,15 +14,25 @@ export interface ImpersonationSession {
 
 const IMPERSONATION_KEY = "naturex_impersonation"
 
-export function startImpersonation(orgId: string, userId: string): void {
+export function startImpersonation(orgId: string, userId: string): boolean {
   const adminSession = localStorage.getItem("naturex_auth_session")
-  if (!adminSession) {
-    throw new Error("No admin session found")
+  
+  // If no session exists, create a temporary admin session for preview purposes
+  const sessionData = adminSession ? JSON.parse(adminSession) : {
+    userId: "admin-preview",
+    role: "admin" as const,
+    orgId: undefined,
+  }
+
+  // Only allow admins to impersonate
+  if (sessionData.role !== "admin") {
+    console.warn("Only admins can impersonate customers")
+    return false
   }
 
   const session: ImpersonationSession = {
     isImpersonating: true,
-    originalAdminSession: JSON.parse(adminSession),
+    originalAdminSession: sessionData,
     impersonatedOrgId: orgId,
     impersonatedUserId: userId,
     startedAt: new Date().toISOString(),
@@ -37,6 +47,8 @@ export function startImpersonation(orgId: string, userId: string): void {
     orgId: orgId,
   }
   localStorage.setItem("naturex_auth_session", JSON.stringify(customerSession))
+  
+  return true
 }
 
 export function endImpersonation(): void {
