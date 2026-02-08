@@ -36,15 +36,7 @@ import {
 } from "lucide-react"
 import {
   getProjectDeliverables,
-  addMapLayer,
-  updateMapLayer,
-  deleteMapLayer,
-  addDeliverableFile,
-  updateDeliverableFile,
-  deleteDeliverableFile,
-  addChartDataset,
-  updateChartDataset,
-  deleteChartDataset,
+  putProjectDeliverables,
   type Project,
   type MapLayer,
   type DeliverableFile,
@@ -146,15 +138,29 @@ export function ResultDeliveryModal({ project, isOpen, onClose, isAdmin = true }
     if (project && isOpen) {
       refreshResults()
     }
-  }, [project, isOpen])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [project?.projectId, isOpen])
 
-  const refreshResults = () => {
+  const refreshResults = async () => {
     if (project) {
-      const deliverables = getProjectDeliverables(project.projectId)
+      const deliverables = await getProjectDeliverables(project.projectId)
       setMaps(deliverables.maps)
       setDownloads(deliverables.downloads)
       setVisuals(deliverables.visuals)
     }
+  }
+
+  const persist = async (next: { maps: MapLayer[]; downloads: DeliverableFile[]; visuals: ChartDataset[] }) => {
+    if (!project) return
+    const saved = await putProjectDeliverables(project.projectId, {
+      projectId: project.projectId,
+      maps: next.maps,
+      downloads: next.downloads,
+      visuals: next.visuals,
+    })
+    setMaps(saved.maps)
+    setDownloads(saved.downloads)
+    setVisuals(saved.visuals)
   }
 
   // Download template
@@ -193,15 +199,17 @@ export function ResultDeliveryModal({ project, isOpen, onClose, isAdmin = true }
       reader.onload = (event) => {
         try {
           const geojsonData = JSON.parse(event.target?.result as string)
-          const newLayer = addMapLayer(project.projectId, {
+          const newLayer: MapLayer = {
+            id: `map-${Date.now()}`,
             name: file.name.replace(/\.[^/.]+$/, ""),
             dataType: "geojson",
             fileName: file.name,
             fileSize: file.size,
+            uploadedAt: new Date().toISOString(),
             isPublic: true,
             geojsonData,
-          })
-          setMaps([...maps, newLayer])
+          }
+          void persist({ maps: [...maps, newLayer], downloads, visuals })
           toast({ title: "GeoJSON 레이어 업로드 완료", description: "고객 지도에서 바로 확인할 수 있습니다." })
         } catch {
           toast({ title: "파일 파싱 오류", description: "올바른 GeoJSON 파일인지 확인하세요", variant: "destructive" })
@@ -209,14 +217,16 @@ export function ResultDeliveryModal({ project, isOpen, onClose, isAdmin = true }
       }
       reader.readAsText(file)
     } else {
-      const newLayer = addMapLayer(project.projectId, {
+      const newLayer: MapLayer = {
+        id: `map-${Date.now()}`,
         name: file.name.replace(/\.[^/.]+$/, ""),
         dataType: selectedMapType as MapLayer["dataType"],
         fileName: file.name,
         fileSize: file.size,
+        uploadedAt: new Date().toISOString(),
         isPublic: selectedMapType === "tiles3d",
-      })
-      setMaps([...maps, newLayer])
+      }
+      void persist({ maps: [...maps, newLayer], downloads, visuals })
       toast({ 
         title: "파일 업로드 완료", 
         description: selectedMapType === "laz" ? "내부 처리용으로 저장되었습니다." : "3D 레이어로 등록되었습니다." 
@@ -228,14 +238,16 @@ export function ResultDeliveryModal({ project, isOpen, onClose, isAdmin = true }
 
   const handleToggleLayerVisibility = (layerId: string, isPublic: boolean) => {
     if (!project) return
-    updateMapLayer(project.projectId, layerId, { isPublic })
-    setMaps(maps.map((m) => (m.id === layerId ? { ...m, isPublic } : m)))
+    const nextMaps = maps.map((m) => (m.id === layerId ? { ...m, isPublic } : m))
+    setMaps(nextMaps)
+    void persist({ maps: nextMaps, downloads, visuals })
   }
 
   const handleDeleteLayer = (layerId: string) => {
     if (!project || !confirm("이 레이어를 삭제하시겠습니까?")) return
-    deleteMapLayer(project.projectId, layerId)
-    setMaps(maps.filter((m) => m.id !== layerId))
+    const nextMaps = maps.filter((m) => m.id !== layerId)
+    setMaps(nextMaps)
+    void persist({ maps: nextMaps, downloads, visuals })
     toast({ title: "레이어 삭제됨" })
   }
 
@@ -244,14 +256,17 @@ export function ResultDeliveryModal({ project, isOpen, onClose, isAdmin = true }
     const file = e.target.files?.[0]
     if (!file || !project) return
 
-    const newFile = addDeliverableFile(project.projectId, {
+    const newFile: DeliverableFile = {
+      id: `file-${Date.now()}`,
       name: file.name.replace(/\.[^/.]+$/, ""),
       fileType: selectedDownloadType as DeliverableFile["fileType"],
       fileName: file.name,
       fileSize: file.size,
+      uploadedAt: new Date().toISOString(),
       isPublic: true,
-    })
+    }
     setDownloads([...downloads, newFile])
+    void persist({ maps, downloads: [...downloads, newFile], visuals })
     toast({ title: "결과 파일 업로드 완료", description: file.name })
 
     if (fileInputRef.current) fileInputRef.current.value = ""
@@ -259,14 +274,16 @@ export function ResultDeliveryModal({ project, isOpen, onClose, isAdmin = true }
 
   const handleToggleFileVisibility = (fileId: string, isPublic: boolean) => {
     if (!project) return
-    updateDeliverableFile(project.projectId, fileId, { isPublic })
-    setDownloads(downloads.map((d) => (d.id === fileId ? { ...d, isPublic } : d)))
+    const nextDownloads = downloads.map((d) => (d.id === fileId ? { ...d, isPublic } : d))
+    setDownloads(nextDownloads)
+    void persist({ maps, downloads: nextDownloads, visuals })
   }
 
   const handleDeleteFile = (fileId: string) => {
     if (!project || !confirm("이 파일을 삭제하시겠습니까?")) return
-    deleteDeliverableFile(project.projectId, fileId)
-    setDownloads(downloads.filter((d) => d.id !== fileId))
+    const nextDownloads = downloads.filter((d) => d.id !== fileId)
+    setDownloads(nextDownloads)
+    void persist({ maps, downloads: nextDownloads, visuals })
     toast({ title: "파일 삭제됨" })
   }
 
@@ -317,14 +334,17 @@ export function ResultDeliveryModal({ project, isOpen, onClose, isAdmin = true }
       return
     }
 
-    const newChart = addChartDataset(project.projectId, {
+    const newChart: ChartDataset = {
+      id: `chart-${Date.now()}`,
       title: newChartTitle || `시각화_${Date.now()}`,
       description: newChartDescription,
       visualizationType: selectedChartType as ChartDataset["visualizationType"],
       data: previewData,
       isPublic: true,
-    })
+      uploadedAt: new Date().toISOString(),
+    }
     setVisuals([...visuals, newChart])
+    void persist({ maps, downloads, visuals: [...visuals, newChart] })
     setPreviewData(null)
     setNewChartTitle("")
     setNewChartDescription("")
@@ -333,20 +353,23 @@ export function ResultDeliveryModal({ project, isOpen, onClose, isAdmin = true }
 
   const handleUpdateChartType = (chartId: string, visualizationType: ChartDataset["visualizationType"]) => {
     if (!project) return
-    updateChartDataset(project.projectId, chartId, { visualizationType })
-    setVisuals(visuals.map((v) => (v.id === chartId ? { ...v, visualizationType } : v)))
+    const nextVisuals = visuals.map((v) => (v.id === chartId ? { ...v, visualizationType } : v))
+    setVisuals(nextVisuals)
+    void persist({ maps, downloads, visuals: nextVisuals })
   }
 
   const handleToggleChartVisibility = (chartId: string, isPublic: boolean) => {
     if (!project) return
-    updateChartDataset(project.projectId, chartId, { isPublic })
-    setVisuals(visuals.map((v) => (v.id === chartId ? { ...v, isPublic } : v)))
+    const nextVisuals = visuals.map((v) => (v.id === chartId ? { ...v, isPublic } : v))
+    setVisuals(nextVisuals)
+    void persist({ maps, downloads, visuals: nextVisuals })
   }
 
   const handleDeleteChart = (chartId: string) => {
     if (!project || !confirm("이 시각화를 삭제하시겠습니까?")) return
-    deleteChartDataset(project.projectId, chartId)
-    setVisuals(visuals.filter((v) => v.id !== chartId))
+    const nextVisuals = visuals.filter((v) => v.id !== chartId)
+    setVisuals(nextVisuals)
+    void persist({ maps, downloads, visuals: nextVisuals })
     toast({ title: "시각화 삭제됨" })
   }
 

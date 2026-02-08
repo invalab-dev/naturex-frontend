@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { AlertCircle, X } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { endImpersonation, getImpersonationSession, type ImpersonationSession } from "@/lib/impersonation"
-import { getOrganizationById } from "@/lib/data-service"
+import { getOrganizationById } from "@/lib/local-data-service"
 
 export function ImpersonationBanner() {
   const router = useRouter()

@@ -29,7 +29,7 @@ import {
   type MapLayer,
   type DeliverableFile,
   type ChartDataset,
-} from "@/lib/data-service"
+} from "@/lib/local-data-service"
 import {
   BarChart,
   Bar,

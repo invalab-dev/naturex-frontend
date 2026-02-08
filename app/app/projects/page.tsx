@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
 import Link from "next/link"
 import { FolderKanban, Gauge, TrendingUp, Leaf, FolderOpen, MapPin, Trash2 } from "lucide-react"
-import { getProjects, deleteProject, getOrganizationById, themeLabels, type Project } from "@/lib/data-service"
+import { getProjects, deleteProject, getOrganizationById, themeLabels, type Project } from "@/lib/local-data-service"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import {

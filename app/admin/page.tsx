@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react"
 import { Card } from "@/components/ui/card"
 import Link from "next/link"
-import { Building2, FolderKanban, AlertCircle, TrendingUp, Clock, CheckCircle2, PlayCircle, Flag } from "lucide-react"
-import { getOrganizations, getProjects, getProjectStats } from "@/lib/data-service"
+import { Building2, FolderKanban, TrendingUp, Clock, CheckCircle2, PlayCircle, Flag } from "lucide-react"
+import { getOrganizations, getProjectStats, getProjects } from "@/lib/data-service"
 
 export default function AdminHomePage() {
   const [stats, setStats] = useState({
@@ -24,61 +24,59 @@ export default function AdminHomePage() {
   })
 
   useEffect(() => {
-    const orgs = getOrganizations()
-    const projects = getProjects()
-    const projectStats = getProjectStats()
+    ;(async () => {
+      const [orgs, projects, projectStats] = await Promise.all([
+        getOrganizations(),
+        getProjects(),
+        getProjectStats(),
+      ])
 
-    setStats({
-      orgsCount: orgs.length,
-      projectsCount: projects.length,
-      pendingCount: projectStats.byDeliveryStage.pending,
-      analyzingCount: projectStats.byDeliveryStage.analyzing,
-      deliveringCount: projectStats.byDeliveryStage.delivering,
-      executingCount: projectStats.byDeliveryStage.executing,
-      completedCount: projectStats.byDeliveryStage.completed,
-    })
+      setStats({
+        orgsCount: orgs.length,
+        projectsCount: projects.length,
+        pendingCount: projectStats.byDeliveryStage.pending ?? 0,
+        analyzingCount: projectStats.byDeliveryStage.analyzing ?? 0,
+        deliveringCount: projectStats.byDeliveryStage.delivering ?? 0,
+        executingCount: projectStats.byDeliveryStage.executing ?? 0,
+        completedCount: projectStats.byDeliveryStage.completed ?? 0,
+      })
 
-    // Calculate service delivery by theme
-    const efficiencyProjects = projects.filter((p) => p.theme === "efficiency")
-    const assetProjects = projects.filter((p) => p.theme === "asset")
-    const biodiversityProjects = projects.filter((p) => p.theme === "biodiversity")
+      const efficiencyProjects = projects.filter((p) => p.theme === "efficiency")
+      const assetProjects = projects.filter((p) => p.theme === "asset")
+      const biodiversityProjects = projects.filter((p) => p.theme === "biodiversity")
 
-    setServiceDelivery({
-      efficiency: {
-        total: efficiencyProjects.length,
-        analyzing: efficiencyProjects.filter((p) => p.deliveryStage === "analyzing").length,
-        delivering: efficiencyProjects.filter(
-          (p) => p.deliveryStage === "delivering" || p.deliveryStage === "executing",
-        ).length,
-        pending: efficiencyProjects.filter((p) => p.deliveryStage === "pending").length,
-      },
-      asset: {
-        total: assetProjects.length,
-        analyzing: assetProjects.filter((p) => p.deliveryStage === "analyzing").length,
-        delivering: assetProjects.filter((p) => p.deliveryStage === "delivering" || p.deliveryStage === "executing")
-          .length,
-        pending: assetProjects.filter((p) => p.deliveryStage === "pending").length,
-      },
-      biodiversity: {
-        total: biodiversityProjects.length,
-        analyzing: biodiversityProjects.filter((p) => p.deliveryStage === "analyzing").length,
-        delivering: biodiversityProjects.filter(
-          (p) => p.deliveryStage === "delivering" || p.deliveryStage === "executing",
-        ).length,
-        pending: biodiversityProjects.filter((p) => p.deliveryStage === "pending").length,
-      },
-    })
+      setServiceDelivery({
+        efficiency: {
+          total: efficiencyProjects.length,
+          analyzing: efficiencyProjects.filter((p) => p.deliveryStage === "analyzing").length,
+          delivering: efficiencyProjects.filter((p) => p.deliveryStage === "delivering" || p.deliveryStage === "executing")
+            .length,
+          pending: efficiencyProjects.filter((p) => p.deliveryStage === "pending").length,
+        },
+        asset: {
+          total: assetProjects.length,
+          analyzing: assetProjects.filter((p) => p.deliveryStage === "analyzing").length,
+          delivering: assetProjects.filter((p) => p.deliveryStage === "delivering" || p.deliveryStage === "executing").length,
+          pending: assetProjects.filter((p) => p.deliveryStage === "pending").length,
+        },
+        biodiversity: {
+          total: biodiversityProjects.length,
+          analyzing: biodiversityProjects.filter((p) => p.deliveryStage === "analyzing").length,
+          delivering: biodiversityProjects.filter((p) => p.deliveryStage === "delivering" || p.deliveryStage === "executing")
+            .length,
+          pending: biodiversityProjects.filter((p) => p.deliveryStage === "pending").length,
+        },
+      })
+    })()
   }, [])
 
   return (
     <div className="max-w-7xl mx-auto px-8 py-8">
-      {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-[#111827] mb-2">관리자 홈</h1>
         <p className="text-[#6B7280]">NatureX 서비스 제공 현황을 실시간으로 확인하세요</p>
       </div>
 
-      {/* Delivery Stage KPI Cards */}
       <div className="mb-8">
         <h2 className="text-lg font-semibold text-[#111827] mb-4">서비스 제공 단계별 현황</h2>
         <div className="grid md:grid-cols-3 lg:grid-cols-5 gap-4">
@@ -149,7 +147,6 @@ export default function AdminHomePage() {
         </div>
       </div>
 
-      {/* Summary Cards */}
       <div className="grid md:grid-cols-2 gap-6 mb-8">
         <Link href="/admin/orgs">
           <Card className="p-6 bg-white border-[#E5E7EB] hover:border-[#118DFF] cursor-pointer transition-colors">
@@ -178,7 +175,6 @@ export default function AdminHomePage() {
         </Link>
       </div>
 
-      {/* Service Delivery Overview */}
       <Card className="p-6 bg-white border-[#E5E7EB] mb-8">
         <div className="flex items-center gap-2 mb-6">
           <TrendingUp className="w-5 h-5 text-[#118DFF]" />
@@ -187,71 +183,32 @@ export default function AdminHomePage() {
         <p className="text-sm text-[#6B7280] mb-6">각 서비스 테마의 프로젝트 진행 단계 요약</p>
 
         <div className="space-y-4">
-          {/* Efficiency */}
-          <div className="flex items-center justify-between p-4 rounded-lg border border-[#E5E7EB] bg-[#F9FAFB]">
-            <div className="flex items-center gap-4 flex-1">
-              <div className="px-3 py-1 bg-blue-100 text-blue-700 rounded font-semibold text-sm">운영비 절감</div>
-              <span className="text-2xl font-bold text-[#111827]">{serviceDelivery.efficiency.total}개 프로젝트</span>
-            </div>
-            <div className="flex gap-6 text-sm">
-              <div className="text-center">
-                <div className="text-[#6B7280] mb-1">분석중</div>
-                <div className="text-lg font-semibold text-blue-600">{serviceDelivery.efficiency.analyzing}</div>
+          {([
+            { key: 'efficiency' as const, label: '운영비 절감', bg: 'bg-blue-100 text-blue-700', total: serviceDelivery.efficiency.total, analyzing: serviceDelivery.efficiency.analyzing, delivering: serviceDelivery.efficiency.delivering, pending: serviceDelivery.efficiency.pending },
+            { key: 'asset' as const, label: '자산 가치 향상', bg: 'bg-green-100 text-green-700', total: serviceDelivery.asset.total, analyzing: serviceDelivery.asset.analyzing, delivering: serviceDelivery.asset.delivering, pending: serviceDelivery.asset.pending },
+            { key: 'biodiversity' as const, label: '생물다양성', bg: 'bg-purple-100 text-purple-700', total: serviceDelivery.biodiversity.total, analyzing: serviceDelivery.biodiversity.analyzing, delivering: serviceDelivery.biodiversity.delivering, pending: serviceDelivery.biodiversity.pending },
+          ]).map((t) => (
+            <div key={t.key} className="flex items-center justify-between p-4 rounded-lg border border-[#E5E7EB] bg-[#F9FAFB]">
+              <div className="flex items-center gap-4 flex-1">
+                <div className={`px-3 py-1 rounded font-semibold text-sm ${t.bg}`}>{t.label}</div>
+                <span className="text-2xl font-bold text-[#111827]">{t.total}개 프로젝트</span>
               </div>
-              <div className="text-center">
-                <div className="text-[#6B7280] mb-1">제공중</div>
-                <div className="text-lg font-semibold text-green-600">{serviceDelivery.efficiency.delivering}</div>
-              </div>
-              <div className="text-center">
-                <div className="text-[#6B7280] mb-1">대기</div>
-                <div className="text-lg font-semibold text-[#6B7280]">{serviceDelivery.efficiency.pending}</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Asset */}
-          <div className="flex items-center justify-between p-4 rounded-lg border border-[#E5E7EB] bg-[#F9FAFB]">
-            <div className="flex items-center gap-4 flex-1">
-              <div className="px-3 py-1 bg-green-100 text-green-700 rounded font-semibold text-sm">자산 가치 향상</div>
-              <span className="text-2xl font-bold text-[#111827]">{serviceDelivery.asset.total}개 프로젝트</span>
-            </div>
-            <div className="flex gap-6 text-sm">
-              <div className="text-center">
-                <div className="text-[#6B7280] mb-1">분석중</div>
-                <div className="text-lg font-semibold text-blue-600">{serviceDelivery.asset.analyzing}</div>
-              </div>
-              <div className="text-center">
-                <div className="text-[#6B7280] mb-1">제공중</div>
-                <div className="text-lg font-semibold text-green-600">{serviceDelivery.asset.delivering}</div>
-              </div>
-              <div className="text-center">
-                <div className="text-[#6B7280] mb-1">대기</div>
-                <div className="text-lg font-semibold text-[#6B7280]">{serviceDelivery.asset.pending}</div>
+              <div className="flex gap-6 text-sm">
+                <div className="text-center">
+                  <div className="text-[#6B7280] mb-1">분석중</div>
+                  <div className="text-lg font-semibold">{t.analyzing}</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-[#6B7280] mb-1">제공중</div>
+                  <div className="text-lg font-semibold">{t.delivering}</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-[#6B7280] mb-1">대기</div>
+                  <div className="text-lg font-semibold">{t.pending}</div>
+                </div>
               </div>
             </div>
-          </div>
-
-          {/* Biodiversity */}
-          <div className="flex items-center justify-between p-4 rounded-lg border border-[#E5E7EB] bg-[#F9FAFB]">
-            <div className="flex items-center gap-4 flex-1">
-              <div className="px-3 py-1 bg-purple-100 text-purple-700 rounded font-semibold text-sm">생물다양성</div>
-              <span className="text-2xl font-bold text-[#111827]">{serviceDelivery.biodiversity.total}개 프로젝트</span>
-            </div>
-            <div className="flex gap-6 text-sm">
-              <div className="text-center">
-                <div className="text-[#6B7280] mb-1">분석중</div>
-                <div className="text-lg font-semibold text-blue-600">{serviceDelivery.biodiversity.analyzing}</div>
-              </div>
-              <div className="text-center">
-                <div className="text-[#6B7280] mb-1">제공중</div>
-                <div className="text-lg font-semibold text-green-600">{serviceDelivery.biodiversity.delivering}</div>
-              </div>
-              <div className="text-center">
-                <div className="text-[#6B7280] mb-1">대기</div>
-                <div className="text-lg font-semibold text-[#6B7280]">{serviceDelivery.biodiversity.pending}</div>
-              </div>
-            </div>
-          </div>
+          ))}
         </div>
       </Card>
     </div>
