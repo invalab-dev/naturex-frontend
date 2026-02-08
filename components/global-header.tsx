@@ -19,7 +19,7 @@ export function GlobalHeader() {
   const router = useRouter()
   const { user, logout } = useAuth()
   const [language, setLanguage] = useState<"ko" | "en">("ko")
-  const is
+  const isAdmin = user!.roles.includes(UserRole.ADMIN);
 
   useEffect(() => {
     const saved = localStorage.getItem("naturex_language")
@@ -43,7 +43,7 @@ export function GlobalHeader() {
       {/* Left: Logo + Navigation */}
       <div className="flex items-center gap-6">
         <Link
-          href={user ? (user.roles.includes(UserRole.ADMIN) ? "/admin" : "/app") : "/"}
+          href={user ? (isAdmin ? "/admin" : "/app") : "/login"}
           className="text-base font-semibold text-[#118DFF] hover:text-[#0F7FE6] transition-colors"
         >
           NatureX
@@ -51,7 +51,7 @@ export function GlobalHeader() {
 
         {user && (
           <nav className="flex items-center gap-1">
-            {user.roles.includes(UserRole.ADMIN) ? (
+            {isAdmin ? (
               <>
                 <Link href="/admin">
                   <button className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-[#374151] hover:bg-[#F3F4F6] rounded-md transition-colors">
@@ -141,12 +141,12 @@ export function GlobalHeader() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-40 bg-white border border-[#E5E7EB] shadow-md">
               <DropdownMenuItem
-                onClick={() => router.push(user.roles.includes(UserRole.ADMIN) ? "/admin" : "/app")}
+                onClick={() => router.push(isAdmin ? "/admin" : "/app")}
                 className="cursor-pointer hover:bg-[#F3F4F6] text-[#374151]"
               >
                 Dashboard
               </DropdownMenuItem>
-              {user.roles.includes(UserRole.ADMIN) && (
+              {isAdmin && (
                 <DropdownMenuItem
                   onClick={() => router.push("/admin/users")}
                   className="cursor-pointer hover:bg-[#F3F4F6] text-[#374151]"

@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/lib/auth-context';
 import { Building2, Leaf, User } from 'lucide-react';
+import {UserRole} from "@/lib/data-service";
 
 function LoginPageContent() {
   const router = useRouter();
