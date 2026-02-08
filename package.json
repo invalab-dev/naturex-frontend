@@ -1,14 +1,18 @@
 {
-  "name": "my-v0-project",
+  "name": "naturex-frontend",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "next build",
-    "dev": "next dev",
-    "lint": "eslint .",
-    "start": "next start"
+    "format": "prettier --write \"app/**/*.{ts,tsx}\"  \"components/**/*.{ts,tsx}\" \"hooks/**/*.{ts,tsx}\" \"lib/**/*.{ts,tsx}\"",
+    "lint": "eslint",
+    "dev": "dotenvx run -f .env.naturex-frontend.local -- next dev --turbopack",
+    "build:prod:local": "dotenvx run -f .env.naturex-frontend.local -- next build",
+    "build:prod": "dotenvx run -f .env.naturex-frontend.prod.build -- next build",
+    "start:prod:local": "dotenvx run -f .env.naturex-frontend.local -- node .next/standalone/server.js",
+    "start:prod": "dotenvx run -f .env.naturex-frontend.prod -- node .next/standalone/server.js"
   },
   "dependencies": {
+    "@dotenvx/dotenvx": "^1.52.0",
     "@hookform/resolvers": "^3.10.0",
     "@radix-ui/react-accordion": "1.2.2",
     "@radix-ui/react-alert-dialog": "1.1.4",
@@ -45,6 +49,7 @@
     "date-fns": "4.1.0",
     "embla-carousel-react": "8.5.1",
     "input-otp": "1.4.1",
+    "jose": "^6.1.3",
     "leaflet": "1.9.4",
     "lucide-react": "^0.454.0",
     "next": "^16.1.6",
@@ -63,13 +68,20 @@
     "zod": "3.25.76"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.2",
     "@tailwindcss/postcss": "^4.1.9",
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "eslint": "^9.39.2",
+    "eslint-config-next": "^16.1.6",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.5",
     "postcss": "^8.5",
+    "prettier": "^3.8.1",
     "tailwindcss": "^4.1.9",
     "tw-animate-css": "1.3.3",
-    "typescript": "^5"
+    "typescript": "^5",
+    "typescript-eslint": "^8.54.0"
   }
 }
