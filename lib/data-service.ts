@@ -49,7 +49,6 @@ export interface ResultConfig {
   }
 }
 
-// Project interface - deliverables-based, no widgets
 export interface Project {
   projectId: string
   orgId: string

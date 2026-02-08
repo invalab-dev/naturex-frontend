@@ -712,34 +712,6 @@ export default function AdminOrgsPage() {
               </Button>
             </div>
 
-            {/* Widget Provisioning Status */}
-            <div>
-              <h3 className="text-sm font-medium text-[#6B7280] mb-3">위젯 구성 현황</h3>
-              <div className="space-y-2">
-                {Object.entries(getWidgetStatusByOrg(selectedOrg.orgId)).map(([theme, status]) => {
-                  const icons = {
-                    configured: <CheckCircle2 className="w-4 h-4 text-green-600" />,
-                    unconfigured: <AlertCircle className="w-4 h-4 text-yellow-600" />,
-                    unused: <span className="w-4 h-4 text-[#9CA3AF]">-</span>,
-                  }
-                  const labels = {
-                    configured: "구성 완료",
-                    unconfigured: "구성 중",
-                    unused: "미사용",
-                  }
-                  return (
-                    <div key={theme} className="flex items-center justify-between p-3 bg-[#F5F7FB] rounded-lg">
-                      <span className="text-sm text-[#111827]">{themeLabels[theme as keyof typeof themeLabels]}</span>
-                      <div className="flex items-center gap-2">
-                        {icons[status]}
-                        <span className="text-sm text-[#6B7280]">{labels[status]}</span>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
-
             {/* Delivery Heatmap Status */}
             <div>
               <h3 className="text-sm font-medium text-[#6B7280] mb-3">서비스 제공 현황</h3>
