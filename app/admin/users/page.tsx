@@ -24,18 +24,18 @@ import {
 } from '@/components/ui/dialog';
 import { Plus, UsersIcon, Mail, Trash2, Shield, Building2 } from 'lucide-react';
 import {
-  getUsers,
-  getOrgs,
-  createCustomerUser,
-  createOrg,
+  createOrganization,
+  createUser,
   deleteUser,
+  getOrganizations,
+  getUsers,
+  type Organization,
   type User,
-  type Org,
-} from '@/lib/data-type';
+} from '@/lib/data-service';
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<User[]>([]);
-  const [orgs, setOrgs] = useState<Org[]>([]);
+  const [orgs, setOrgs] = useState<Organization[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [showNewOrgForm, setShowNewOrgForm] = useState(false);
   const [formData, setFormData] = useState({
@@ -50,36 +50,44 @@ export default function AdminUsersPage() {
     loadData();
   }, []);
 
-  const loadData = () => {
-    setUsers(getUsers());
-    setOrgs(getOrgs());
+  const loadData = async () => {
+    const [u, o] = await Promise.all([getUsers(), getOrganizations()]);
+    setUsers(u);
+    setOrgs(o);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     let targetOrgId = formData.orgId;
     if (showNewOrgForm && formData.newOrgName) {
-      const newOrg = createOrg(formData.newOrgName);
-      targetOrgId = newOrg.id;
+      const newOrg = await createOrganization({
+        orgId: `org-${Date.now()}`,
+        name: formData.newOrgName,
+        industry: '',
+        contact: '',
+        status: 'onboarding',
+      });
+      targetOrgId = newOrg.orgId;
     }
 
-    createCustomerUser(
-      formData.email,
-      formData.password,
-      formData.name,
-      targetOrgId,
-    );
+    await createUser({
+      email: formData.email,
+      password: formData.password,
+      name: formData.name,
+      role: 'customer',
+      orgId: targetOrgId || null,
+    });
 
-    loadData();
+    await loadData();
     setIsDialogOpen(false);
     resetForm();
   };
 
-  const handleDelete = (userId: string) => {
+  const handleDelete = async (userId: string) => {
     if (confirm('정말 삭제하시겠습니까?')) {
-      deleteUser(userId);
-      loadData();
+      await deleteUser(userId);
+      await loadData();
     }
   };
 
@@ -96,7 +104,7 @@ export default function AdminUsersPage() {
 
   const getOrgName = (orgId?: string | null) => {
     if (!orgId) return '-';
-    const org = orgs.find((o) => o.id === orgId);
+    const org = orgs.find((o) => o.orgId === orgId);
     return org?.name || orgId;
   };
 
@@ -195,7 +203,7 @@ export default function AdminUsersPage() {
                       </SelectTrigger>
                       <SelectContent className="bg-white border-[#E5E7EB]">
                         {orgs.map((org) => (
-                          <SelectItem key={org.id} value={org.id}>
+                          <SelectItem key={org.orgId} value={org.orgId}>
                             {org.name}
                           </SelectItem>
                         ))}

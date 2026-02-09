@@ -1,8 +1,8 @@
 import type React from 'react';
 import { AdminSidebar } from '@/components/admin-sidebar';
 import { AdminTopBar } from '@/components/admin-topbar';
-import { GlobalHeader } from '@/components/global-header';
-import { GlobalSidebar } from '@/components/global-sidebar';
+import { AuthGuard } from '@/lib/auth-guard';
+import { UserRole } from '@/lib/data-type';
 
 export default function AdminLayout({
   children,
@@ -10,12 +10,14 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-[#F5F7FB]">
-      <AdminSidebar />
-      <div className="ml-64">
-        <AdminTopBar />
-        <main className="min-h-screen">{children}</main>
+    <AuthGuard acceptUserRoles={[UserRole.ADMIN]}>
+      <div className="min-h-screen bg-[#F5F7FB]">
+        <AdminSidebar />
+        <div className="ml-64">
+          <AdminTopBar />
+          <main className="min-h-screen">{children}</main>
+        </div>
       </div>
-    </div>
+    </AuthGuard>
   );
 }

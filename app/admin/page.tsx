@@ -13,96 +13,82 @@ import {
   PlayCircle,
   Flag,
 } from 'lucide-react';
-import {
-  getOrganizations,
-  getProjects,
-  getProjectStats,
-} from '@/lib/data-service';
+import { ProjectStatus, ProjectTheme } from '@/lib/data-type';
 
 export default function AdminHomePage() {
   const [stats, setStats] = useState({
-    orgsCount: 0,
-    projectsCount: 0,
-    pendingCount: 0,
-    analyzingCount: 0,
-    deliveringCount: 0,
-    executingCount: 0,
-    completedCount: 0,
-    unconfiguredCount: 0,
-  });
+    organizationCount: 0,
+    projectsCount: {
+      efficiency: 0,
+      asset: 0,
+      biodiversity: 0,
 
-  const [serviceDelivery, setServiceDelivery] = useState({
-    efficiency: { total: 0, analyzing: 0, delivering: 0, pending: 0 },
-    asset: { total: 0, analyzing: 0, delivering: 0, pending: 0 },
-    biodiversity: { total: 0, analyzing: 0, delivering: 0, pending: 0 },
+      registered: 0,
+      analysing: 0,
+      providing: 0,
+      completed: 0,
+      paused: 0,
+    },
+    details: [],
   });
 
   useEffect(() => {
-    const orgs = getOrganizations();
-    const projects = getProjects();
-    const projectStats = getProjectStats();
+    (async () => {
+      const [organizationCount, projectOverview] = await Promise.all([
+        (
+          await fetch(
+            new URL(
+              'organizations/count',
+              process.env.NEXT_PUBLIC_NATUREX_BACKEND,
+            ),
+            {
+              method: 'GET',
+              credentials: 'include',
+            },
+          )
+        ).json(),
+        (
+          await fetch(
+            new URL(
+              'projects/overview',
+              process.env.NEXT_PUBLIC_NATUREX_BACKEND,
+            ),
+            {
+              method: 'GET',
+              credentials: 'include',
+            },
+          )
+        ).json(),
+      ]);
 
-    setStats({
-      orgsCount: orgs.length,
-      projectsCount: projects.length,
-      pendingCount: projectStats.byDeliveryStage.pending,
-      analyzingCount: projectStats.byDeliveryStage.analyzing,
-      deliveringCount: projectStats.byDeliveryStage.delivering,
-      executingCount: projectStats.byDeliveryStage.executing,
-      completedCount: projectStats.byDeliveryStage.completed,
-      unconfiguredCount: projectStats.widgetStatus.unconfigured,
-    });
-
-    // Calculate service delivery by theme
-    const efficiencyProjects = projects.filter((p) => p.theme === 'efficiency');
-    const assetProjects = projects.filter((p) => p.theme === 'asset');
-    const biodiversityProjects = projects.filter(
-      (p) => p.theme === 'biodiversity',
-    );
-
-    setServiceDelivery({
-      efficiency: {
-        total: efficiencyProjects.length,
-        analyzing: efficiencyProjects.filter(
-          (p) => p.deliveryStage === 'analyzing',
-        ).length,
-        delivering: efficiencyProjects.filter(
-          (p) =>
-            p.deliveryStage === 'delivering' || p.deliveryStage === 'executing',
-        ).length,
-        pending: efficiencyProjects.filter((p) => p.deliveryStage === 'pending')
-          .length,
-      },
-      asset: {
-        total: assetProjects.length,
-        analyzing: assetProjects.filter((p) => p.deliveryStage === 'analyzing')
-          .length,
-        delivering: assetProjects.filter(
-          (p) =>
-            p.deliveryStage === 'delivering' || p.deliveryStage === 'executing',
-        ).length,
-        pending: assetProjects.filter((p) => p.deliveryStage === 'pending')
-          .length,
-      },
-      biodiversity: {
-        total: biodiversityProjects.length,
-        analyzing: biodiversityProjects.filter(
-          (p) => p.deliveryStage === 'analyzing',
-        ).length,
-        delivering: biodiversityProjects.filter(
-          (p) =>
-            p.deliveryStage === 'delivering' || p.deliveryStage === 'executing',
-        ).length,
-        pending: biodiversityProjects.filter(
-          (p) => p.deliveryStage === 'pending',
-        ).length,
-      },
-    });
+      const obj = {
+        organizationCount: organizationCount,
+        projectsCount: {
+          ...Object.fromEntries(
+            Object.entries(ProjectTheme).map(([k, v]) => [
+              v,
+              projectOverview
+                .filter((e) => e.theme == v)
+                .reduce((sum, e) => sum + e.count, 0),
+            ]),
+          ),
+          ...Object.fromEntries(
+            Object.entries(ProjectStatus).map(([k, v]) => [
+              v,
+              projectOverview
+                .filter((e) => e.status == v)
+                .reduce((sum, e) => sum + e.count, 0),
+            ]),
+          ),
+        },
+        details: projectOverview,
+      };
+      setStats(obj);
+    })();
   }, []);
 
   return (
     <div className="max-w-7xl mx-auto px-8 py-8">
-      {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-[#111827] mb-2">관리자 홈</h1>
         <p className="text-[#6B7280]">
@@ -110,12 +96,11 @@ export default function AdminHomePage() {
         </p>
       </div>
 
-      {/* Delivery Stage KPI Cards */}
       <div className="mb-8">
         <h2 className="text-lg font-semibold text-[#111827] mb-4">
           서비스 제공 단계별 현황
         </h2>
-        <div className="grid md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div className="grid md:grid-cols-3 lg:grid-cols-5 gap-4">
           <Link href="/admin/projects?stage=pending">
             <Card className="p-5 bg-white border-[#E5E7EB] hover:border-gray-400 cursor-pointer transition-colors">
               <div className="flex items-center justify-between mb-3">
@@ -124,7 +109,7 @@ export default function AdminHomePage() {
                 </div>
               </div>
               <div className="text-3xl font-bold text-gray-600 mb-1">
-                {stats.pendingCount}
+                {stats.projectsCount.registered}
               </div>
               <h3 className="text-sm font-medium text-[#111827]">대기 중</h3>
               <p className="text-xs text-[#6B7280] mt-1">프로젝트 생성됨</p>
@@ -139,7 +124,7 @@ export default function AdminHomePage() {
                 </div>
               </div>
               <div className="text-3xl font-bold text-blue-600 mb-1">
-                {stats.analyzingCount}
+                {stats.projectsCount.analysing}
               </div>
               <h3 className="text-sm font-medium text-[#111827]">분석 중</h3>
               <p className="text-xs text-[#6B7280] mt-1">InvaLab 분석</p>
@@ -154,7 +139,7 @@ export default function AdminHomePage() {
                 </div>
               </div>
               <div className="text-3xl font-bold text-green-600 mb-1">
-                {stats.deliveringCount}
+                {stats.projectsCount.providing}
               </div>
               <h3 className="text-sm font-medium text-[#111827]">제공 중</h3>
               <p className="text-xs text-[#6B7280] mt-1">대시보드 활성</p>
@@ -169,7 +154,7 @@ export default function AdminHomePage() {
                 </div>
               </div>
               <div className="text-3xl font-bold text-purple-600 mb-1">
-                {stats.executingCount}
+                {stats.projectsCount.completed}
               </div>
               <h3 className="text-sm font-medium text-[#111827]">실행 중</h3>
               <p className="text-xs text-[#6B7280] mt-1">현장 활동</p>
@@ -184,33 +169,15 @@ export default function AdminHomePage() {
                 </div>
               </div>
               <div className="text-3xl font-bold text-green-700 mb-1">
-                {stats.completedCount}
+                {stats.projectsCount.paused}
               </div>
               <h3 className="text-sm font-medium text-[#111827]">완료</h3>
               <p className="text-xs text-[#6B7280] mt-1">서비스 종료</p>
             </Card>
           </Link>
-
-          <Link href="/admin/projects?stage=unconfigured">
-            <Card className="p-5 bg-white border-[#E5E7EB] hover:border-orange-500 cursor-pointer transition-colors">
-              <div className="flex items-center justify-between mb-3">
-                <div className="p-2 bg-orange-100 rounded-lg">
-                  <AlertCircle className="w-5 h-5 text-orange-600" />
-                </div>
-              </div>
-              <div className="text-3xl font-bold text-orange-600 mb-1">
-                {stats.unconfiguredCount}
-              </div>
-              <h3 className="text-sm font-medium text-[#111827]">
-                위젯 미구성
-              </h3>
-              <p className="text-xs text-[#6B7280] mt-1">구성 필요</p>
-            </Card>
-          </Link>
         </div>
       </div>
 
-      {/* Summary Cards */}
       <div className="grid md:grid-cols-2 gap-6 mb-8">
         <Link href="/admin/orgs">
           <Card className="p-6 bg-white border-[#E5E7EB] hover:border-[#118DFF] cursor-pointer transition-colors">
@@ -219,7 +186,7 @@ export default function AdminHomePage() {
                 <Building2 className="w-6 h-6 text-[#118DFF]" />
               </div>
               <span className="text-4xl font-bold text-[#111827]">
-                {stats.orgsCount}
+                {stats.organizationCount}
               </span>
             </div>
             <h3 className="text-sm font-semibold text-[#111827] mb-1">
@@ -236,7 +203,9 @@ export default function AdminHomePage() {
                 <FolderKanban className="w-6 h-6 text-[#118DFF]" />
               </div>
               <span className="text-4xl font-bold text-[#111827]">
-                {stats.projectsCount}
+                {stats.projectsCount.efficiency +
+                  stats.projectsCount.asset +
+                  stats.projectsCount.biodiversity}
               </span>
             </div>
             <h3 className="text-sm font-semibold text-[#111827] mb-1">
@@ -247,7 +216,6 @@ export default function AdminHomePage() {
         </Link>
       </div>
 
-      {/* Service Delivery Overview */}
       <Card className="p-6 bg-white border-[#E5E7EB] mb-8">
         <div className="flex items-center gap-2 mb-6">
           <TrendingUp className="w-5 h-5 text-[#118DFF]" />
@@ -260,101 +228,65 @@ export default function AdminHomePage() {
         </p>
 
         <div className="space-y-4">
-          {/* Efficiency */}
-          <div className="flex items-center justify-between p-4 rounded-lg border border-[#E5E7EB] bg-[#F9FAFB]">
-            <div className="flex items-center gap-4 flex-1">
-              <div className="px-3 py-1 bg-blue-100 text-blue-700 rounded font-semibold text-sm">
-                운영비 절감
-              </div>
-              <span className="text-2xl font-bold text-[#111827]">
-                {serviceDelivery.efficiency.total}개 프로젝트
-              </span>
-            </div>
-            <div className="flex gap-6 text-sm">
-              <div className="text-center">
-                <div className="text-[#6B7280] mb-1">분석중</div>
-                <div className="text-lg font-semibold text-blue-600">
-                  {serviceDelivery.efficiency.analyzing}
+          {[
+            {
+              key: 'efficiency' as const,
+              label: '운영비 절감',
+              bg: 'bg-blue-100 text-blue-700',
+              total: serviceDelivery.efficiency.total,
+              analyzing: serviceDelivery.efficiency.analyzing,
+              delivering: serviceDelivery.efficiency.delivering,
+              pending: serviceDelivery.efficiency.pending,
+            },
+            {
+              key: 'asset' as const,
+              label: '자산 가치 향상',
+              bg: 'bg-green-100 text-green-700',
+              total: serviceDelivery.asset.total,
+              analyzing: serviceDelivery.asset.analyzing,
+              delivering: serviceDelivery.asset.delivering,
+              pending: serviceDelivery.asset.pending,
+            },
+            {
+              key: 'biodiversity' as const,
+              label: '생물다양성',
+              bg: 'bg-purple-100 text-purple-700',
+              total: serviceDelivery.biodiversity.total,
+              analyzing: serviceDelivery.biodiversity.analyzing,
+              delivering: serviceDelivery.biodiversity.delivering,
+              pending: serviceDelivery.biodiversity.pending,
+            },
+          ].map((t) => (
+            <div
+              key={t.key}
+              className="flex items-center justify-between p-4 rounded-lg border border-[#E5E7EB] bg-[#F9FAFB]"
+            >
+              <div className="flex items-center gap-4 flex-1">
+                <div
+                  className={`px-3 py-1 rounded font-semibold text-sm ${t.bg}`}
+                >
+                  {t.label}
                 </div>
+                <span className="text-2xl font-bold text-[#111827]">
+                  {t.total}개 프로젝트
+                </span>
               </div>
-              <div className="text-center">
-                <div className="text-[#6B7280] mb-1">제공중</div>
-                <div className="text-lg font-semibold text-green-600">
-                  {serviceDelivery.efficiency.delivering}
+              <div className="flex gap-6 text-sm">
+                <div className="text-center">
+                  <div className="text-[#6B7280] mb-1">분석중</div>
+                  <div className="text-lg font-semibold">{t.analyzing}</div>
                 </div>
-              </div>
-              <div className="text-center">
-                <div className="text-[#6B7280] mb-1">대기</div>
-                <div className="text-lg font-semibold text-[#6B7280]">
-                  {serviceDelivery.efficiency.pending}
+                <div className="text-center">
+                  <div className="text-[#6B7280] mb-1">제공중</div>
+                  <div className="text-lg font-semibold">{t.delivering}</div>
                 </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Asset */}
-          <div className="flex items-center justify-between p-4 rounded-lg border border-[#E5E7EB] bg-[#F9FAFB]">
-            <div className="flex items-center gap-4 flex-1">
-              <div className="px-3 py-1 bg-green-100 text-green-700 rounded font-semibold text-sm">
-                자산 가치 향상
-              </div>
-              <span className="text-2xl font-bold text-[#111827]">
-                {serviceDelivery.asset.total}개 프로젝트
-              </span>
-            </div>
-            <div className="flex gap-6 text-sm">
-              <div className="text-center">
-                <div className="text-[#6B7280] mb-1">분석중</div>
-                <div className="text-lg font-semibold text-blue-600">
-                  {serviceDelivery.asset.analyzing}
-                </div>
-              </div>
-              <div className="text-center">
-                <div className="text-[#6B7280] mb-1">제공중</div>
-                <div className="text-lg font-semibold text-green-600">
-                  {serviceDelivery.asset.delivering}
-                </div>
-              </div>
-              <div className="text-center">
-                <div className="text-[#6B7280] mb-1">대기</div>
-                <div className="text-lg font-semibold text-[#6B7280]">
-                  {serviceDelivery.asset.pending}
+                <div className="text-center">
+                  <div className="text-[#6B7280] mb-1">대기</div>
+                  <div className="text-lg font-semibold">{t.pending}</div>
                 </div>
               </div>
             </div>
-          </div>
-
-          {/* Biodiversity */}
-          <div className="flex items-center justify-between p-4 rounded-lg border border-[#E5E7EB] bg-[#F9FAFB]">
-            <div className="flex items-center gap-4 flex-1">
-              <div className="px-3 py-1 bg-purple-100 text-purple-700 rounded font-semibold text-sm">
-                생물다양성
-              </div>
-              <span className="text-2xl font-bold text-[#111827]">
-                {serviceDelivery.biodiversity.total}개 프로젝트
-              </span>
-            </div>
-            <div className="flex gap-6 text-sm">
-              <div className="text-center">
-                <div className="text-[#6B7280] mb-1">분석중</div>
-                <div className="text-lg font-semibold text-blue-600">
-                  {serviceDelivery.biodiversity.analyzing}
-                </div>
-              </div>
-              <div className="text-center">
-                <div className="text-[#6B7280] mb-1">제공중</div>
-                <div className="text-lg font-semibold text-green-600">
-                  {serviceDelivery.biodiversity.delivering}
-                </div>
-              </div>
-              <div className="text-center">
-                <div className="text-[#6B7280] mb-1">대기</div>
-                <div className="text-lg font-semibold text-[#6B7280]">
-                  {serviceDelivery.biodiversity.pending}
-                </div>
-              </div>
-            </div>
-          </div>
+          ))}
         </div>
       </Card>
     </div>

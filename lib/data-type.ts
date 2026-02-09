@@ -42,6 +42,7 @@ export class Organization {
   public name!: string;
   public type!: 'COMPANY' | 'PUBLIC' | 'NGO';
   public size!: 'SOLO' | 'SMALL' | 'MEDIUM' | 'ENTERPRISE';
+  public contact!: string | null;
   public website!: string | null;
   public status!: 'ACTIVE' | 'INACTIVE' | 'ARCHIVED';
 
@@ -50,6 +51,7 @@ export class Organization {
     name: string;
     type: 'COMPANY' | 'PUBLIC' | 'NGO';
     size: 'SOLO' | 'SMALL' | 'MEDIUM' | 'ENTERPRISE';
+    contact: string | null;
     website: string | null;
     status: 'ACTIVE' | 'INACTIVE' | 'ARCHIVED';
   }) {
@@ -57,19 +59,25 @@ export class Organization {
     this.name = org.name;
     this.type = org.type;
     this.size = org.size;
+    this.contact = org.contact;
     this.website = org.website;
     this.status = org.status;
   }
 }
 
-export type ProjectTheme = '운영비 절감' | '자산 가치 향상' | '생물 다양성';
+export enum ProjectTheme {
+  EFFICIENCY = 'efficiency',
+  ASSET = 'asset',
+  BIODIVERSITY = 'biodiversity',
+}
 
-export type ProjectStatus =
-  | 'REGISTERED'
-  | 'ANALYZING'
-  | 'PROVIDING'
-  | 'COMPLETED'
-  | 'PAUSED';
+export enum ProjectStatus {
+  REGISTERED = 'registered',
+  ANALYZING = 'analyzing',
+  PROVIDING = 'providing',
+  COMPLETED = 'completed',
+  PAUSED = 'paused',
+}
 
 export class ProjectStatusLog {
   id!: string;

@@ -24,7 +24,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ProjectRecommendationAssistant } from '@/components/project-recommendation-assistant';
 import { ContactModal } from '@/components/contact-modal';
-import {Organization, Project, User} from '@/lib/data-type';
+import { Organization, Project, User } from '@/lib/data-type';
 
 const themeConfig = {
   efficiency: {
@@ -61,10 +61,16 @@ export default function AppHomePage() {
     if (!user) return;
 
     if (user.organizationId) {
-      fetch(new URL(`/organizations/${user.organizationId}`, process.env.NEXT_PUBLIC_NATUREX_BACKEND), {
-        method: 'GET',
-        credentials: 'include',
-      }).then<void, void>(async (res) => {
+      fetch(
+        new URL(
+          `/organizations/${user.organizationId}`,
+          process.env.NEXT_PUBLIC_NATUREX_BACKEND,
+        ),
+        {
+          method: 'GET',
+          credentials: 'include',
+        },
+      ).then<void, void>(async (res) => {
         if (!res.ok) {
           console.error(res.statusText);
         }
@@ -72,14 +78,22 @@ export default function AppHomePage() {
         setOrganization(organization);
       });
 
-      fetch(new URL(`/projects/organization/${user.organizationId}`, process.env.NEXT_PUBLIC_NATUREX_BACKEND), {
-        method: 'GET',
-        credentials: 'include',
-      }).then<void, void>(async (res) => {
+      fetch(
+        new URL(
+          `/projects/organization/${user.organizationId}`,
+          process.env.NEXT_PUBLIC_NATUREX_BACKEND,
+        ),
+        {
+          method: 'GET',
+          credentials: 'include',
+        },
+      ).then<void, void>(async (res) => {
         if (!res.ok) {
           console.error(res.statusText);
         }
-        const projects = ((await res.json()) as any[]).map((e) => new Project(e));
+        const projects = ((await res.json()) as any[]).map(
+          (e) => new Project(e),
+        );
         setProjects(projects);
       });
     }
@@ -135,7 +149,9 @@ export default function AppHomePage() {
           </h1>
           <p className="text-lg text-[#6B7280]">
             {organization && (
-              <span className="font-medium text-[#118DFF]">{organization.name}</span>
+              <span className="font-medium text-[#118DFF]">
+                {organization.name}
+              </span>
             )}
             자연자산 프로젝트를 관리하고 분석 결과를 확인하세요.
           </p>
@@ -278,9 +294,8 @@ export default function AppHomePage() {
           </div>
 
           {!projects ? (
-              <div>프로젝트 로딩 중...</div>
-          ) :
-            projects.length === 0 ? (
+            <div>프로젝트 로딩 중...</div>
+          ) : projects.length === 0 ? (
             <Card className="p-12 bg-white border-[#E5E7EB] text-center">
               <p className="text-[#6B7280] mb-4">등록된 프로젝트가 없습니다.</p>
               <Button

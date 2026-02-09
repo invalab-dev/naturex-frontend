@@ -9,7 +9,7 @@ import {
   SidebarMenuItem,
 } from '@/components/sidebar/shared-sidebar';
 
-export function GlobalSidebar() {
+export function UserSidebar() {
   const pathname = usePathname();
   const { user, logout } = useAuth();
   const router = useRouter();

@@ -2,174 +2,204 @@
 
 import type React from 'react';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card } from '@/components/ui/card';
+import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { ArrowLeft, FolderKanban, ChevronRight } from 'lucide-react';
+  ArrowLeft,
+  FolderKanban,
+  CheckCircle2,
+  Leaf,
+  TrendingUp,
+  TreePine,
+  Search,
+  Map,
+  Download,
+  BarChart3,
+} from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
+  createProject,
   getOrganizations,
-  saveProject,
-  type Project,
+  type Organization,
+  type ProjectTheme,
+  type ResultConfig,
 } from '@/lib/data-service';
 
 export default function NewProjectPage() {
   const router = useRouter();
-  const [orgs, setOrgs] = useState<Array<{ orgId: string; name: string }>>([]);
+  const [orgs, setOrgs] = useState<Organization[]>([]);
+  const [orgSearch, setOrgSearch] = useState('');
+  const [showOrgDropdown, setShowOrgDropdown] = useState(false);
   const [formData, setFormData] = useState({
     orgId: '',
+    orgName: '',
     name: '',
     description: '',
-    theme: '' as 'efficiency' | 'asset' | 'biodiversity' | '',
+    theme: '' as ProjectTheme | '',
     location: '',
-    status: 'intake' as Project['status'],
+  });
+
+  const [resultConfig, setResultConfig] = useState<ResultConfig>({
+    map: { enabled: false, types: [] },
+    downloads: { enabled: false },
+    tables: { enabled: false, types: [] },
   });
 
   useEffect(() => {
-    setOrgs(getOrganizations());
+    (async () => {
+      setOrgs(await getOrganizations());
+    })();
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const filteredOrgs = orgs.filter(
+    (org) =>
+      org.name.toLowerCase().includes(orgSearch.toLowerCase()) ||
+      (org.industry || '').toLowerCase().includes(orgSearch.toLowerCase()),
+  );
 
-    if (!formData.orgId || !formData.theme) {
-      alert('조직과 서비스 테마를 선택해주세요.');
-      return;
-    }
-
-    const project: Project = {
-      projectId: `proj-${Date.now()}`,
-      name: formData.name,
-      orgId: formData.orgId,
-      theme: formData.theme,
-      location: formData.location,
-      status: formData.status,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-
-    saveProject(project);
-    // Auto-redirect to Widget Builder
-    router.push(`/admin/projects/${project.projectId}/builder`);
+  const handleOrgSelect = (org: Organization) => {
+    setFormData({ ...formData, orgId: org.orgId, orgName: org.name });
+    setOrgSearch(org.name);
+    setShowOrgDropdown(false);
   };
 
-  const themeOptions = [
+  const toggleMapType = (type: 'geojson' | 'tiles3d' | 'laz') => {
+    setResultConfig((prev) => ({
+      ...prev,
+      map: {
+        ...prev.map,
+        types: prev.map.types.includes(type)
+          ? prev.map.types.filter((t) => t !== type)
+          : [...prev.map.types, type],
+      },
+    }));
+  };
+
+  const toggleTableType = (type: 'table' | 'bar' | 'line' | 'kpi') => {
+    setResultConfig((prev) => ({
+      ...prev,
+      tables: {
+        ...prev.tables,
+        types: prev.tables.types.includes(type)
+          ? prev.tables.types.filter((t) => t !== type)
+          : [...prev.tables.types, type],
+      },
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (
+      !formData.orgId ||
+      !formData.theme ||
+      !formData.name ||
+      !formData.location
+    )
+      return;
+
+    const projectId = formData.name
+      ? `proj-${formData.name
+          .toLowerCase()
+          .replace(/[^a-z0-9가-힣]/g, '-')
+          .slice(0, 20)}-${Date.now().toString().slice(-4)}`
+      : `proj-${Date.now()}`;
+
+    await createProject({
+      projectId,
+      orgId: formData.orgId,
+      name: formData.name,
+      theme: formData.theme as ProjectTheme,
+      location: formData.location,
+      description: formData.description || null,
+      resultConfig,
+    });
+
+    router.push(`/admin/projects?created=${projectId}`);
+  };
+
+  const themeOptions: Array<{
+    value: ProjectTheme;
+    label: string;
+    icon: any;
+    description: string;
+  }> = [
     {
       value: 'efficiency',
       label: '운영비 절감',
-      description: '탄소배출권, 에너지 절감, 운영 효율화',
-      examples: '탄소배출권 판매, 냉난방비 절감, 유지관리 효율화',
+      icon: TrendingUp,
+      description: '유지관리 효율화, 에너지 절감, 비용 최적화',
     },
     {
       value: 'asset',
       label: '자산 가치 향상',
-      description: 'ESG 평가, 부동산 가치, 브랜드 이미지',
-      examples: 'ESG 등급 상승, 부동산 가치 증대, 기업 이미지 개선',
+      icon: Leaf,
+      description: 'ESG 평가, 자산 가치 정량화, 포트폴리오 우선순위',
     },
     {
       value: 'biodiversity',
       label: '생물다양성 프로젝트',
-      description: '생태계 복원, 생물종 보전, NbS',
-      examples: '서식지 복원, 종 다양성 증진, 자연기반해법 적용',
+      icon: TreePine,
+      description: '생태복원, 서식지 분석, TNFD 대응',
     },
   ];
 
-  return (
-    <div className="min-h-screen bg-[#F5F7FB] flex items-center justify-center p-8">
-      <Card className="w-full max-w-3xl bg-white border-[#E5E7EB] shadow-lg">
-        <div className="p-8">
-          {/* Header */}
-          <div className="flex items-center gap-3 mb-2">
-            <Link href="/admin/projects">
-              <Button variant="ghost" size="sm" className="gap-2">
-                <ArrowLeft className="w-4 h-4" />
-                돌아가기
-              </Button>
-            </Link>
-          </div>
+  const isFormValid =
+    formData.orgId && formData.theme && formData.name && formData.location;
 
+  return (
+    <div className="min-h-screen bg-[#F5F7FB] p-8">
+      <div className="max-w-5xl mx-auto">
+        <div className="mb-8">
+          <Link href="/admin/projects">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="gap-2 mb-4 text-[#6B7280] hover:text-[#111827]"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              프로젝트 목록
+            </Button>
+          </Link>
           <div className="flex items-center gap-3 mb-2">
             <div className="p-3 bg-[#118DFF]/10 rounded-lg">
               <FolderKanban className="w-6 h-6 text-[#118DFF]" />
             </div>
-            <h1 className="text-3xl font-bold text-[#111827]">
-              새 프로젝트 생성
-            </h1>
-          </div>
-          <p className="text-[#6B7280] mb-8">
-            조직에 NatureX 서비스를 제공하기 위한 프로젝트를 생성합니다.
-          </p>
-
-          <form onSubmit={handleSubmit} className="space-y-8">
-            {/* STEP 1. 조직 선택 */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 pb-2 border-b border-[#E5E7EB]">
-                <div className="w-8 h-8 rounded-full bg-[#118DFF] text-white flex items-center justify-center text-sm font-bold">
-                  1
-                </div>
-                <h2 className="text-lg font-semibold text-[#111827]">
-                  조직 선택
-                </h2>
-                <span className="text-sm text-red-500 ml-auto">필수</span>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="orgId" className="text-sm font-medium">
-                  서비스를 제공할 조직을 선택하세요
-                </Label>
-                <Select
-                  value={formData.orgId}
-                  onValueChange={(value) =>
-                    setFormData({ ...formData, orgId: value })
-                  }
-                >
-                  <SelectTrigger className="bg-white border-[#E5E7EB] h-12">
-                    <SelectValue placeholder="조직을 선택하세요" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white">
-                    {orgs.map((org) => (
-                      <SelectItem key={org.orgId} value={org.orgId}>
-                        {org.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <div className="flex items-center gap-2 text-sm text-[#6B7280] mt-2">
-                  <span>조직이 없으신가요?</span>
-                  <Link
-                    href="/admin/orgs/new"
-                    className="text-[#118DFF] hover:underline font-medium"
-                  >
-                    새 조직 생성 <ChevronRight className="w-3 h-3 inline" />
-                  </Link>
-                </div>
-              </div>
+            <div>
+              <h1 className="text-2xl font-bold text-[#111827]">
+                새 프로젝트 생성
+              </h1>
+              <p className="text-sm text-[#6B7280]">
+                프로젝트 정보와 결과 제공 유형을 설정합니다.
+              </p>
             </div>
+          </div>
+        </div>
 
-            {/* STEP 2. 프로젝트 기본 정보 */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 pb-2 border-b border-[#E5E7EB]">
-                <div className="w-8 h-8 rounded-full bg-[#118DFF] text-white flex items-center justify-center text-sm font-bold">
-                  2
+        <div className="grid lg:grid-cols-5 gap-6">
+          <div className="lg:col-span-3 space-y-6">
+            <form onSubmit={handleSubmit}>
+              <Card className="bg-white border-[#E5E7EB] p-6 space-y-6 mb-6">
+                <div>
+                  <h2 className="text-lg font-semibold text-[#111827] mb-1">
+                    프로젝트 기본 정보
+                  </h2>
+                  <p className="text-sm text-[#6B7280]">
+                    프로젝트의 기본 정보를 입력하세요.
+                  </p>
                 </div>
-                <h2 className="text-lg font-semibold text-[#111827]">
-                  프로젝트 기본 정보
-                </h2>
-              </div>
 
-              <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name" className="text-sm font-medium">
+                  <Label
+                    htmlFor="name"
+                    className="text-sm font-medium text-[#374151]"
+                  >
                     프로젝트명 <span className="text-red-500">*</span>
                   </Label>
                   <Input
@@ -179,14 +209,84 @@ export default function NewProjectPage() {
                       setFormData({ ...formData, name: e.target.value })
                     }
                     placeholder="예: 서울숲 생태복원 프로젝트"
+                    className="bg-white border-[#E5E7EB] h-11 placeholder:text-slate-400"
                     required
-                    className="bg-white border-[#E5E7EB]"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="location" className="text-sm font-medium">
-                    위치 <span className="text-red-500">*</span>
+                  <Label className="text-sm font-medium text-[#374151]">
+                    고객 조직 <span className="text-red-500">*</span>
+                  </Label>
+                  <div className="relative">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9CA3AF]" />
+                      <Input
+                        value={orgSearch}
+                        onChange={(e) => {
+                          setOrgSearch(e.target.value);
+                          setShowOrgDropdown(true);
+                          if (!e.target.value) {
+                            setFormData({
+                              ...formData,
+                              orgId: '',
+                              orgName: '',
+                            });
+                          }
+                        }}
+                        onFocus={() => setShowOrgDropdown(true)}
+                        placeholder="조직 검색..."
+                        className="bg-white border-[#E5E7EB] h-11 pl-10 placeholder:text-slate-400"
+                      />
+                    </div>
+                    {showOrgDropdown && (
+                      <div className="absolute z-10 w-full mt-1 bg-white border border-[#E5E7EB] rounded-lg shadow-lg max-h-60 overflow-auto">
+                        {filteredOrgs.length === 0 ? (
+                          <div className="p-3 text-sm text-[#6B7280]">
+                            검색 결과가 없습니다
+                          </div>
+                        ) : (
+                          filteredOrgs.map((org) => (
+                            <button
+                              key={org.orgId}
+                              type="button"
+                              onClick={() => handleOrgSelect(org)}
+                              className={`w-full px-4 py-3 text-left hover:bg-[#F5F7FB] flex items-center justify-between ${
+                                formData.orgId === org.orgId
+                                  ? 'bg-[#118DFF]/5'
+                                  : ''
+                              }`}
+                            >
+                              <div>
+                                <div className="font-medium text-[#111827]">
+                                  {org.name}
+                                </div>
+                                <div className="text-xs text-[#6B7280]">
+                                  {org.industry}
+                                </div>
+                              </div>
+                              {formData.orgId === org.orgId && (
+                                <CheckCircle2 className="w-5 h-5 text-[#118DFF]" />
+                              )}
+                            </button>
+                          ))
+                        )}
+                        <Link href="/admin/orgs/new" className="block">
+                          <div className="px-4 py-3 text-sm text-[#118DFF] hover:bg-[#F5F7FB] border-t border-[#E5E7EB]">
+                            + 새 조직 생성
+                          </div>
+                        </Link>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label
+                    htmlFor="location"
+                    className="text-sm font-medium text-[#374151]"
+                  >
+                    프로젝트 위치 <span className="text-red-500">*</span>
                   </Label>
                   <Input
                     id="location"
@@ -195,134 +295,183 @@ export default function NewProjectPage() {
                       setFormData({ ...formData, location: e.target.value })
                     }
                     placeholder="예: 서울시 성동구"
+                    className="bg-white border-[#E5E7EB] h-11 placeholder:text-slate-400"
                     required
-                    className="bg-white border-[#E5E7EB]"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="description" className="text-sm font-medium">
-                    설명 (선택)
+                  <Label
+                    htmlFor="description"
+                    className="text-sm font-medium text-[#374151]"
+                  >
+                    설명
                   </Label>
-                  <Input
+                  <Textarea
                     id="description"
                     value={formData.description}
                     onChange={(e) =>
                       setFormData({ ...formData, description: e.target.value })
                     }
-                    placeholder="프로젝트에 대한 간단한 설명"
-                    className="bg-white border-[#E5E7EB]"
+                    placeholder="프로젝트 설명(옵션)"
+                    className="bg-white border-[#E5E7EB] min-h-[90px]"
                   />
                 </div>
-              </div>
-            </div>
 
-            {/* STEP 3. 서비스 테마 선택 */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 pb-2 border-b border-[#E5E7EB]">
-                <div className="w-8 h-8 rounded-full bg-[#118DFF] text-white flex items-center justify-center text-sm font-bold">
-                  3
-                </div>
-                <h2 className="text-lg font-semibold text-[#111827]">
-                  서비스 테마 선택
-                </h2>
-                <span className="text-sm text-red-500 ml-auto">필수</span>
-              </div>
-
-              <div className="grid md:grid-cols-3 gap-4">
-                {themeOptions.map((option) => (
-                  <Card
-                    key={option.value}
-                    onClick={() =>
-                      setFormData({ ...formData, theme: option.value as any })
-                    }
-                    className={`p-4 cursor-pointer transition-all hover:shadow-md ${
-                      formData.theme === option.value
-                        ? 'border-[#118DFF] border-2 bg-[#118DFF]/5'
-                        : 'border-[#E5E7EB] hover:border-[#118DFF]'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between mb-3">
-                      <h3 className="font-semibold text-[#111827]">
-                        {option.label}
-                      </h3>
-                      {formData.theme === option.value && (
-                        <div className="w-5 h-5 rounded-full bg-[#118DFF] flex items-center justify-center">
-                          <ChevronRight className="w-3 h-3 text-white" />
+                <div className="space-y-3">
+                  <Label className="text-sm font-medium text-[#374151]">
+                    테마 <span className="text-red-500">*</span>
+                  </Label>
+                  <div className="grid md:grid-cols-3 gap-3">
+                    {themeOptions.map((t) => (
+                      <button
+                        type="button"
+                        key={t.value}
+                        onClick={() =>
+                          setFormData({ ...formData, theme: t.value })
+                        }
+                        className={`p-4 rounded-lg border text-left ${
+                          formData.theme === t.value
+                            ? 'border-[#118DFF] bg-[#118DFF]/5'
+                            : 'border-[#E5E7EB] bg-white'
+                        }`}
+                      >
+                        <div className="font-semibold text-[#111827]">
+                          {t.label}
                         </div>
-                      )}
-                    </div>
-                    <p className="text-sm text-[#6B7280] mb-2">
-                      {option.description}
-                    </p>
-                    <p className="text-xs text-[#9CA3AF]">
-                      예: {option.examples}
-                    </p>
-                  </Card>
-                ))}
-              </div>
-            </div>
-
-            {/* STEP 4. 초기 상태 */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 pb-2 border-b border-[#E5E7EB]">
-                <div className="w-8 h-8 rounded-full bg-[#118DFF] text-white flex items-center justify-center text-sm font-bold">
-                  4
+                        <div className="text-xs text-[#6B7280] mt-1">
+                          {t.description}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
                 </div>
-                <h2 className="text-lg font-semibold text-[#111827]">
-                  초기 상태
-                </h2>
-              </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="status" className="text-sm font-medium">
-                  프로젝트 시작 상태
-                </Label>
-                <Select
-                  value={formData.status}
-                  onValueChange={(value: any) =>
-                    setFormData({ ...formData, status: value })
-                  }
+                <Button
+                  type="submit"
+                  disabled={!isFormValid}
+                  className="bg-[#118DFF] hover:bg-[#0D6FCC] text-white"
                 >
-                  <SelectTrigger className="bg-white border-[#E5E7EB] h-12">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white">
-                    <SelectItem value="intake">
-                      Intake (데이터 수신 대기)
-                    </SelectItem>
-                    <SelectItem value="analyzing">
-                      Analyzing (분석 중)
-                    </SelectItem>
-                    <SelectItem value="draft">Draft (임시 저장)</SelectItem>
-                  </SelectContent>
-                </Select>
+                  생성
+                </Button>
+              </Card>
+            </form>
+          </div>
+
+          <div className="lg:col-span-2 space-y-6">
+            <Card className="bg-white border-[#E5E7EB] p-6 space-y-4">
+              <div>
+                <h2 className="text-lg font-semibold text-[#111827]">
+                  결과 제공 설정
+                </h2>
                 <p className="text-sm text-[#6B7280]">
-                  대부분의 프로젝트는 Intake 상태로 시작합니다.
+                  프로젝트 납품 유형을 선택하세요.
                 </p>
               </div>
-            </div>
 
-            {/* Footer Actions */}
-            <div className="flex gap-3 justify-end pt-6 border-t border-[#E5E7EB]">
-              <Link href="/admin/projects">
-                <Button type="button" variant="outline" size="lg">
-                  취소
-                </Button>
-              </Link>
-              <Button
-                type="submit"
-                size="lg"
-                className="bg-[#118DFF] hover:bg-[#0D6FCC] gap-2"
-                disabled={!formData.orgId || !formData.theme}
-              >
-                프로젝트 생성 및 위젯 구성
-                <ChevronRight className="w-4 h-4" />
-              </Button>
-            </div>
-          </form>
+              <div className="space-y-3">
+                <div className="flex items-start gap-3 p-4 rounded-lg border border-[#E5E7EB]">
+                  <Checkbox
+                    id="rc-map"
+                    checked={resultConfig.map.enabled}
+                    onCheckedChange={(v) =>
+                      setResultConfig((p) => ({
+                        ...p,
+                        map: { ...p.map, enabled: !!v },
+                      }))
+                    }
+                    className="mt-1"
+                  />
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 font-medium">
+                      <Map className="w-4 h-4" /> 지도
+                    </div>
+                    <div className="text-xs text-[#6B7280] mt-1">
+                      GeoJSON / 3D Tiles / LAZ
+                    </div>
+                    {resultConfig.map.enabled && (
+                      <div className="mt-3 space-y-2">
+                        {(['geojson', 'tiles3d', 'laz'] as const).map((t) => (
+                          <label
+                            key={t}
+                            className="flex items-center gap-2 text-sm"
+                          >
+                            <Checkbox
+                              checked={resultConfig.map.types.includes(t)}
+                              onCheckedChange={() => toggleMapType(t)}
+                            />
+                            {t}
+                          </label>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3 p-4 rounded-lg border border-[#E5E7EB]">
+                  <Checkbox
+                    id="rc-download"
+                    checked={resultConfig.downloads.enabled}
+                    onCheckedChange={(v) =>
+                      setResultConfig((p) => ({
+                        ...p,
+                        downloads: { enabled: !!v },
+                      }))
+                    }
+                    className="mt-1"
+                  />
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 font-medium">
+                      <Download className="w-4 h-4" /> 파일
+                    </div>
+                    <div className="text-xs text-[#6B7280] mt-1">
+                      HWP/XLSX/PDF
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3 p-4 rounded-lg border border-[#E5E7EB]">
+                  <Checkbox
+                    id="rc-table"
+                    checked={resultConfig.tables.enabled}
+                    onCheckedChange={(v) =>
+                      setResultConfig((p) => ({
+                        ...p,
+                        tables: { ...p.tables, enabled: !!v },
+                      }))
+                    }
+                    className="mt-1"
+                  />
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 font-medium">
+                      <BarChart3 className="w-4 h-4" /> 시각화
+                    </div>
+                    <div className="text-xs text-[#6B7280] mt-1">
+                      table/bar/line/kpi
+                    </div>
+                    {resultConfig.tables.enabled && (
+                      <div className="mt-3 space-y-2">
+                        {(['table', 'bar', 'line', 'kpi'] as const).map((t) => (
+                          <label
+                            key={t}
+                            className="flex items-center gap-2 text-sm"
+                          >
+                            <Checkbox
+                              checked={resultConfig.tables.types.includes(t)}
+                              onCheckedChange={() => toggleTableType(t)}
+                            />
+                            {t}
+                          </label>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </Card>
+          </div>
         </div>
-      </Card>
+      </div>
     </div>
   );
 }
