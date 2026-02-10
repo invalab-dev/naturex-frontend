@@ -45,6 +45,7 @@ export class Organization {
   public contact!: string | null;
   public website!: string | null;
   public status!: 'active' | 'inactive' | 'archived';
+  public createdAt!: Date;
 
   constructor(org: {
     id: string;
@@ -54,6 +55,7 @@ export class Organization {
     contact: string | null;
     website: string | null;
     status: 'active' | 'inactive' | 'archived';
+    createdAt: Date;
   }) {
     this.id = org.id;
     this.name = org.name;
@@ -62,6 +64,7 @@ export class Organization {
     this.contact = org.contact;
     this.website = org.website;
     this.status = org.status;
+    this.createdAt = org.createdAt;
   }
 }
 

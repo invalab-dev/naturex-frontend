@@ -16,14 +16,14 @@ import { ProjectStatus, ProjectTheme } from '@/lib/data-type';
 
 export default function AdminHomePage() {
   type StatsType = {
-    organizationsCount: number;
-    projectsCount: Record<ProjectTheme, number> & Record<ProjectStatus, number>;
-    details: Map<string, number>;
+    organizationCount: number;
+    projectCount: Record<ProjectTheme, number> & Record<ProjectStatus, number>;
+    projectCountMapGroupByThemeAndStatus: Map<string, number>;
   };
 
   const [stats, setStats] = useState<StatsType>({
-    organizationsCount: 0,
-    projectsCount: {
+    organizationCount: 0,
+    projectCount: {
       efficiency: 0,
       asset: 0,
       biodiversity: 0,
@@ -33,53 +33,57 @@ export default function AdminHomePage() {
       executing: 0,
       completed: 0,
     },
-    details: new Map(),
+    projectCountMapGroupByThemeAndStatus: new Map(),
   });
 
   useEffect(() => {
     (async () => {
-      const [organizationsCount, projectOverview] = (await Promise.all([
-        (
-          await fetch(
-            new URL(
-              'organizations/count',
-              process.env.NEXT_PUBLIC_NATUREX_BACKEND,
-            ),
-            {
-              method: 'GET',
-              credentials: 'include',
-            },
-          )
-        ).json(),
-        (
-          await fetch(
-            new URL(
-              'projects/overview',
-              process.env.NEXT_PUBLIC_NATUREX_BACKEND,
-            ),
-            {
-              method: 'GET',
-              credentials: 'include',
-            },
-          )
-        ).json(),
-      ])) as [
-        number,
-        { theme: ProjectTheme; status: ProjectStatus; count: number }[],
-      ];
+      const [organizationCount, projectCountGroupByThemeAndStatus] =
+        (await Promise.all([
+          (
+            await fetch(
+              new URL(
+                'organizations/count',
+                process.env.NEXT_PUBLIC_NATUREX_BACKEND,
+              ),
+              {
+                method: 'GET',
+                credentials: 'include',
+              },
+            )
+          ).json(),
+          (
+            await fetch(
+              new URL(
+                'projects/countGroupByThemeAndStatus',
+                process.env.NEXT_PUBLIC_NATUREX_BACKEND,
+              ),
+              {
+                method: 'GET',
+                credentials: 'include',
+              },
+            )
+          ).json(),
+        ])) as [
+          number,
+          { theme: ProjectTheme; status: ProjectStatus; count: number }[],
+        ];
 
-      const details = new Map<string, number>();
-      projectOverview.map((e) => {
-        details.set(`${e.theme}:${e.status}`, e.count);
+      const projectCountMapGroupByThemeAndStatus = new Map<string, number>();
+      projectCountGroupByThemeAndStatus.map((e) => {
+        projectCountMapGroupByThemeAndStatus.set(
+          `${e.theme}:${e.status}`,
+          e.count,
+        );
       });
 
       const obj = {
-        organizationsCount: organizationsCount,
-        projectsCount: {
+        organizationCount: organizationCount,
+        projectCount: {
           ...(Object.fromEntries(
             Object.entries(ProjectTheme).map(([_, v]) => [
               v,
-              projectOverview
+              projectCountGroupByThemeAndStatus
                 .filter((e) => e.theme == v)
                 .reduce((sum, e) => sum + e.count, 0),
             ]),
@@ -87,13 +91,14 @@ export default function AdminHomePage() {
           ...(Object.fromEntries(
             Object.entries(ProjectStatus).map(([_, v]) => [
               v,
-              projectOverview
+              projectCountGroupByThemeAndStatus
                 .filter((e) => e.status == v)
                 .reduce((sum, e) => sum + e.count, 0),
             ]),
           ) as Record<ProjectStatus, number>),
         },
-        details: details,
+        projectCountMapGroupByThemeAndStatus:
+          projectCountMapGroupByThemeAndStatus,
       };
 
       setStats(obj);
@@ -122,7 +127,7 @@ export default function AdminHomePage() {
                 </div>
               </div>
               <div className="text-3xl font-bold text-gray-600 mb-1">
-                {stats.projectsCount.pending}
+                {stats.projectCount.pending}
               </div>
               <h3 className="text-sm font-medium text-[#111827]">대기</h3>
               <p className="text-xs text-[#6B7280] mt-1">프로젝트 생성됨</p>
@@ -137,7 +142,7 @@ export default function AdminHomePage() {
                 </div>
               </div>
               <div className="text-3xl font-bold text-blue-600 mb-1">
-                {stats.projectsCount.analyzing}
+                {stats.projectCount.analyzing}
               </div>
               <h3 className="text-sm font-medium text-[#111827]">분석</h3>
               <p className="text-xs text-[#6B7280] mt-1">InvaLab 분석</p>
@@ -152,7 +157,7 @@ export default function AdminHomePage() {
                 </div>
               </div>
               <div className="text-3xl font-bold text-green-600 mb-1">
-                {stats.projectsCount.delivering}
+                {stats.projectCount.delivering}
               </div>
               <h3 className="text-sm font-medium text-[#111827]">제공</h3>
               <p className="text-xs text-[#6B7280] mt-1">대시보드 활성</p>
@@ -167,7 +172,7 @@ export default function AdminHomePage() {
                 </div>
               </div>
               <div className="text-3xl font-bold text-purple-600 mb-1">
-                {stats.projectsCount.completed}
+                {stats.projectCount.completed}
               </div>
               <h3 className="text-sm font-medium text-[#111827]">실행</h3>
               <p className="text-xs text-[#6B7280] mt-1">현장 활동</p>
@@ -182,7 +187,7 @@ export default function AdminHomePage() {
                 </div>
               </div>
               <div className="text-3xl font-bold text-green-700 mb-1">
-                {stats.projectsCount.completed}
+                {stats.projectCount.completed}
               </div>
               <h3 className="text-sm font-medium text-[#111827]">완료</h3>
               <p className="text-xs text-[#6B7280] mt-1">서비스 종료</p>
@@ -199,7 +204,7 @@ export default function AdminHomePage() {
                 <Building2 className="w-6 h-6 text-[#118DFF]" />
               </div>
               <span className="text-4xl font-bold text-[#111827]">
-                {stats.organizationsCount}
+                {stats.organizationCount}
               </span>
             </div>
             <h3 className="text-sm font-semibold text-[#111827] mb-1">
@@ -216,9 +221,9 @@ export default function AdminHomePage() {
                 <FolderKanban className="w-6 h-6 text-[#118DFF]" />
               </div>
               <span className="text-4xl font-bold text-[#111827]">
-                {stats.projectsCount.efficiency +
-                  stats.projectsCount.asset +
-                  stats.projectsCount.biodiversity}
+                {stats.projectCount.efficiency +
+                  stats.projectCount.asset +
+                  stats.projectCount.biodiversity}
               </span>
             </div>
             <h3 className="text-sm font-semibold text-[#111827] mb-1">
@@ -246,11 +251,13 @@ export default function AdminHomePage() {
               key: 'efficiency' as const,
               label: '운영비 절감',
               bg: 'bg-blue-100 text-blue-700',
-              total: stats.projectsCount.efficiency,
+              total: stats.projectCount.efficiency,
               ...(Object.fromEntries(
                 Object.entries(ProjectStatus).map(([_, v]) => [
                   v,
-                  stats.details.get(`${ProjectTheme.EFFICIENCY}:${v}`) ?? 0,
+                  stats.projectCountMapGroupByThemeAndStatus.get(
+                    `${ProjectTheme.EFFICIENCY}:${v}`,
+                  ) ?? 0,
                 ]),
               ) as Record<ProjectStatus, number>),
             },
@@ -258,11 +265,13 @@ export default function AdminHomePage() {
               key: 'asset' as const,
               label: '자산 가치 향상',
               bg: 'bg-green-100 text-green-700',
-              total: stats.projectsCount.asset,
+              total: stats.projectCount.asset,
               ...(Object.fromEntries(
                 Object.entries(ProjectStatus).map(([_, v]) => [
                   v,
-                  stats.details.get(`${ProjectTheme.ASSET}:${v}`) ?? 0,
+                  stats.projectCountMapGroupByThemeAndStatus.get(
+                    `${ProjectTheme.ASSET}:${v}`,
+                  ) ?? 0,
                 ]),
               ) as Record<ProjectStatus, number>),
             },
@@ -270,11 +279,13 @@ export default function AdminHomePage() {
               key: 'biodiversity' as const,
               label: '생물다양성',
               bg: 'bg-purple-100 text-purple-700',
-              total: stats.projectsCount.biodiversity,
+              total: stats.projectCount.biodiversity,
               ...(Object.fromEntries(
                 Object.entries(ProjectStatus).map(([_, v]) => [
                   v,
-                  stats.details.get(`${ProjectTheme.BIODIVERSITY}:${v}`) ?? 0,
+                  stats.projectCountMapGroupByThemeAndStatus.get(
+                    `${ProjectTheme.BIODIVERSITY}:${v}`,
+                  ) ?? 0,
                 ]),
               ) as Record<ProjectStatus, number>),
             },
