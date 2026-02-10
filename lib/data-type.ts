@@ -1,6 +1,6 @@
 export const enum UserRole {
-  ADMIN = 'ADMIN',
-  USER = 'USER',
+  ADMIN = 'admin',
+  USER = 'user',
 }
 
 export class User {
@@ -40,20 +40,20 @@ export class User {
 export class Organization {
   public id!: string;
   public name!: string;
-  public type!: 'COMPANY' | 'PUBLIC' | 'NGO';
-  public size!: 'SOLO' | 'SMALL' | 'MEDIUM' | 'ENTERPRISE';
+  public type!: 'company' | 'public' | 'ngo';
+  public size!: 'solo' | 'small' | 'medium' | 'enterprise';
   public contact!: string | null;
   public website!: string | null;
-  public status!: 'ACTIVE' | 'INACTIVE' | 'ARCHIVED';
+  public status!: 'active' | 'inactive' | 'archived';
 
   constructor(org: {
     id: string;
     name: string;
-    type: 'COMPANY' | 'PUBLIC' | 'NGO';
-    size: 'SOLO' | 'SMALL' | 'MEDIUM' | 'ENTERPRISE';
+    type: 'company' | 'public' | 'ngo';
+    size: 'solo' | 'small' | 'medium' | 'enterprise';
     contact: string | null;
     website: string | null;
-    status: 'ACTIVE' | 'INACTIVE' | 'ARCHIVED';
+    status: 'active' | 'inactive' | 'archived';
   }) {
     this.id = org.id;
     this.name = org.name;
@@ -72,11 +72,11 @@ export enum ProjectTheme {
 }
 
 export enum ProjectStatus {
-  REGISTERED = 'registered',
+  PENDING = 'pending',
   ANALYZING = 'analyzing',
-  PROVIDING = 'providing',
+  DELIVERING = 'delivering',
+  EXECUTING = 'executing',
   COMPLETED = 'completed',
-  PAUSED = 'paused',
 }
 
 export class ProjectStatusLog {

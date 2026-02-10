@@ -12,12 +12,15 @@ export function AuthGuard({
   children: React.ReactNode;
   acceptUserRoles: UserRole[];
 }) {
-  const { user } = useAuth();
+  const { user, isAuthLoading } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
+    if (isAuthLoading) return;
+
     if (!user) {
+      router.replace('/login');
       return;
     }
 
