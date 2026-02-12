@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Building2, FolderKanban, Settings } from 'lucide-react';
+import { Home, Building2, FolderKanban } from 'lucide-react';
 import {
   SharedSidebar,
   SidebarMenuItem,
@@ -15,7 +15,6 @@ export function AdminSidebar() {
     { href: '/admin', label: '홈', icon: Home },
     { href: '/admin/orgs', label: '조직관리', icon: Building2 },
     { href: '/admin/projects', label: '프로젝트 관리', icon: FolderKanban },
-    { href: '/admin/widgets', label: '위젯 설정', icon: Settings },
   ];
 
   const isActive = (href: string) => {

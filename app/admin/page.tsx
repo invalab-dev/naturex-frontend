@@ -17,7 +17,8 @@ import { ProjectStatus, ProjectTheme } from '@/lib/data-type';
 export default function AdminHomePage() {
   type StatsType = {
     organizationCount: number;
-    projectCount: Record<ProjectTheme, number> & Record<ProjectStatus, number>;
+    projectCount: Record<Lowercase<keyof typeof ProjectTheme>, number> &
+      Record<Lowercase<keyof typeof ProjectStatus>, number>;
     projectCountMapGroupByThemeAndStatus: Map<string, number>;
   };
 
@@ -38,7 +39,7 @@ export default function AdminHomePage() {
 
   useEffect(() => {
     (async () => {
-      const [organizationCount, projectCountGroupByThemeAndStatus] =
+      const [organizationCount, projectCountsGroupByThemeAndStatus] =
         (await Promise.all([
           (
             await fetch(
@@ -66,41 +67,51 @@ export default function AdminHomePage() {
           ).json(),
         ])) as [
           number,
-          { theme: ProjectTheme; status: ProjectStatus; count: number }[],
+          [
+            {
+              organizationId: string | null;
+              total: number;
+              value: {
+                theme: ProjectTheme;
+                status: ProjectStatus;
+                count: number;
+              }[];
+            },
+          ],
         ];
 
       const projectCountMapGroupByThemeAndStatus = new Map<string, number>();
-      projectCountGroupByThemeAndStatus.map((e) => {
+      projectCountsGroupByThemeAndStatus[0].value.map((e) => {
         projectCountMapGroupByThemeAndStatus.set(
-          `${e.theme}:${e.status}`,
+          `${e.theme}:${e.status}`.toLowerCase(),
           e.count,
         );
       });
 
       const obj = {
-        organizationCount: organizationCount,
         projectCount: {
           ...(Object.fromEntries(
-            Object.entries(ProjectTheme).map(([_, v]) => [
-              v,
-              projectCountGroupByThemeAndStatus
+            Object.values(ProjectTheme).map((v) => [
+              v.toLowerCase(),
+              projectCountsGroupByThemeAndStatus[0].value
                 .filter((e) => e.theme == v)
                 .reduce((sum, e) => sum + e.count, 0),
             ]),
-          ) as Record<ProjectTheme, number>),
+          ) as Record<Lowercase<keyof typeof ProjectTheme>, number>),
           ...(Object.fromEntries(
-            Object.entries(ProjectStatus).map(([_, v]) => [
-              v,
-              projectCountGroupByThemeAndStatus
+            Object.values(ProjectStatus).map((v) => [
+              v.toLowerCase(),
+              projectCountsGroupByThemeAndStatus[0].value
                 .filter((e) => e.status == v)
                 .reduce((sum, e) => sum + e.count, 0),
             ]),
-          ) as Record<ProjectStatus, number>),
+          ) as Record<Lowercase<keyof typeof ProjectStatus>, number>),
         },
+        organizationCount: organizationCount,
         projectCountMapGroupByThemeAndStatus:
           projectCountMapGroupByThemeAndStatus,
       };
-
+      console.log(obj);
       setStats(obj);
     })();
   }, []);
@@ -172,7 +183,7 @@ export default function AdminHomePage() {
                 </div>
               </div>
               <div className="text-3xl font-bold text-purple-600 mb-1">
-                {stats.projectCount.completed}
+                {stats.projectCount.executing}
               </div>
               <h3 className="text-sm font-medium text-[#111827]">실행</h3>
               <p className="text-xs text-[#6B7280] mt-1">현장 활동</p>
@@ -259,7 +270,7 @@ export default function AdminHomePage() {
                     `${ProjectTheme.EFFICIENCY}:${v}`,
                   ) ?? 0,
                 ]),
-              ) as Record<ProjectStatus, number>),
+              ) as Record<Lowercase<keyof typeof ProjectStatus>, number>),
             },
             {
               key: 'asset' as const,
@@ -273,7 +284,7 @@ export default function AdminHomePage() {
                     `${ProjectTheme.ASSET}:${v}`,
                   ) ?? 0,
                 ]),
-              ) as Record<ProjectStatus, number>),
+              ) as Record<Lowercase<keyof typeof ProjectStatus>, number>),
             },
             {
               key: 'biodiversity' as const,
@@ -287,7 +298,7 @@ export default function AdminHomePage() {
                     `${ProjectTheme.BIODIVERSITY}:${v}`,
                   ) ?? 0,
                 ]),
-              ) as Record<ProjectStatus, number>),
+              ) as Record<Lowercase<keyof typeof ProjectStatus>, number>),
             },
           ].map((t) => (
             <div

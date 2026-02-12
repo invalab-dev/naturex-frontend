@@ -1,9 +1,8 @@
 'use client';
 
 import type React from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-
-import { useState, useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -14,16 +13,13 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import {
-  Plus,
-  Search,
-  Settings,
+  CheckCircle2,
+  ExternalLink,
   FolderKanban,
   MoreVertical,
+  Plus,
+  Search,
   X,
-  ExternalLink,
-  Archive,
-  CheckCircle2,
-  Clock,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -32,30 +28,31 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
-  saveOrganization,
-  deleteOrganization,
-  themeLabels,
-  DELIVERY_STAGES,
   type Organization,
-  type Project,
-  type DeliveryStage,
-  ProjectTheme,
+  OrganizationSize,
+  OrganizationStatus,
+  OrganizationType,
   ProjectStatus,
+  ProjectTheme,
 } from '@/lib/data-type';
 import { useRouter } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
 
 export default function AdminOrgsPage() {
   const router = useRouter();
-  const [selectedOrg, setSelectedOrg] = useState<Organization | null>(null);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingOrg, setEditingOrg] = useState<Organization | null>(null);
+  const [selectedOrgForDetail, setSelectedOrgForDetail] =
+    useState<Organization | null>(null);
+  const [selectedOrgForEdit, setSelectedOrgForEdit] =
+    useState<Organization | null>(null);
+  const [isDoingLoadData, setIsDoingLoadData] = useState<boolean>(false);
 
   // Filter states
   const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [deliveryStageFilter, setDeliveryStageFilter] = useState<
-    DeliveryStage[]
+  const [organizationStatusFilter, setOrganizationStatusFilter] = useState<
+    keyof typeof OrganizationStatus | 'ALL'
+  >('ALL');
+  const [projectStatusFilter, setProjectStatusFilter] = useState<
+    ProjectStatus[]
   >([]);
   const [sortBy, setSortBy] = useState('recent');
 
@@ -63,175 +60,102 @@ export default function AdminOrgsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
 
-  const [formData, setFormData] = useState({
-    name: '',
-    industry: '',
-    contact: '',
-    status: 'active' as Organization['status'],
+  const [formData, setFormData] = useState<{
+    name: string | null;
+    type: OrganizationType;
+    size: OrganizationSize;
+    contact: string | null;
+    website: string | null;
+    status: OrganizationStatus;
+  }>({
+    name: null,
+    type: OrganizationType.PUBLIC,
+    size: OrganizationSize.SOLO,
+    contact: null,
+    website: null,
+    status: OrganizationStatus.ACTIVE,
   });
 
   type StatsType = {
     organizations: Organization[];
-    projectCounts: number[];
-    projectCountMapsGroupByThemeAndStatus: Map<string, number>[];
+    projectCountsGroupByThemeAndStatus: {
+      organizationId: string;
+      total: number;
+      value: {
+        theme: ProjectTheme;
+        status: ProjectStatus;
+        count: number;
+      }[];
+    }[];
   };
 
   const [stats, setStats] = useState<StatsType>({
     organizations: [],
-    projectCounts: [],
-    projectCountMapsGroupByThemeAndStatus: [],
+    projectCountsGroupByThemeAndStatus: [],
   });
 
+  async function loadData(
+    organizationId?: string | string[] | null,
+    exclude: boolean = false,
+  ) {
+    try {
+      const q1 = organizationId
+        ? (Array.isArray(organizationId) ? organizationId : [organizationId])
+            .map((e) => `organizationId=${e}`)
+            .join('&')
+        : '';
+      const organizations = (await (
+        await fetch(
+          new URL(
+            `organizations?exclude=${exclude}${q1.length > 0 ? '&' : ''}${q1}`,
+            process.env.NEXT_PUBLIC_NATUREX_BACKEND,
+          ),
+          {
+            method: 'GET',
+            credentials: 'include',
+          },
+        )
+      ).json()) as Organization[];
+
+      const q2 = organizations.map((e) => `organizationId=${e.id}`).join('&');
+      const projectCountsGroupByThemeAndStatus = (await (
+        await fetch(
+          new URL(
+            `projects/countGroupByThemeAndStatus?${q2}`,
+            process.env.NEXT_PUBLIC_NATUREX_BACKEND,
+          ),
+          {
+            method: 'GET',
+            credentials: 'include',
+          },
+        )
+      ).json()) as {
+        organizationId: string;
+        total: number;
+        value: {
+          theme: ProjectTheme;
+          status: ProjectStatus;
+          count: number;
+        }[];
+      }[];
+
+      return {
+        organizations,
+        projectCountsGroupByThemeAndStatus,
+      };
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
   useEffect(() => {
-    (async () => {
-      try {
-        const organizations = (await (
-          await fetch(
-            new URL('organizations', process.env.NEXT_PUBLIC_NATUREX_BACKEND),
-            {
-              method: 'GET',
-              credentials: 'include',
-            },
-          )
-        ).json()) as Organization[];
-        const projectCountsGroupByThemeAndStatus = await Promise.all(
-          organizations.map(async (e) => {
-            return (await (
-              await fetch(
-                new URL(
-                  `projects/countGroupByThemeAndStatus?organizationId=${e.id}`,
-                  process.env.NEXT_PUBLIC_NATUREX_BACKEND,
-                ),
-                {
-                  method: 'GET',
-                  credentials: 'include',
-                },
-              )
-            ).json()) as {
-              theme: ProjectTheme;
-              status: ProjectStatus;
-              count: number;
-            }[];
-          }),
-        );
-
-        const projectCountMapsGroupByThemeAndStatus = new Array<
-          Map<string, number>
-        >();
-        for (const e of projectCountsGroupByThemeAndStatus) {
-          const m = new Map<string, number>();
-          e.map((o) => {
-            m.set(`${o.theme}:${o.status}`, o.count);
-          });
-          projectCountMapsGroupByThemeAndStatus.push(m);
-        }
-
-        const obj = {
-          organizations,
-          projectCountMapsGroupByThemeAndStatus,
-        };
-        setStats(obj);
-      } catch (e) {
-        console.error(e);
-      }
-    })();
-  }, []);
-
-  const getProjectCountMapsGroupByThemeAndStatus = (organizationId: string) => {
-    const index = stats.organizations.findIndex((e) => e.id === organizationId);
-    return stats.projectCountMapsGroupByThemeAndStatus[index];
-  };
-
-  const getDeliveryHeatmap = (orgId: string) => {
-    const orgProjects = getProjectsByOrg(orgId);
-
-    const heatmap: Record<
-      string,
-      {
-        widgetStatus: 'none' | 'partial' | 'complete' | 'unused';
-        dominantStage: DeliveryStage | null;
-        projectCount: number;
-      }
-    > = {
-      efficiency: {
-        widgetStatus: 'unused',
-        dominantStage: null,
-        projectCount: 0,
-      },
-      asset: { widgetStatus: 'unused', dominantStage: null, projectCount: 0 },
-      biodiversity: {
-        widgetStatus: 'unused',
-        dominantStage: null,
-        projectCount: 0,
-      },
-    };
-
-    orgProjects.forEach((project) => {
-      const theme = project.theme;
-      heatmap[theme].projectCount++;
-
-      // Determine dominant stage (most advanced)
-      if (
-        !heatmap[theme].dominantStage ||
-        getStageOrder(project.deliveryStage) >
-          getStageOrder(heatmap[theme].dominantStage!)
-      ) {
-        heatmap[theme].dominantStage = project.deliveryStage;
-      }
-
-      // Determine widget status (worst case)
-      if (
-        project.widgetStatus === 'none' ||
-        heatmap[theme].widgetStatus === 'none'
-      ) {
-        heatmap[theme].widgetStatus = 'none';
-      } else if (
-        project.widgetStatus === 'partial' &&
-        heatmap[theme].widgetStatus !== 'none'
-      ) {
-        heatmap[theme].widgetStatus = 'partial';
-      } else if (
-        project.widgetStatus === 'complete' &&
-        heatmap[theme].widgetStatus === 'unused'
-      ) {
-        heatmap[theme].widgetStatus = 'complete';
-      }
+    setIsDoingLoadData(true);
+    loadData().then((r) => {
+      if (!r) return;
+      setStats(r);
     });
-
-    return heatmap;
-  };
-
-  const getStageOrder = (stage: DeliveryStage): number => {
-    const order: Record<DeliveryStage, number> = {
-      pending: 1,
-      analyzing: 2,
-      delivering: 3,
-      executing: 4,
-      completed: 5,
-    };
-    return order[stage] || 0;
-  };
-
-  const getLastActivity = (orgId: string) => {
-    const orgProjects = getProjectsByOrg(orgId);
-    if (orgProjects.length === 0) return '활동 없음';
-
-    const latestProject = orgProjects.sort(
-      (a, b) =>
-        new Date(b.lastActivityAt || b.createdAt).getTime() -
-        new Date(a.lastActivityAt || a.createdAt).getTime(),
-    )[0];
-
-    const daysAgo = Math.floor(
-      (Date.now() -
-        new Date(
-          latestProject.lastActivityAt || latestProject.createdAt,
-        ).getTime()) /
-        (1000 * 60 * 60 * 24),
-    );
-
-    return daysAgo === 0 ? '오늘' : `${daysAgo}일 전`;
-  };
+    setIsDoingLoadData(false);
+  }, []);
 
   // Filtered and sorted organizations
   const filteredOrganizations = useMemo(() => {
@@ -249,8 +173,10 @@ export default function AdminOrgsPage() {
     }
 
     // Status filter
-    if (statusFilter !== 'all') {
-      filtered = filtered.filter((org) => org.status === statusFilter);
+    if (organizationStatusFilter !== 'ALL') {
+      filtered = filtered.filter(
+        (org) => org.status === OrganizationStatus[organizationStatusFilter],
+      );
     }
 
     // Sort
@@ -261,26 +187,12 @@ export default function AdminOrgsPage() {
         );
       } else if (sortBy === 'projects') {
         return (
-          getProjectCountMapsGroupByThemeAndStatus(b.id).length - getProjectCountMapsGroupByThemeAndStatus(a.id).length
-        );
-      } else if (sortBy === 'activity') {
-        const aProjects = getProjectsByOrg(a.orgId);
-        const bProjects = getProjectsByOrg(b.orgId);
-        if (aProjects.length === 0) return 1;
-        if (bProjects.length === 0) return -1;
-        const aLatest = aProjects.sort(
-          (x, y) =>
-            new Date(y.lastActivityAt || y.createdAt).getTime() -
-            new Date(x.lastActivityAt || x.createdAt).getTime(),
-        )[0];
-        const bLatest = bProjects.sort(
-          (x, y) =>
-            new Date(y.lastActivityAt || y.createdAt).getTime() -
-            new Date(x.lastActivityAt || x.createdAt).getTime(),
-        )[0];
-        return (
-          new Date(bLatest.lastActivityAt || bLatest.createdAt).getTime() -
-          new Date(aLatest.lastActivityAt || aLatest.createdAt).getTime()
+          stats.projectCountsGroupByThemeAndStatus.find(
+            (e) => e.organizationId == b.id,
+          )!.total -
+          stats.projectCountsGroupByThemeAndStatus.find(
+            (e) => e.organizationId == a.id,
+          )!.total
         );
       }
       return 0;
@@ -288,9 +200,10 @@ export default function AdminOrgsPage() {
 
     return filtered;
   }, [
+    stats,
     searchQuery,
-    statusFilter,
-    deliveryStageFilter,
+    organizationStatusFilter,
+    projectStatusFilter,
     sortBy,
   ]);
 
@@ -301,36 +214,10 @@ export default function AdminOrgsPage() {
     currentPage * itemsPerPage,
   );
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const org: Organization = {
-      orgId: editingOrg?.orgId || `org-${Date.now()}`,
-      name: formData.name,
-      industry: formData.industry,
-      contact: formData.contact,
-      status: formData.status,
-      lastActivity: editingOrg?.lastActivity,
-      createdAt: editingOrg?.createdAt || new Date().toISOString(),
-    };
-    saveOrganization(org);
-    loadData();
-    setIsDialogOpen(false);
-    resetForm();
-  };
-
-  const handleEdit = (org: Organization) => {
-    setEditingOrg(org);
-    setFormData({
-      name: org.name,
-      industry: org.industry,
-      contact: org.contact,
-      status: org.status,
-    });
-    setIsDialogOpen(true);
-  };
-
-  const handleDelete = (orgId: string) => {
-    const projectCount = getProjectsByOrg(orgId).length;
+  const handleDelete = (organizationId: string) => {
+    const projectCount = stats.projectCountsGroupByThemeAndStatus.find(
+      (e) => e.organizationId === organizationId,
+    )!.total;
     if (projectCount > 0) {
       alert(
         `이 조직에 ${projectCount}개의 프로젝트가 있어 삭제할 수 없습니다.`,
@@ -338,42 +225,87 @@ export default function AdminOrgsPage() {
       return;
     }
     if (confirm('정말 삭제하시겠습니까?')) {
-      deleteOrganization(orgId);
-      loadData();
-      if (selectedOrg?.orgId === orgId) {
-        setSelectedOrg(null);
-      }
+      setIsDoingLoadData(true);
+      fetch(
+        new URL(
+          `organizations/${organizationId}`,
+          process.env.NEXT_PUBLIC_NATUREX_BACKEND,
+        ),
+        {
+          method: 'DELETE',
+          credentials: 'include',
+        },
+      )
+        .then((_) => {
+          return loadData();
+        })
+        .then((r) => {
+          if (!r) return;
+          setStats(r);
+        })
+        .finally(() => {
+          setIsDoingLoadData(false);
+        });
+      unselectOrg(organizationId);
     }
   };
 
-  const handleArchive = (orgId: string) => {
-    const org = orgs.find((o) => o.orgId === orgId);
-    if (org) {
-      saveOrganization({ ...org, status: 'archived' });
-      loadData();
+  const handleEdit = (organizationId: string) => {
+    setIsDoingLoadData(true);
+    fetch(
+      new URL(
+        `organizations/${organizationId}`,
+        process.env.NEXT_PUBLIC_NATUREX_BACKEND,
+      ),
+      {
+        method: 'PATCH',
+        credentials: 'include',
+        body: JSON.stringify(formData),
+      },
+    )
+      .then((_) => {
+        return loadData();
+      })
+      .then((r) => {
+        if (!r) return;
+        setStats(r);
+      })
+      .finally(() => {
+        setIsDoingLoadData(false);
+      });
+    unselectOrg(organizationId);
+  };
+
+  function unselectOrg(organizationId: string) {
+    if (organizationId == selectedOrgForDetail?.id) {
+      setSelectedOrgForDetail(null);
     }
-  };
+    if (organizationId == selectedOrgForEdit?.id) {
+      setSelectedOrgForEdit(null);
+    }
+  }
 
-  const resetForm = () => {
-    setEditingOrg(null);
-    setFormData({ name: '', industry: '', contact: '', status: 'active' });
-  };
-
-  const toggleDeliveryStageFilter = (stage: DeliveryStage) => {
-    setDeliveryStageFilter((prev) =>
-      prev.includes(stage) ? prev.filter((s) => s !== stage) : [...prev, stage],
+  const toggleProjectStatusFilter = (status: ProjectStatus) => {
+    setProjectStatusFilter((prev) =>
+      prev.includes(status)
+        ? prev.filter((s) => s !== status)
+        : [...prev, status],
     );
   };
 
   const getStatusBadge = (status: Organization['status']) => {
     const configs = {
-      active: { label: 'Active', className: 'bg-green-100 text-green-800' },
-      onboarding: {
-        label: 'Onboarding',
-        className: 'bg-blue-100 text-blue-800',
+      ACTIVE: { label: 'Active', className: 'bg-green-100 text-green-800' },
+      INACTIVE: {
+        label: 'Inactive',
+        className: 'bg-yellow-100 text-yellow-800',
       },
-      paused: { label: 'Paused', className: 'bg-yellow-100 text-yellow-800' },
-      archived: { label: 'Archived', className: 'bg-gray-100 text-gray-800' },
+      ARCHIVED: { label: 'Archived', className: 'bg-gray-100 text-gray-800' },
+    } satisfies {
+      [key in keyof typeof OrganizationStatus]: {
+        label: string;
+        className: string;
+      };
     };
     const config = configs[status] || {
       label: status,
@@ -389,7 +321,9 @@ export default function AdminOrgsPage() {
   return (
     <div className="flex h-[calc(100vh-64px)] bg-[#F5F7FB]">
       {/* Main Content */}
-      <div className={`flex-1 flex flex-col ${selectedOrg ? 'mr-96' : ''}`}>
+      <div
+        className={`flex-1 flex flex-col ${selectedOrgForDetail || selectedOrgForEdit ? 'mr-96' : ''}`}
+      >
         {/* Top Control Bar */}
         <div className="bg-white border-b border-[#E5E7EB] px-8 py-4">
           <div className="flex items-center gap-4">
@@ -405,15 +339,22 @@ export default function AdminOrgsPage() {
             </div>
 
             {/* Status Filter */}
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <Select
+              value={organizationStatusFilter}
+              onValueChange={(e) =>
+                setOrganizationStatusFilter(
+                  e as keyof typeof OrganizationStatus | 'ALL',
+                )
+              }
+            >
               <SelectTrigger className="w-40 bg-white border-[#E5E7EB]">
                 <SelectValue placeholder="상태" />
               </SelectTrigger>
               <SelectContent className="bg-white">
-                <SelectItem value="all">All</SelectItem>
-                <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="inactive">Inactive</SelectItem>
-                <SelectItem value="archived">Archived</SelectItem>
+                <SelectItem value="ALL">All</SelectItem>
+                <SelectItem value="ACTIVE">Active</SelectItem>
+                <SelectItem value="INACTIVE">Inactive</SelectItem>
+                <SelectItem value="ARCHIVED">Archived</SelectItem>
               </SelectContent>
             </Select>
 
@@ -421,30 +362,28 @@ export default function AdminOrgsPage() {
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" className="bg-white border-[#E5E7EB]">
                   서비스 제공 상태
-                  {deliveryStageFilter.length > 0 && (
+                  {projectStatusFilter.length > 0 && (
                     <Badge
                       variant="secondary"
                       className="ml-2 bg-[#118DFF] text-white"
                     >
-                      {deliveryStageFilter.length}
+                      {projectStatusFilter.length}
                     </Badge>
                   )}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="bg-white">
-                {Object.entries(DELIVERY_STAGES).map(([key, { kr }]) => (
+                {Object.values(ProjectStatus).map((e) => (
                   <DropdownMenuItem
-                    key={key}
-                    onClick={() =>
-                      toggleDeliveryStageFilter(key as DeliveryStage)
-                    }
+                    key={e}
+                    onClick={() => toggleProjectStatusFilter(e)}
                     className="cursor-pointer"
                   >
                     <div className="flex items-center gap-2">
-                      {deliveryStageFilter.includes(key as DeliveryStage) && (
+                      {projectStatusFilter.includes(e) && (
                         <CheckCircle2 className="w-4 h-4 text-[#118DFF]" />
                       )}
-                      <span>{kr}</span>
+                      <span>{e}</span>
                     </div>
                   </DropdownMenuItem>
                 ))}
@@ -459,7 +398,6 @@ export default function AdminOrgsPage() {
               <SelectContent className="bg-white">
                 <SelectItem value="recent">최근 생성</SelectItem>
                 <SelectItem value="projects">프로젝트 수 많은 순</SelectItem>
-                <SelectItem value="activity">최근 활동 기준</SelectItem>
               </SelectContent>
             </Select>
 
@@ -474,8 +412,8 @@ export default function AdminOrgsPage() {
 
           {/* Active Filters Display */}
           {(searchQuery ||
-            statusFilter !== 'all' ||
-            deliveryStageFilter.length > 0) && (
+            organizationStatusFilter !== 'ALL' ||
+            projectStatusFilter.length > 0) && (
             <div className="flex items-center gap-2 mt-3">
               <span className="text-sm text-[#6B7280]">활성 필터:</span>
               {searchQuery && (
@@ -490,28 +428,28 @@ export default function AdminOrgsPage() {
                   />
                 </Badge>
               )}
-              {statusFilter !== 'all' && (
+              {organizationStatusFilter !== 'ALL' && (
                 <Badge
                   variant="secondary"
                   className="bg-[#F5F7FB] text-[#111827] gap-1"
                 >
-                  상태: {statusFilter}
+                  상태: {organizationStatusFilter}
                   <X
                     className="w-3 h-3 cursor-pointer"
-                    onClick={() => setStatusFilter('all')}
+                    onClick={() => setOrganizationStatusFilter('ALL')}
                   />
                 </Badge>
               )}
-              {deliveryStageFilter.map((stage) => (
+              {projectStatusFilter.map((projectStatus) => (
                 <Badge
-                  key={stage}
+                  key={projectStatus}
                   variant="secondary"
                   className="bg-[#F5F7FB] text-[#111827] gap-1"
                 >
-                  {DELIVERY_STAGES[stage].kr}
+                  {projectStatus}
                   <X
                     className="w-3 h-3 cursor-pointer"
-                    onClick={() => toggleDeliveryStageFilter(stage)}
+                    onClick={() => toggleProjectStatusFilter(projectStatus)}
                   />
                 </Badge>
               ))}
@@ -525,210 +463,121 @@ export default function AdminOrgsPage() {
             <table className="w-full">
               <thead className="bg-[#F5F7FB] border-b border-[#E5E7EB]">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-[#6B7280] uppercase tracking-wider">
-                    조직명
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-[#6B7280] uppercase tracking-wider">
-                    Org ID
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-[#6B7280] uppercase tracking-wider">
-                    서비스 제공 현황
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-[#6B7280] uppercase tracking-wider">
-                    프로젝트 수
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-[#6B7280] uppercase tracking-wider">
-                    상태
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-[#6B7280] uppercase tracking-wider">
-                    최근 활동
-                  </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-[#6B7280] uppercase tracking-wider">
-                    Actions
-                  </th>
+                  {['조직명', '프로젝트 수', '상태', 'ACTIONS'].map(
+                    (columnName) => (
+                      <th
+                        key={columnName}
+                        className="px-6 py-3 text-center text-xs font-medium text-[#6B7280] uppercase tracking-wider"
+                      >
+                        {columnName}
+                      </th>
+                    ),
+                  )}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#E5E7EB]">
-                {paginatedOrgs.map((org) => {
-                  const services = getServicesByOrg(org.orgId);
-                  const projectCount = getProjectsByOrg(org.orgId).length;
-                  const lastActivity = getLastActivity(org.orgId);
-                  const heatmap = getDeliveryHeatmap(org.orgId);
-
-                  return (
-                    <tr
-                      key={org.orgId}
-                      onClick={() => setSelectedOrg(org)}
-                      className="hover:bg-[#F5F7FB] cursor-pointer transition-colors"
+              {isDoingLoadData ? (
+                <tbody>
+                  <tr>
+                    <td colSpan={4}>로딩 중...</td>
+                  </tr>
+                </tbody>
+              ) : paginatedOrgs.length === 0 ? (
+                <tbody>
+                  <tr>
+                    <td
+                      colSpan={4}
+                      className="py-12 text-center text-[#6B7280]"
                     >
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-[#111827]">
-                          {org.name}
-                        </div>
-                        <div className="text-sm text-[#6B7280]">
-                          {org.industry}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <code className="text-xs px-2 py-1 bg-[#F5F7FB] text-[#6B7280] rounded font-mono">
-                          {org.orgId}
-                        </code>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex flex-col gap-1.5">
-                          {Object.entries(heatmap).map(([theme, data]) => {
-                            const widgetColor =
-                              data.widgetStatus === 'complete'
-                                ? 'bg-green-100 border-green-400'
-                                : data.widgetStatus === 'partial'
-                                  ? 'bg-yellow-100 border-yellow-400'
-                                  : data.widgetStatus === 'none'
-                                    ? 'bg-red-100 border-red-400'
-                                    : 'bg-gray-50 border-gray-200';
-
-                            const stageInfo = data.dominantStage
-                              ? DELIVERY_STAGES[data.dominantStage]
-                              : null;
-
-                            return (
-                              <div
-                                key={theme}
-                                className={`flex items-center justify-between px-2 py-1 rounded border ${widgetColor} text-xs group relative`}
+                      {searchQuery ||
+                      organizationStatusFilter !== 'ALL' ||
+                      projectStatusFilter.length > 0
+                        ? '검색 결과가 없습니다.'
+                        : '등록된 조직이 없습니다.'}
+                    </td>
+                  </tr>
+                </tbody>
+              ) : (
+                <tbody className="divide-y divide-[#E5E7EB]">
+                  {paginatedOrgs.map((org) => {
+                    const projectCountGroupByThemeAndStatus =
+                      stats.projectCountsGroupByThemeAndStatus.find(
+                        (e) => e.organizationId == org.id,
+                      )!;
+                    return (
+                      <tr
+                        key={org.id}
+                        onClick={() => {
+                          setSelectedOrgForDetail(null);
+                          setSelectedOrgForDetail(org);
+                        }}
+                        className="hover:bg-[#F5F7FB] cursor-pointer transition-colors"
+                      >
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex flex-col justify-center items-center">
+                            <div className="text-sm font-medium text-[#111827]">
+                              {org.name}
+                            </div>
+                            <div className="text-sm text-[#6B7280]">
+                              {org.type}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex justify-center items-center gap-2">
+                            <FolderKanban className="w-4 h-4 text-[#6B7280]" />
+                            <span className="text-sm font-medium text-[#111827]">
+                              {projectCountGroupByThemeAndStatus.total}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex justify-center items-center">
+                            {getStatusBadge(org.status)}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-right">
+                          <div className="flex justify-center items-center">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger
+                                asChild
+                                onClick={(e) => e.stopPropagation()}
                               >
-                                <span className="font-medium text-[#111827] truncate">
-                                  {
-                                    themeLabels[
-                                      theme as keyof typeof themeLabels
-                                    ].split(' ')[0]
-                                  }
-                                </span>
-                                {stageInfo ? (
-                                  <Badge
-                                    variant="secondary"
-                                    className="text-[10px] px-1.5 py-0"
-                                    style={{
-                                      backgroundColor: stageInfo.color + '20',
-                                      color: stageInfo.color,
-                                      borderColor: stageInfo.color,
-                                    }}
-                                  >
-                                    {stageInfo.kr}
-                                  </Badge>
-                                ) : (
-                                  <span className="text-gray-400 text-[10px]">
-                                    -
-                                  </span>
-                                )}
-
-                                {/* Tooltip */}
-                                {data.projectCount > 0 && (
-                                  <div className="absolute left-0 top-full mt-1 p-2 bg-[#111827] text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 pointer-events-none z-10 whitespace-nowrap">
-                                    <div>프로젝트: {data.projectCount}건</div>
-                                    <div>
-                                      위젯:{' '}
-                                      {data.widgetStatus === 'complete'
-                                        ? '구성 완료'
-                                        : data.widgetStatus === 'partial'
-                                          ? '부분 구성'
-                                          : '미설정'}
-                                    </div>
-                                    {stageInfo && (
-                                      <div>단계: {stageInfo.kr}</div>
-                                    )}
-                                  </div>
-                                )}
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center gap-2">
-                          <FolderKanban className="w-4 h-4 text-[#6B7280]" />
-                          <span className="text-sm font-medium text-[#111827]">
-                            {projectCount}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {getStatusBadge(org.status)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center gap-2 text-sm text-[#6B7280]">
-                          <Clock className="w-4 h-4" />
-                          {lastActivity}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger
-                            asChild
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <Button variant="ghost" size="sm">
-                              <MoreVertical className="w-4 h-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="bg-white">
-                            <DropdownMenuItem
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setSelectedOrg(org);
-                              }}
-                            >
-                              보기
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                router.push(`/admin/projects?org=${org.orgId}`);
-                              }}
-                            >
-                              프로젝트 관리
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleEdit(org);
-                              }}
-                            >
-                              수정
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleArchive(org.orgId);
-                              }}
-                            >
-                              아카이브
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDelete(org.orgId);
-                              }}
-                              className="text-red-600"
-                            >
-                              삭제
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
+                                <Button variant="ghost" size="sm">
+                                  <MoreVertical className="w-4 h-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent
+                                align="end"
+                                className="bg-white"
+                              >
+                                <DropdownMenuItem
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setSelectedOrgForDetail(null);
+                                    setSelectedOrgForEdit(org);
+                                  }}
+                                >
+                                  수정
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDelete(org.id);
+                                  }}
+                                  className="text-red-600"
+                                >
+                                  삭제
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              )}
             </table>
-
-            {paginatedOrgs.length === 0 && (
-              <div className="py-12 text-center text-[#6B7280]">
-                {searchQuery ||
-                statusFilter !== 'all' ||
-                deliveryStageFilter.length > 0
-                  ? '검색 결과가 없습니다.'
-                  : '등록된 조직이 없습니다.'}
-              </div>
-            )}
           </div>
 
           {/* Pagination */}
@@ -737,8 +586,11 @@ export default function AdminOrgsPage() {
               <div className="text-sm text-[#6B7280]">
                 총 {filteredOrganizations.length}개 중{' '}
                 {(currentPage - 1) * itemsPerPage + 1}-
-                {Math.min(currentPage * itemsPerPage, filteredOrganizations.length)}개
-                표시
+                {Math.min(
+                  currentPage * itemsPerPage,
+                  filteredOrganizations.length,
+                )}
+                개 표시
               </div>
               <div className="flex gap-2">
                 <Button
@@ -783,14 +635,14 @@ export default function AdminOrgsPage() {
       </div>
 
       {/* Detail Panel */}
-      {selectedOrg && (
+      {selectedOrgForDetail && (
         <div className="fixed right-0 top-16 bottom-0 w-96 bg-white border-l border-[#E5E7EB] shadow-lg overflow-y-auto">
           <div className="sticky top-0 bg-white border-b border-[#E5E7EB] px-6 py-4 flex items-center justify-between">
             <h2 className="text-lg font-semibold text-[#111827]">조직 상세</h2>
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setSelectedOrg(null)}
+              onClick={() => setSelectedOrgForDetail(null)}
             >
               <X className="w-4 h-4" />
             </Button>
@@ -806,31 +658,37 @@ export default function AdminOrgsPage() {
                 <div>
                   <div className="text-xs text-[#6B7280] mb-1">조직명</div>
                   <div className="text-sm font-medium text-[#111827]">
-                    {selectedOrg.name}
+                    {selectedOrgForDetail.name}
                   </div>
                 </div>
                 <div>
                   <div className="text-xs text-[#6B7280] mb-1">Org ID</div>
                   <code className="text-xs px-2 py-1 bg-[#F5F7FB] text-[#6B7280] rounded font-mono">
-                    {selectedOrg.orgId}
+                    {selectedOrgForDetail.id}
                   </code>
                 </div>
                 <div>
                   <div className="text-xs text-[#6B7280] mb-1">상태</div>
-                  {getStatusBadge(selectedOrg.status)}
+                  {getStatusBadge(selectedOrgForDetail.status)}
                 </div>
                 <div>
                   <div className="text-xs text-[#6B7280] mb-1">생성일</div>
                   <div className="text-sm text-[#111827]">
-                    {new Date(selectedOrg.createdAt).toLocaleDateString(
-                      'ko-KR',
-                    )}
+                    {new Date(
+                      selectedOrgForDetail.createdAt,
+                    ).toLocaleDateString('ko-KR')}
                   </div>
                 </div>
                 <div>
                   <div className="text-xs text-[#6B7280] mb-1">담당자</div>
                   <div className="text-sm text-[#111827]">
-                    {selectedOrg.contact}
+                    {selectedOrgForDetail.contact ?? '없음'}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-xs text-[#6B7280] mb-1">웹사이트</div>
+                  <div className="text-sm text-[#111827]">
+                    {selectedOrgForDetail.website ?? '없음'}
                   </div>
                 </div>
               </div>
@@ -839,19 +697,22 @@ export default function AdminOrgsPage() {
             {/* Active Services & Projects */}
             <div>
               <h3 className="text-sm font-medium text-[#6B7280] mb-3">
-                활성 서비스 & 프로젝트
+                프로젝트
               </h3>
               <div className="space-y-2">
-                {Object.entries(themeLabels).map(([theme, label]) => {
-                  const count = getProjectsByOrg(selectedOrg.orgId).filter(
-                    (p) => p.theme === theme,
-                  ).length;
+                {Object.values(ProjectTheme).map((projectTheme) => {
+                  const count = stats.projectCountsGroupByThemeAndStatus
+                    .find((e) => e.organizationId == selectedOrgForDetail.id)!
+                    .value.filter((e) => e.theme == projectTheme)
+                    .reduce((s, c) => s + c.count, 0);
                   return (
                     <div
-                      key={theme}
+                      key={projectTheme}
                       className="flex items-center justify-between p-3 bg-[#F5F7FB] rounded-lg"
                     >
-                      <span className="text-sm text-[#111827]">{label}</span>
+                      <span className="text-sm text-[#111827]">
+                        {projectTheme}
+                      </span>
                       <Badge
                         variant="secondary"
                         className={
@@ -870,117 +731,160 @@ export default function AdminOrgsPage() {
                 variant="outline"
                 className="w-full mt-3 bg-transparent"
                 onClick={() =>
-                  router.push(`/admin/projects?org=${selectedOrg.orgId}`)
+                  router.push(`/admin/projects?org=${selectedOrgForDetail.id}`)
                 }
               >
                 <ExternalLink className="w-4 h-4 mr-2" />
                 프로젝트 관리로 이동
               </Button>
             </div>
+          </div>
+        </div>
+      )}
 
-            {/* Delivery Heatmap Status */}
+      {/* Edit Panel */}
+      {selectedOrgForEdit && (
+        <div className="fixed right-0 top-16 bottom-0 w-96 bg-white border-l border-[#E5E7EB] shadow-lg overflow-y-auto">
+          <div className="sticky top-0 bg-white border-b border-[#E5E7EB] px-6 py-4 flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-[#111827]">조직 수정</h2>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setSelectedOrgForEdit(null)}
+            >
+              <X className="w-4 h-4" />
+            </Button>
+          </div>
+
+          <div className="p-6 space-y-6">
+            {/* Organization Summary */}
             <div>
               <h3 className="text-sm font-medium text-[#6B7280] mb-3">
-                서비스 제공 현황
+                조직 정보
               </h3>
-              <div className="space-y-2">
-                {Object.entries(getDeliveryHeatmap(selectedOrg.orgId)).map(
-                  ([theme, data]) => {
-                    const widgetColor =
-                      data.widgetStatus === 'complete'
-                        ? 'bg-green-100 border-green-400'
-                        : data.widgetStatus === 'partial'
-                          ? 'bg-yellow-100 border-yellow-400'
-                          : data.widgetStatus === 'none'
-                            ? 'bg-red-100 border-red-400'
-                            : 'bg-gray-50 border-gray-200';
-
-                    const stageInfo = data.dominantStage
-                      ? DELIVERY_STAGES[data.dominantStage]
-                      : null;
-
-                    return (
-                      <div
-                        key={theme}
-                        className={`flex items-center justify-between px-3 py-2 rounded border ${widgetColor}`}
-                      >
-                        <span className="text-sm text-[#111827]">
-                          {themeLabels[theme as keyof typeof themeLabels]}
-                        </span>
-                        <div className="flex items-center gap-2">
-                          {stageInfo ? (
-                            <Badge
-                              variant="secondary"
-                              className="text-[10px] px-1.5 py-0"
-                              style={{
-                                backgroundColor: stageInfo.color + '20',
-                                color: stageInfo.color,
-                                borderColor: stageInfo.color,
-                              }}
-                            >
-                              {stageInfo.kr}
-                            </Badge>
-                          ) : (
-                            <span className="text-gray-400 text-sm">-</span>
-                          )}
-                          <span className="text-sm text-[#6B7280]">
-                            ({data.projectCount}건)
-                          </span>
-                        </div>
-                      </div>
-                    );
-                  },
-                )}
-              </div>
-            </div>
-
-            {/* Quick Actions */}
-            <div>
-              <h3 className="text-sm font-medium text-[#6B7280] mb-3">
-                빠른 작업
-              </h3>
-              <div className="space-y-2">
-                <Button
-                  className="w-full bg-[#118DFF] hover:bg-[#0D6FCC] justify-start"
-                  onClick={() =>
-                    router.push(
-                      `/admin/projects?action=create&org=${selectedOrg.orgId}`,
-                    )
-                  }
-                >
-                  <Plus className="w-4 h-4 mr-2" />이 조직으로 프로젝트 생성
-                </Button>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start bg-transparent"
-                  onClick={() => {
-                    const orgProjects = getProjectsByOrg(selectedOrg.orgId);
-                    if (orgProjects.length > 0) {
-                      router.push(
-                        `/admin/projects/${orgProjects[0].projectId}/builder`,
-                      );
-                    } else {
-                      alert('먼저 프로젝트를 생성하세요.');
+              <div className="space-y-3">
+                <div>
+                  <div className="text-xs text-[#6B7280] mb-1">조직명</div>
+                  <Input
+                    value={selectedOrgForEdit.name}
+                    onChange={(e) =>
+                      setFormData((prevState) => {
+                        return {
+                          ...prevState,
+                          name: e.target.value,
+                        };
+                      })
                     }
+                    className="pl-10 bg-white border-[#E5E7EB]"
+                  />
+                </div>
+                <div>
+                  <div className="text-xs text-[#6B7280] mb-1">상태</div>
+                  <div className="space-y-3">
+                    {Object.values(OrganizationStatus).map((status) => (
+                      <div
+                        key={status}
+                        className="flex items-start gap-3 p-4 rounded-lg border border-[#E5E7EB] hover:border-[#118DFF] transition-colors"
+                        onClick={() => {
+                          setFormData((prevState) => {
+                            return {
+                              ...prevState,
+                              status,
+                            };
+                          });
+                        }}
+                      >
+                        {status}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-xs text-[#6B7280] mb-1">업종</div>
+                  <div className="space-y-3">
+                    {Object.values(OrganizationType).map((type) => (
+                      <div
+                        key={type}
+                        className="flex items-start gap-3 p-4 rounded-lg border border-[#E5E7EB] hover:border-[#118DFF] transition-colors"
+                        onClick={() => {
+                          setFormData((prevState) => {
+                            return {
+                              ...prevState,
+                              type,
+                            };
+                          });
+                        }}
+                      >
+                        {type}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-xs text-[#6B7280] mb-1">규모</div>
+                  <div className="space-y-3">
+                    {Object.values(OrganizationSize).map((size) => (
+                      <div
+                        key={size}
+                        className="flex items-start gap-3 p-4 rounded-lg border border-[#E5E7EB] hover:border-[#118DFF] transition-colors"
+                        onClick={() => {
+                          setFormData((prevState) => {
+                            return {
+                              ...prevState,
+                              size,
+                            };
+                          });
+                        }}
+                      >
+                        {status}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-xs text-[#6B7280] mb-1">담당자</div>
+                  <div className="text-sm text-[#111827]">
+                    <Input
+                      value={selectedOrgForEdit.website ?? undefined}
+                      onChange={(e) =>
+                        setFormData((prevState) => {
+                          return {
+                            ...prevState,
+                            contact: e.target.value,
+                          };
+                        })
+                      }
+                      className="pl-10 bg-white border-[#E5E7EB]"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <div className="text-xs text-[#6B7280] mb-1">웹사이트</div>
+                  <div className="text-sm text-[#111827]">
+                    <Input
+                      value={selectedOrgForEdit.website ?? undefined}
+                      onChange={(e) =>
+                        setFormData((prevState) => {
+                          return {
+                            ...prevState,
+                            website: e.target.value,
+                          };
+                        })
+                      }
+                      className="pl-10 bg-white border-[#E5E7EB]"
+                    />
+                  </div>
+                </div>
+                <Button
+                  type="submit"
+                  size="lg"
+                  className="bg-[#118DFF] hover:bg-[#0D6FCC] text-white"
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    handleEdit(selectedOrgForEdit.id);
                   }}
                 >
-                  <Settings className="w-4 h-4 mr-2" />
-                  위젯 빌더 열기
-                </Button>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start bg-transparent"
-                  onClick={() => handleEdit(selectedOrg)}
-                >
-                  조직 정보 수정
-                </Button>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start bg-transparent"
-                  onClick={() => handleArchive(selectedOrg.orgId)}
-                >
-                  <Archive className="w-4 h-4 mr-2" />
-                  조직 아카이브
+                  저장
                 </Button>
               </div>
             </div>

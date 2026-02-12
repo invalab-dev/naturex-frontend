@@ -1,6 +1,6 @@
 export const enum UserRole {
-  ADMIN = 'admin',
-  USER = 'user',
+  ADMIN = 'ADMIN',
+  USER = 'USER',
 }
 
 export class User {
@@ -37,49 +37,68 @@ export class User {
   }
 }
 
+export enum OrganizationStatus {
+  ACTIVE = 'ACTIVE',
+  INACTIVE = 'INACTIVE',
+  ARCHIVED = 'ARCHIVED',
+}
+
+export enum OrganizationType {
+  'COMPANY' = 'COMPANY',
+  'PUBLIC' = 'PUBLIC',
+  'NGO' = 'NGO',
+}
+
+export enum OrganizationSize {
+  'SOLO' = 'SOLO',
+  'SMALL' = 'SMALL',
+  'MEDIUM' = 'MEDIUM',
+  'ENTERPRISE' = 'ENTERPRISE',
+}
+
 export class Organization {
   public id!: string;
   public name!: string;
-  public type!: 'company' | 'public' | 'ngo';
-  public size!: 'solo' | 'small' | 'medium' | 'enterprise';
+  public type!: OrganizationType;
+  public size!: OrganizationSize;
   public contact!: string | null;
   public website!: string | null;
-  public status!: 'active' | 'inactive' | 'archived';
+  public status!: OrganizationStatus;
   public createdAt!: Date;
 
   constructor(org: {
     id: string;
     name: string;
-    type: 'company' | 'public' | 'ngo';
-    size: 'solo' | 'small' | 'medium' | 'enterprise';
+    type: keyof typeof OrganizationType;
+    size: keyof typeof OrganizationSize;
     contact: string | null;
     website: string | null;
-    status: 'active' | 'inactive' | 'archived';
+    status: keyof typeof OrganizationStatus;
     createdAt: Date;
   }) {
     this.id = org.id;
     this.name = org.name;
-    this.type = org.type;
-    this.size = org.size;
+    this.type = OrganizationType[org.type];
+    this.size = OrganizationSize[org.size];
+    this.status = OrganizationStatus[org.status];
     this.contact = org.contact;
     this.website = org.website;
-    this.status = org.status;
     this.createdAt = org.createdAt;
   }
 }
 
 export enum ProjectTheme {
-  EFFICIENCY = 'efficiency',
-  ASSET = 'asset',
-  BIODIVERSITY = 'biodiversity',
+  EFFICIENCY = 'EFFICIENCY',
+  ASSET = 'ASSET',
+  BIODIVERSITY = 'BIODIVERSITY',
 }
 
 export enum ProjectStatus {
-  PENDING = 'pending',
-  ANALYZING = 'analyzing',
-  DELIVERING = 'delivering',
-  EXECUTING = 'executing',
-  COMPLETED = 'completed',
+  PENDING = 'PENDING',
+  ANALYZING = 'ANALYZING',
+  DELIVERING = 'DELIVERING',
+  EXECUTING = 'EXECUTING',
+  COMPLETED = 'COMPLETED',
 }
 
 export class ProjectStatusLog {
