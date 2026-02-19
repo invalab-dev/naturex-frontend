@@ -37,6 +37,7 @@ import {
 } from '@/lib/data-type';
 import { useRouter } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
+import { clsx } from 'clsx';
 
 export default function AdminOrgsPage() {
   const router = useRouter();
@@ -61,18 +62,18 @@ export default function AdminOrgsPage() {
   const itemsPerPage = 20;
 
   const [formData, setFormData] = useState<{
-    name: string | null;
+    name: string;
     type: OrganizationType;
     size: OrganizationSize;
-    contact: string | null;
-    website: string | null;
+    contact: string;
+    website: string;
     status: OrganizationStatus;
   }>({
-    name: null,
+    name: '',
     type: OrganizationType.PUBLIC,
     size: OrganizationSize.SOLO,
-    contact: null,
-    website: null,
+    contact: '',
+    website: '',
     status: OrganizationStatus.ACTIVE,
   });
 
@@ -261,6 +262,9 @@ export default function AdminOrgsPage() {
         method: 'PATCH',
         credentials: 'include',
         body: JSON.stringify(formData),
+        headers: {
+          'Content-Type': 'application/json',
+        },
       },
     )
       .then((_) => {
@@ -403,7 +407,7 @@ export default function AdminOrgsPage() {
 
             {/* Create Button */}
             <Link href="/admin/orgs/new">
-              <Button className="bg-[#118DFF] hover:bg-[#0D6FCC] gap-2 ml-auto">
+              <Button className="bg-[#118DFF] text-white hover:bg-[#118DFF] hover:text-white">
                 <Plus className="w-4 h-4" />
                 조직 생성
               </Button>
@@ -478,16 +482,15 @@ export default function AdminOrgsPage() {
               {isDoingLoadData ? (
                 <tbody>
                   <tr>
-                    <td colSpan={4}>로딩 중...</td>
+                    <td colSpan={4} className={'text-center h-100'}>
+                      로딩 중...
+                    </td>
                   </tr>
                 </tbody>
               ) : paginatedOrgs.length === 0 ? (
                 <tbody>
                   <tr>
-                    <td
-                      colSpan={4}
-                      className="py-12 text-center text-[#6B7280]"
-                    >
+                    <td colSpan={4} className={'text-center h-100'}>
                       {searchQuery ||
                       organizationStatusFilter !== 'ALL' ||
                       projectStatusFilter.length > 0
@@ -555,6 +558,14 @@ export default function AdminOrgsPage() {
                                     e.stopPropagation();
                                     setSelectedOrgForDetail(null);
                                     setSelectedOrgForEdit(org);
+                                    setFormData({
+                                      name: org.name,
+                                      type: org.type,
+                                      size: org.size,
+                                      contact: org.contact,
+                                      website: org.website,
+                                      status: org.status,
+                                    });
                                   }}
                                 >
                                   수정
@@ -636,7 +647,7 @@ export default function AdminOrgsPage() {
 
       {/* Detail Panel */}
       {selectedOrgForDetail && (
-        <div className="fixed right-0 top-16 bottom-0 w-96 bg-white border-l border-[#E5E7EB] shadow-lg overflow-y-auto">
+        <div className="fixed right-0 top-0 bottom-0 w-96 bg-white border-l border-[#E5E7EB] shadow-lg overflow-y-auto">
           <div className="sticky top-0 bg-white border-b border-[#E5E7EB] px-6 py-4 flex items-center justify-between">
             <h2 className="text-lg font-semibold text-[#111827]">조직 상세</h2>
             <Button
@@ -660,6 +671,18 @@ export default function AdminOrgsPage() {
                   <div className="text-sm font-medium text-[#111827]">
                     {selectedOrgForDetail.name}
                   </div>
+                </div>
+                <div>
+                  <div className="text-xs text-[#6B7280] mb-1">업종</div>
+                  <code className="text-xs px-2 py-1 bg-[#F5F7FB] text-[#6B7280] rounded font-mono">
+                    {selectedOrgForDetail.type}
+                  </code>
+                </div>
+                <div>
+                  <div className="text-xs text-[#6B7280] mb-1">규모</div>
+                  <code className="text-xs px-2 py-1 bg-[#F5F7FB] text-[#6B7280] rounded font-mono">
+                    {selectedOrgForDetail.size}
+                  </code>
                 </div>
                 <div>
                   <div className="text-xs text-[#6B7280] mb-1">Org ID</div>
@@ -744,7 +767,7 @@ export default function AdminOrgsPage() {
 
       {/* Edit Panel */}
       {selectedOrgForEdit && (
-        <div className="fixed right-0 top-16 bottom-0 w-96 bg-white border-l border-[#E5E7EB] shadow-lg overflow-y-auto">
+        <div className="fixed right-0 top-0 bottom-0 w-96 bg-white border-l border-[#E5E7EB] shadow-lg overflow-y-auto">
           <div className="sticky top-0 bg-white border-b border-[#E5E7EB] px-6 py-4 flex items-center justify-between">
             <h2 className="text-lg font-semibold text-[#111827]">조직 수정</h2>
             <Button
@@ -766,46 +789,32 @@ export default function AdminOrgsPage() {
                 <div>
                   <div className="text-xs text-[#6B7280] mb-1">조직명</div>
                   <Input
-                    value={selectedOrgForEdit.name}
-                    onChange={(e) =>
-                      setFormData((prevState) => {
-                        return {
-                          ...prevState,
-                          name: e.target.value,
-                        };
-                      })
-                    }
-                    className="pl-10 bg-white border-[#E5E7EB]"
+                    value={formData.name ?? ''}
+                    disabled={true}
+                    // onChange={(e) =>
+                    //   setFormData((prevState) => {
+                    //     return {
+                    //       ...prevState,
+                    //       name: e.target.value,
+                    //     };
+                    //   })
+                    // }
+                    className="pl-3 bg-white border-[#E5E7EB]"
                   />
                 </div>
                 <div>
-                  <div className="text-xs text-[#6B7280] mb-1">상태</div>
-                  <div className="space-y-3">
-                    {Object.values(OrganizationStatus).map((status) => (
-                      <div
-                        key={status}
-                        className="flex items-start gap-3 p-4 rounded-lg border border-[#E5E7EB] hover:border-[#118DFF] transition-colors"
-                        onClick={() => {
-                          setFormData((prevState) => {
-                            return {
-                              ...prevState,
-                              status,
-                            };
-                          });
-                        }}
-                      >
-                        {status}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <div>
                   <div className="text-xs text-[#6B7280] mb-1">업종</div>
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     {Object.values(OrganizationType).map((type) => (
-                      <div
+                      <Button
                         key={type}
-                        className="flex items-start gap-3 p-4 rounded-lg border border-[#E5E7EB] hover:border-[#118DFF] transition-colors"
+                        size="sm"
+                        className={clsx(
+                          'block text-xs rounded-lg border border-[#E5E7EB]',
+                          formData.type == type
+                            ? 'border-3 border-[#118DFF]'
+                            : 'text-[#4B5563] hover:bg-[#F5F7FB] hover:text-[#118DFF]',
+                        )}
                         onClick={() => {
                           setFormData((prevState) => {
                             return {
@@ -816,17 +825,23 @@ export default function AdminOrgsPage() {
                         }}
                       >
                         {type}
-                      </div>
+                      </Button>
                     ))}
                   </div>
                 </div>
                 <div>
                   <div className="text-xs text-[#6B7280] mb-1">규모</div>
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     {Object.values(OrganizationSize).map((size) => (
-                      <div
+                      <Button
                         key={size}
-                        className="flex items-start gap-3 p-4 rounded-lg border border-[#E5E7EB] hover:border-[#118DFF] transition-colors"
+                        size="sm"
+                        className={clsx(
+                          'block text-xs rounded-lg border border-[#E5E7EB]',
+                          formData.size == size
+                            ? 'border-3 border-[#118DFF]'
+                            : 'text-[#4B5563] hover:bg-[#F5F7FB] hover:text-[#118DFF]',
+                        )}
                         onClick={() => {
                           setFormData((prevState) => {
                             return {
@@ -836,16 +851,16 @@ export default function AdminOrgsPage() {
                           });
                         }}
                       >
-                        {status}
-                      </div>
+                        {size}
+                      </Button>
                     ))}
                   </div>
                 </div>
                 <div>
                   <div className="text-xs text-[#6B7280] mb-1">담당자</div>
-                  <div className="text-sm text-[#111827]">
+                  <div className="text-xs text-[#111827]">
                     <Input
-                      value={selectedOrgForEdit.website ?? undefined}
+                      value={formData.contact}
                       onChange={(e) =>
                         setFormData((prevState) => {
                           return {
@@ -854,15 +869,15 @@ export default function AdminOrgsPage() {
                           };
                         })
                       }
-                      className="pl-10 bg-white border-[#E5E7EB]"
+                      className="pl-3 bg-white border-[#E5E7EB]"
                     />
                   </div>
                 </div>
                 <div>
                   <div className="text-xs text-[#6B7280] mb-1">웹사이트</div>
-                  <div className="text-sm text-[#111827]">
+                  <div className="text-xs text-[#111827]">
                     <Input
-                      value={selectedOrgForEdit.website ?? undefined}
+                      value={formData.website}
                       onChange={(e) =>
                         setFormData((prevState) => {
                           return {
@@ -871,15 +886,41 @@ export default function AdminOrgsPage() {
                           };
                         })
                       }
-                      className="pl-10 bg-white border-[#E5E7EB]"
+                      className="pl-3 bg-white border-[#E5E7EB]"
                     />
                   </div>
                 </div>
+                <div>
+                  <div className="text-xs text-[#6B7280] mb-1">상태</div>
+                  <div className="space-y-2">
+                    {Object.values(OrganizationStatus).map((status) => (
+                      <Button
+                        key={status}
+                        size="sm"
+                        className={clsx(
+                          'block text-xs rounded-lg border border-[#E5E7EB]',
+                          formData.status == status
+                            ? 'border-3 border-[#118DFF]'
+                            : 'text-[#4B5563] hover:bg-[#F5F7FB] hover:text-[#118DFF]',
+                        )}
+                        onClick={() => {
+                          setFormData((prevState) => {
+                            return {
+                              ...prevState,
+                              status,
+                            };
+                          });
+                        }}
+                      >
+                        {status}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
                 <Button
-                  type="submit"
                   size="lg"
-                  className="bg-[#118DFF] hover:bg-[#0D6FCC] text-white"
-                  onSubmit={(e) => {
+                  className="bg-[#118DFF] text-white hover:bg-[#118DFF] hover:text-white"
+                  onClick={(e) => {
                     e.preventDefault();
                     handleEdit(selectedOrgForEdit.id);
                   }}

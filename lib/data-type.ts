@@ -61,8 +61,8 @@ export class Organization {
   public name!: string;
   public type!: OrganizationType;
   public size!: OrganizationSize;
-  public contact!: string | null;
-  public website!: string | null;
+  public contact!: string;
+  public website!: string;
   public status!: OrganizationStatus;
   public createdAt!: Date;
 
@@ -71,8 +71,8 @@ export class Organization {
     name: string;
     type: keyof typeof OrganizationType;
     size: keyof typeof OrganizationSize;
-    contact: string | null;
-    website: string | null;
+    contact: string;
+    website: string;
     status: keyof typeof OrganizationStatus;
     createdAt: Date;
   }) {

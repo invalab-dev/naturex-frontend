@@ -70,35 +70,37 @@ export function SidebarMenuItem({
   onClick,
   variant = 'default',
 }: SidebarMenuItemProps) {
-  if (variant === 'admin') {
-    return (
-      <button
-        onClick={onClick}
-        className={cn(
-          'w-full flex items-center gap-3 px-3 py-3 rounded-lg mb-1 transition-colors font-medium',
-          active
-            ? 'bg-[#118DFF] text-white'
-            : 'text-[#4B5563] hover:bg-[#F5F7FB] hover:text-[#118DFF]',
-        )}
-      >
-        {icon}
-        <span>{label}</span>
-      </button>
-    );
-  }
+  // if (variant === 'admin') {
+  //
+  // }
 
   return (
     <button
       onClick={onClick}
       className={cn(
-        'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
-        'text-slate-700 hover:bg-slate-50',
-        active &&
-          'bg-blue-50 text-[#118DFF] border-l-4 border-[#118DFF] pl-[8px]',
+        'w-full flex items-center gap-3 px-3 py-3 rounded-lg mb-1 transition-colors font-medium',
+        active
+          ? 'bg-[#118DFF] text-white'
+          : 'text-[#4B5563] hover:bg-[#F5F7FB] hover:text-[#118DFF]',
       )}
     >
       {icon}
-      {label}
+      <span>{label}</span>
     </button>
   );
+
+  // return (
+  //   <button
+  //     onClick={onClick}
+  //     className={cn(
+  //       'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
+  //       'text-slate-700 hover:bg-slate-50',
+  //       active &&
+  //         'bg-blue-50 text-[#118DFF] border-l-4 border-[#118DFF] pl-[8px]',
+  //     )}
+  //   >
+  //     {icon}
+  //     {label}
+  //   </button>
+  // );
 }
