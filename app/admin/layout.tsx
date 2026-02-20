@@ -14,7 +14,7 @@ export default function AdminLayout({
       <div className="min-h-screen bg-[#F5F7FB]">
         <AdminSidebar />
         <div className="ml-64">
-          <AdminTopBar />
+          {/*<AdminTopBar />*/}
           <main className="min-h-screen">{children}</main>
         </div>
       </div>

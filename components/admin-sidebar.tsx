@@ -2,18 +2,20 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Building2, FolderKanban } from 'lucide-react';
+import { Home, Building2, FolderKanban, User, LogOut } from 'lucide-react';
 import {
   SharedSidebar,
   SidebarMenuItem,
 } from '@/components/sidebar/shared-sidebar';
+import { useAuth } from '@/lib/auth-context';
 
 export function AdminSidebar() {
   const pathname = usePathname();
+  const { user, logout } = useAuth();
 
   const menuItems = [
     { href: '/admin', label: '홈', icon: Home },
-    { href: '/admin/orgs', label: '조직관리', icon: Building2 },
+    { href: '/admin/orgs', label: '조직 관리', icon: Building2 },
     { href: '/admin/projects', label: '프로젝트 관리', icon: FolderKanban },
   ];
 
@@ -51,7 +53,26 @@ export function AdminSidebar() {
   );
 
   const footerContent = (
-    <div className="px-6 py-4 text-xs text-[#9CA3AF]">v1.0.0 · InvaLab Co.</div>
+    <div className="p-4 space-y-2">
+      <div className="flex items-center gap-3 px-3 py-2 bg-slate-50 rounded-lg">
+        <div className="w-8 h-8 rounded-full bg-[#118DFF] flex items-center justify-center flex-shrink-0">
+          <User className="w-4 h-4 text-white" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="text-sm font-medium text-slate-900 truncate">
+            {user!.name}
+          </div>
+          <div className="text-xs text-slate-500 truncate">{user?.email}</div>
+        </div>
+      </div>
+      <button
+        onClick={logout}
+        className="w-full flex items-center gap-3 px-3 py-2 text-sm text-slate-600 hover:bg-slate-50 rounded-lg transition-colors"
+      >
+        <LogOut className="w-4 h-4" />
+        로그아웃
+      </button>
+    </div>
   );
 
   return (

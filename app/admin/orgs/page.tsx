@@ -38,6 +38,7 @@ import {
 import { useRouter } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
 import { clsx } from 'clsx';
+import { Card } from '@/components/ui/card';
 
 export default function AdminOrgsPage() {
   const router = useRouter();
@@ -65,30 +66,40 @@ export default function AdminOrgsPage() {
     name: string;
     type: OrganizationType;
     size: OrganizationSize;
-    contact: string;
-    website: string;
+    contact: string | null;
+    website: string | null;
     status: OrganizationStatus;
   }>({
     name: '',
     type: OrganizationType.PUBLIC,
     size: OrganizationSize.SOLO,
-    contact: '',
-    website: '',
+    contact: null,
+    website: null,
     status: OrganizationStatus.ACTIVE,
   });
 
+  // type StatsType = {
+  //   organizations: Organization[];
+  //   projectCountsGroupByThemeAndStatus: {
+  //     organizationId: string;
+  //     total: number;
+  //     value: {
+  //       theme: ProjectTheme;
+  //       status: ProjectStatus;
+  //       count: number;
+  //     }[];
+  //   }[];
+  // };
+
   type StatsType = {
-    organizations: Organization[];
-    projectCountsGroupByThemeAndStatus: {
-      organizationId: string;
-      total: number;
-      value: {
-        theme: ProjectTheme;
-        status: ProjectStatus;
-        count: number;
-      }[];
+    organization: Organization;
+    total: number;
+    value: {
+      theme: ProjectTheme;
+      status: ProjectStatus;
+      count: number;
     }[];
-  };
+  }[];
 
   const [stats, setStats] = useState<StatsType>({
     organizations: [],
@@ -323,13 +334,13 @@ export default function AdminOrgsPage() {
   };
 
   return (
-    <div className="flex h-[calc(100vh-64px)] bg-[#F5F7FB]">
+    <div className="max-w-7xl mx-auto px-8 py-8">
       {/* Main Content */}
       <div
-        className={`flex-1 flex flex-col ${selectedOrgForDetail || selectedOrgForEdit ? 'mr-96' : ''}`}
+      // className={`flex-1 flex flex-col ${selectedOrgForDetail || selectedOrgForEdit ? 'mr-96' : ''}`}
       >
         {/* Top Control Bar */}
-        <div className="bg-white border-b border-[#E5E7EB] px-8 py-4">
+        <Card className="bg-white border-b border-[#E5E7EB] px-8 py-4">
           <div className="flex items-center gap-4">
             {/* Search */}
             <div className="relative flex-1 max-w-md">
@@ -459,7 +470,7 @@ export default function AdminOrgsPage() {
               ))}
             </div>
           )}
-        </div>
+        </Card>
 
         {/* Table */}
         <div className="flex-1 overflow-auto px-8 py-6">
@@ -860,7 +871,7 @@ export default function AdminOrgsPage() {
                   <div className="text-xs text-[#6B7280] mb-1">담당자</div>
                   <div className="text-xs text-[#111827]">
                     <Input
-                      value={formData.contact}
+                      value={formData.contact ?? ''}
                       onChange={(e) =>
                         setFormData((prevState) => {
                           return {
@@ -877,7 +888,7 @@ export default function AdminOrgsPage() {
                   <div className="text-xs text-[#6B7280] mb-1">웹사이트</div>
                   <div className="text-xs text-[#111827]">
                     <Input
-                      value={formData.website}
+                      value={formData.website ?? ''}
                       onChange={(e) =>
                         setFormData((prevState) => {
                           return {

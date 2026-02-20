@@ -27,9 +27,9 @@ import {
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { ResultDeliveryModal } from '@/components/result-delivery-modal';
+import { ProjectStatus, ProjectTheme } from '@/lib/data-type';
 
 export default function AdminProjectsPage() {
-  const { toast } = useToast();
   const [projects, setProjects] = useState<Project[]>([]);
   const [orgs, setOrgs] = useState<Array<{ orgId: string; name: string }>>([]);
   const [loading, setLoading] = useState(true);
@@ -39,15 +39,24 @@ export default function AdminProjectsPage() {
   const [stageChangeMemo, setStageChangeMemo] = useState('');
   const [newStage, setNewStage] = useState<DeliveryStage>('pending');
 
-  const [filterOrg, setFilterOrg] = useState<string>('all');
-  const [filterTheme, setFilterTheme] = useState<string>('all');
-  const [filterStage, setFilterStage] = useState<string>('all');
-  const [searchQuery, setSearchQuery] = useState<string>('');
+  // Filter states
+  const [searchQuery, setSearchQuery] = useState('');
+  const [projectThemeFilter, setProjectThemeFilter] = useState<
+    keyof typeof ProjectTheme | 'ALL'
+  >('ALL');
+  const [projectStatusFilter, setProjectStatusFilter] = useState<
+    keyof typeof ProjectStatus | 'ALL'
+  >('ALL');
+  const [sortBy, setSortBy] = useState('recent');
 
-  const [isResultModalOpen, setIsResultModalOpen] = useState(false);
-  const [resultModalProject, setResultModalProject] = useState<Project | null>(
-    null,
-  );
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
+
+  type StatsType = Omit<Project, 'organizationId' | 'managerId'> & {
+    organization: { id: string; name: string };
+    manager: { id: string; email: string };
+  };
 
   const load = async () => {
     setLoading(true);
@@ -64,13 +73,14 @@ export default function AdminProjectsPage() {
     load();
   }, []);
 
-  const filtered = useMemo(() => {
-    let out = [...projects];
+  const filteredProjects = useMemo(() => {
+    let filtered = [...projects];
 
-    if (filterOrg !== 'all') out = out.filter((p) => p.orgId === filterOrg);
-    if (filterTheme !== 'all') out = out.filter((p) => p.theme === filterTheme);
-    if (filterStage !== 'all')
-      out = out.filter((p) => p.deliveryStage === filterStage);
+    if (searchQuery !== 'all') out = out.filter((p) => p.orgId === searchQuery);
+    if (projectThemeFilter !== 'all')
+      out = out.filter((p) => p.theme === projectThemeFilter);
+    if (projectStatusFilter !== 'all')
+      out = out.filter((p) => p.deliveryStage === projectStatusFilter);
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
       out = out.filter(
@@ -81,7 +91,13 @@ export default function AdminProjectsPage() {
     }
 
     return out;
-  }, [projects, filterOrg, filterTheme, filterStage, searchQuery]);
+  }, [
+    projects,
+    searchQuery,
+    projectThemeFilter,
+    projectStatusFilter,
+    searchQuery,
+  ]);
 
   const getOrgName = (orgId: string) =>
     orgs.find((o) => o.orgId === orgId)?.name || orgId;
@@ -131,7 +147,7 @@ export default function AdminProjectsPage() {
         <div className="grid md:grid-cols-5 gap-4">
           <div className="space-y-2">
             <Label className="text-sm">조직</Label>
-            <Select value={filterOrg} onValueChange={setFilterOrg}>
+            <Select value={searchQuery} onValueChange={setSearchQuery}>
               <SelectTrigger className="border-[#E5E7EB]">
                 <SelectValue placeholder="조직" />
               </SelectTrigger>
@@ -147,7 +163,10 @@ export default function AdminProjectsPage() {
           </div>
           <div className="space-y-2">
             <Label className="text-sm">테마</Label>
-            <Select value={filterTheme} onValueChange={setFilterTheme}>
+            <Select
+              value={projectThemeFilter}
+              onValueChange={setProjectThemeFilter}
+            >
               <SelectTrigger className="border-[#E5E7EB]">
                 <SelectValue placeholder="테마" />
               </SelectTrigger>
@@ -165,7 +184,10 @@ export default function AdminProjectsPage() {
           </div>
           <div className="space-y-2">
             <Label className="text-sm">단계</Label>
-            <Select value={filterStage} onValueChange={setFilterStage}>
+            <Select
+              value={projectStatusFilter}
+              onValueChange={setProjectStatusFilter}
+            >
               <SelectTrigger className="border-[#E5E7EB]">
                 <SelectValue placeholder="단계" />
               </SelectTrigger>
@@ -195,7 +217,7 @@ export default function AdminProjectsPage() {
         <div className="text-sm text-[#6B7280]">Loading...</div>
       ) : (
         <div className="grid gap-3">
-          {filtered.map((p) => (
+          {filteredProjects.map((p) => (
             <Card key={p.projectId} className="p-5 bg-white border-[#E5E7EB]">
               <div className="flex items-start justify-between gap-4">
                 <div>
@@ -238,7 +260,7 @@ export default function AdminProjectsPage() {
               </div>
             </Card>
           ))}
-          {filtered.length === 0 && (
+          {filteredProjects.length === 0 && (
             <Card className="p-8 bg-white border-[#E5E7EB] text-center text-sm text-[#6B7280]">
               프로젝트가 없습니다.
             </Card>

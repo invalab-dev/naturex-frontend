@@ -8,7 +8,7 @@ export function AdminTopBar() {
   const { user, logout } = useAuth();
 
   return (
-    <div className="bg-white border-b border-[#E5E7EB] px-6 py-4 flex items-center justify-end gap-4">
+    <div className="fixed w-full bg-white border-b border-[#E5E7EB] px-6 py-4 flex items-center justify-end gap-4">
       <div className="flex items-center gap-2 text-sm">
         <span className="text-[#111827] font-medium">
           {user?.name || 'Admin'}

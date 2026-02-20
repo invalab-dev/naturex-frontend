@@ -14,17 +14,7 @@ export class User {
   public language!: string;
   public timezone!: string;
 
-  constructor(user: {
-    id: string;
-    email: string;
-    roles: UserRole[];
-    name: string | null;
-    phoneNumber: string | null;
-    bio: string | null;
-    organizationId: string | null;
-    language: string;
-    timezone: string;
-  }) {
+  constructor(user: User) {
     this.id = user.id;
     this.email = user.email;
     this.roles = user.roles;
@@ -61,21 +51,19 @@ export class Organization {
   public name!: string;
   public type!: OrganizationType;
   public size!: OrganizationSize;
-  public contact!: string;
-  public website!: string;
+  public contact!: string | null;
+  public website!: string | null;
   public status!: OrganizationStatus;
   public createdAt!: Date;
 
-  constructor(org: {
-    id: string;
-    name: string;
-    type: keyof typeof OrganizationType;
-    size: keyof typeof OrganizationSize;
-    contact: string;
-    website: string;
-    status: keyof typeof OrganizationStatus;
-    createdAt: Date;
-  }) {
+  constructor(
+    org: Omit<Organization, 'type' | 'size' | 'status' | 'createdAt'> & {
+      type: keyof typeof OrganizationType;
+      size: keyof typeof OrganizationSize;
+      status: keyof typeof OrganizationStatus;
+      createdAt: string;
+    },
+  ) {
     this.id = org.id;
     this.name = org.name;
     this.type = OrganizationType[org.type];
@@ -83,7 +71,7 @@ export class Organization {
     this.status = OrganizationStatus[org.status];
     this.contact = org.contact;
     this.website = org.website;
-    this.createdAt = org.createdAt;
+    this.createdAt = new Date(org.createdAt);
   }
 }
 
@@ -107,14 +95,13 @@ export class ProjectStatusLog {
   changedBy!: string;
   description!: string | undefined | null;
 
-  constructor(statusLog: {
-    id: string;
-    status: ProjectStatus;
-    changedBy: string;
-    description: string | undefined | null;
-  }) {
+  constructor(
+    statusLog: Omit<ProjectStatusLog, 'status'> & {
+      status: keyof typeof ProjectStatus;
+    },
+  ) {
     this.id = statusLog.id;
-    this.status = statusLog.status;
+    this.status = ProjectStatus[statusLog.status];
     this.changedBy = statusLog.changedBy;
     this.description = statusLog.description;
   }
@@ -130,23 +117,53 @@ export class Project {
   public managerId!: string | null;
   public currentStatus!: ProjectStatus;
 
-  constructor(project: {
-    id: string;
-    name: string;
-    description: string | null;
-    location: string | null;
-    theme: ProjectTheme;
-    organizationId: string | null;
-    managerId: string | null;
-    currentStatus: ProjectStatus;
-  }) {
+  constructor(
+    project: Omit<Project, 'theme' | 'currentStatus'> & {
+      theme: keyof typeof ProjectTheme;
+      currentStatus: keyof typeof ProjectStatus;
+    },
+  ) {
     this.id = project.id;
     this.name = project.name;
     this.description = project.description;
     this.location = project.location;
-    this.theme = project.theme;
+    this.theme = ProjectTheme[project.theme];
     this.organizationId = project.organizationId;
     this.managerId = project.managerId;
-    this.currentStatus = project.currentStatus;
+    this.currentStatus = ProjectStatus[project.currentStatus];
+  }
+}
+
+export class Resource {
+  public id!: string;
+  public projectId!: string;
+  public uploaderId!: string;
+  public originalName!: string;
+  public storedName!: string;
+  public fullPath!: string;
+  public byteSize!: bigint;
+  public extension!: string | null;
+  public mimeType!: string | null;
+  public isPublic: boolean;
+  public isDeleted: boolean;
+  public createdAt!: Date;
+
+  constructor(
+    resource: Omit<Resource, 'createdAt'> & {
+      createdAt: string;
+    },
+  ) {
+    this.id = resource.id;
+    this.projectId = resource.projectId;
+    this.uploaderId = resource.uploaderId;
+    this.originalName = resource.originalName;
+    this.storedName = resource.storedName;
+    this.fullPath = resource.fullPath;
+    this.byteSize = resource.byteSize;
+    this.extension = resource.extension;
+    this.mimeType = resource.mimeType;
+    this.isPublic = resource.isPublic;
+    this.isDeleted = resource.isDeleted;
+    this.createdAt = new Date(resource.createdAt);
   }
 }

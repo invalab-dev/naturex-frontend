@@ -8,13 +8,14 @@ import {
   type ReactNode,
 } from 'react';
 import { User } from '@/lib/data-type';
+import { useRouter } from 'next/navigation';
 
 const AuthContext = createContext<
   | {
       user: User | null;
       isAuthLoading: boolean;
       refreshUser: () => Promise<void>;
-      login: (email: string, password: string) => Promise<boolean>;
+      login: (email: string, password: string) => Promise<void>;
       logout: () => Promise<void>;
     }
   | undefined
@@ -22,10 +23,10 @@ const AuthContext = createContext<
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-
   const [isAuthLoading, setIsAuthLoading] = useState<boolean>(true);
+  const router = useRouter();
 
-  const refreshUser = async (): Promise<void> => {
+  const getUser = async (): Promise<void> => {
     try {
       const res = await fetch(
         new URL('/auth/me', process.env.NEXT_PUBLIC_NATUREX_BACKEND),
@@ -36,8 +37,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       );
 
       if (!res.ok) {
-        setUser(null);
-        return;
+        throw new Error('Failed to authenticate user');
       }
 
       const data = (await res.json()) as User;
@@ -51,36 +51,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
-    refreshUser();
+    getUser();
   }, []);
 
-  const login = async (email: string, password: string): Promise<boolean> => {
-    return await fetch(
+  const login = async (email: string, password: string) => {
+    const res = await fetch(
       new URL('/auth/login', process.env.NEXT_PUBLIC_NATUREX_BACKEND),
       {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials: 'include',
         body: JSON.stringify({ email, password }),
       },
-    ).then<boolean, boolean>(
-      async (res) => {
-        if (!res.ok) {
-          console.error(res.statusText);
-          return false;
-        }
-
-        await refreshUser();
-
-        return true;
-      },
-      (error) => {
-        console.error(error);
-        return false;
-      },
     );
+    const { success } = await res.json();
+    if (success) {
+      await getUser();
+    }
   };
 
   const logout = async (): Promise<void> => {
@@ -92,11 +81,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         credentials: 'include',
       },
     );
+    router.replace('/login');
   };
 
   return (
     <AuthContext.Provider
-      value={{ user, isAuthLoading, refreshUser, login, logout }}
+      value={{ user, isAuthLoading, refreshUser: getUser, login, logout }}
     >
       {children}
     </AuthContext.Provider>

@@ -17,22 +17,21 @@ import { ProjectStatus, ProjectTheme } from '@/lib/data-type';
 export default function AdminHomePage() {
   type StatsType = {
     organizationCount: number;
-    projectCount: Record<Lowercase<keyof typeof ProjectTheme>, number> &
-      Record<Lowercase<keyof typeof ProjectStatus>, number>;
+    projectCount: Record<ProjectTheme, number> & Record<ProjectStatus, number>;
     projectCountMapGroupByThemeAndStatus: Map<string, number>;
   };
 
   const [stats, setStats] = useState<StatsType>({
     organizationCount: 0,
     projectCount: {
-      efficiency: 0,
-      asset: 0,
-      biodiversity: 0,
-      pending: 0,
-      analyzing: 0,
-      delivering: 0,
-      executing: 0,
-      completed: 0,
+      EFFICIENCY: 0,
+      ASSET: 0,
+      BIODIVERSITY: 0,
+      PENDING: 0,
+      ANALYZING: 0,
+      DELIVERING: 0,
+      EXECUTING: 0,
+      COMPLETED: 0,
     },
     projectCountMapGroupByThemeAndStatus: new Map(),
   });
@@ -83,7 +82,7 @@ export default function AdminHomePage() {
       const projectCountMapGroupByThemeAndStatus = new Map<string, number>();
       projectCountsGroupByThemeAndStatus[0].value.map((e) => {
         projectCountMapGroupByThemeAndStatus.set(
-          `${e.theme}:${e.status}`.toLowerCase(),
+          `${e.theme}:${e.status}`,
           e.count,
         );
       });
@@ -92,26 +91,25 @@ export default function AdminHomePage() {
         projectCount: {
           ...(Object.fromEntries(
             Object.values(ProjectTheme).map((v) => [
-              v.toLowerCase(),
+              v,
               projectCountsGroupByThemeAndStatus[0].value
                 .filter((e) => e.theme == v)
                 .reduce((sum, e) => sum + e.count, 0),
             ]),
-          ) as Record<Lowercase<keyof typeof ProjectTheme>, number>),
+          ) as Record<ProjectTheme, number>),
           ...(Object.fromEntries(
             Object.values(ProjectStatus).map((v) => [
-              v.toLowerCase(),
+              v,
               projectCountsGroupByThemeAndStatus[0].value
                 .filter((e) => e.status == v)
                 .reduce((sum, e) => sum + e.count, 0),
             ]),
-          ) as Record<Lowercase<keyof typeof ProjectStatus>, number>),
+          ) as Record<ProjectStatus, number>),
         },
         organizationCount: organizationCount,
         projectCountMapGroupByThemeAndStatus:
           projectCountMapGroupByThemeAndStatus,
       };
-      console.log(obj);
       setStats(obj);
     })();
   }, []);
@@ -138,7 +136,7 @@ export default function AdminHomePage() {
                 </div>
               </div>
               <div className="text-3xl font-bold text-gray-600 mb-1">
-                {stats.projectCount.pending}
+                {stats.projectCount.PENDING}
               </div>
               <h3 className="text-sm font-medium text-[#111827]">대기</h3>
               <p className="text-xs text-[#6B7280] mt-1">프로젝트 생성됨</p>
@@ -153,7 +151,7 @@ export default function AdminHomePage() {
                 </div>
               </div>
               <div className="text-3xl font-bold text-blue-600 mb-1">
-                {stats.projectCount.analyzing}
+                {stats.projectCount.ANALYZING}
               </div>
               <h3 className="text-sm font-medium text-[#111827]">분석</h3>
               <p className="text-xs text-[#6B7280] mt-1">InvaLab 분석</p>
@@ -168,7 +166,7 @@ export default function AdminHomePage() {
                 </div>
               </div>
               <div className="text-3xl font-bold text-green-600 mb-1">
-                {stats.projectCount.delivering}
+                {stats.projectCount.DELIVERING}
               </div>
               <h3 className="text-sm font-medium text-[#111827]">제공</h3>
               <p className="text-xs text-[#6B7280] mt-1">대시보드 활성</p>
@@ -183,7 +181,7 @@ export default function AdminHomePage() {
                 </div>
               </div>
               <div className="text-3xl font-bold text-purple-600 mb-1">
-                {stats.projectCount.executing}
+                {stats.projectCount.EXECUTING}
               </div>
               <h3 className="text-sm font-medium text-[#111827]">실행</h3>
               <p className="text-xs text-[#6B7280] mt-1">현장 활동</p>
@@ -198,7 +196,7 @@ export default function AdminHomePage() {
                 </div>
               </div>
               <div className="text-3xl font-bold text-green-700 mb-1">
-                {stats.projectCount.completed}
+                {stats.projectCount.COMPLETED}
               </div>
               <h3 className="text-sm font-medium text-[#111827]">완료</h3>
               <p className="text-xs text-[#6B7280] mt-1">서비스 종료</p>
@@ -232,9 +230,9 @@ export default function AdminHomePage() {
                 <FolderKanban className="w-6 h-6 text-[#118DFF]" />
               </div>
               <span className="text-4xl font-bold text-[#111827]">
-                {stats.projectCount.efficiency +
-                  stats.projectCount.asset +
-                  stats.projectCount.biodiversity}
+                {stats.projectCount.EFFICIENCY +
+                  stats.projectCount.ASSET +
+                  stats.projectCount.BIODIVERSITY}
               </span>
             </div>
             <h3 className="text-sm font-semibold text-[#111827] mb-1">
@@ -262,10 +260,10 @@ export default function AdminHomePage() {
               key: 'efficiency' as const,
               label: '운영비 절감',
               bg: 'bg-blue-100 text-blue-700',
-              total: stats.projectCount.efficiency,
+              total: stats.projectCount.EFFICIENCY,
               ...(Object.fromEntries(
-                Object.entries(ProjectStatus).map(([_, v]) => [
-                  v,
+                Object.entries(ProjectStatus).map(([k, v]) => [
+                  k.toLowerCase(),
                   stats.projectCountMapGroupByThemeAndStatus.get(
                     `${ProjectTheme.EFFICIENCY}:${v}`,
                   ) ?? 0,
@@ -276,10 +274,10 @@ export default function AdminHomePage() {
               key: 'asset' as const,
               label: '자산 가치 향상',
               bg: 'bg-green-100 text-green-700',
-              total: stats.projectCount.asset,
+              total: stats.projectCount.ASSET,
               ...(Object.fromEntries(
-                Object.entries(ProjectStatus).map(([_, v]) => [
-                  v,
+                Object.entries(ProjectStatus).map(([k, v]) => [
+                  k.toLowerCase(),
                   stats.projectCountMapGroupByThemeAndStatus.get(
                     `${ProjectTheme.ASSET}:${v}`,
                   ) ?? 0,
@@ -290,55 +288,57 @@ export default function AdminHomePage() {
               key: 'biodiversity' as const,
               label: '생물다양성',
               bg: 'bg-purple-100 text-purple-700',
-              total: stats.projectCount.biodiversity,
+              total: stats.projectCount.BIODIVERSITY,
               ...(Object.fromEntries(
-                Object.entries(ProjectStatus).map(([_, v]) => [
-                  v,
+                Object.entries(ProjectStatus).map(([k, v]) => [
+                  k.toLowerCase(),
                   stats.projectCountMapGroupByThemeAndStatus.get(
                     `${ProjectTheme.BIODIVERSITY}:${v}`,
                   ) ?? 0,
                 ]),
               ) as Record<Lowercase<keyof typeof ProjectStatus>, number>),
             },
-          ].map((t) => (
-            <div
-              key={t.key}
-              className="flex items-center justify-between p-4 rounded-lg border border-[#E5E7EB] bg-[#F9FAFB]"
-            >
-              <div className="flex items-center gap-4 flex-1">
-                <div
-                  className={`px-3 py-1 rounded font-semibold text-sm ${t.bg}`}
-                >
-                  {t.label}
+          ].map((t) => {
+            return (
+              <div
+                key={t.key}
+                className="flex items-center justify-between p-4 rounded-lg border border-[#E5E7EB] bg-[#F9FAFB]"
+              >
+                <div className="flex items-center gap-4 flex-1">
+                  <div
+                    className={`px-3 py-1 rounded font-semibold text-sm ${t.bg}`}
+                  >
+                    {t.label}
+                  </div>
+                  <span className="text-2xl font-bold text-[#111827]">
+                    {t.total}개 프로젝트
+                  </span>
                 </div>
-                <span className="text-2xl font-bold text-[#111827]">
-                  {t.total}개 프로젝트
-                </span>
+                <div className="flex gap-6 text-sm">
+                  <div className="text-center">
+                    <div className="text-[#6B7280] mb-1">대기</div>
+                    <div className="text-lg font-semibold">{t.pending}</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-[#6B7280] mb-1">분석</div>
+                    <div className="text-lg font-semibold">{t.analyzing}</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-[#6B7280] mb-1">제공</div>
+                    <div className="text-lg font-semibold">{t.delivering}</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-[#6B7280] mb-1">실행</div>
+                    <div className="text-lg font-semibold">{t.executing}</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-[#6B7280] mb-1">완료</div>
+                    <div className="text-lg font-semibold">{t.completed}</div>
+                  </div>
+                </div>
               </div>
-              <div className="flex gap-6 text-sm">
-                <div className="text-center">
-                  <div className="text-[#6B7280] mb-1">대기</div>
-                  <div className="text-lg font-semibold">{t.pending}</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-[#6B7280] mb-1">분석</div>
-                  <div className="text-lg font-semibold">{t.analyzing}</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-[#6B7280] mb-1">제공</div>
-                  <div className="text-lg font-semibold">{t.delivering}</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-[#6B7280] mb-1">실행</div>
-                  <div className="text-lg font-semibold">{t.executing}</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-[#6B7280] mb-1">완료</div>
-                  <div className="text-lg font-semibold">{t.completed}</div>
-                </div>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </Card>
     </div>

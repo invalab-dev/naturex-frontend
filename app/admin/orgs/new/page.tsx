@@ -1,6 +1,6 @@
 'use client';
 
-import type React from 'react';
+import React, { useEffect, useRef } from 'react';
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
-import { ArrowLeft, Building2 } from 'lucide-react';
+import { ArrowLeft, Building2, LoaderCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
@@ -18,7 +18,7 @@ import {
   OrganizationType,
 } from '@/lib/data-type';
 import { clsx } from 'clsx';
-import debounce from "debounce";
+import debounce, { DebouncedFunction } from 'debounce';
 
 export default function NewOrgPage() {
   const router = useRouter();
@@ -36,10 +36,59 @@ export default function NewOrgPage() {
     website: '',
   });
   const [existenceBefore, setExistenceBefore] = useState<boolean | null>(null);
-  const [existenceCheckLoading, setExistenceCheckLoading] = useState<boolean>(false);
+  const [existenceCheckLoading, setExistenceCheckLoading] =
+    useState<boolean>(false);
+  const orgNameDebouncer = useRef<DebouncedFunction<
+    (_: string) => void
+  > | null>(null);
+  const [createLoading, setCreateLoading] = useState<boolean>(false);
+
+  useEffect(() => {
+    orgNameDebouncer.current = debounce((orgName: string) => {
+      if (orgName.length == 0) {
+        setExistenceBefore(null);
+        return;
+      }
+
+      setExistenceCheckLoading(true);
+      (async () => {
+        const res = await fetch(
+          new URL(
+            `organizations/existence?name=${orgName}`,
+            process.env.NEXT_PUBLIC_NATUREX_BACKEND,
+          ),
+          {
+            method: 'GET',
+            credentials: 'include',
+          },
+        );
+        if (!res.ok) {
+          console.error('existence call failed');
+          return;
+        }
+        const json = await res.json();
+        setExistenceBefore(json.existence);
+        setExistenceCheckLoading(false);
+      })();
+    }, 500);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    setCreateLoading(true);
+    await fetch(
+      new URL('organizations', process.env.NEXT_PUBLIC_NATUREX_BACKEND),
+      {
+        method: 'POST',
+        credentials: 'include',
+        body: JSON.stringify(formData),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      },
+    );
+    setCreateLoading(false);
 
     router.push('/admin/orgs');
   };
@@ -73,36 +122,38 @@ export default function NewOrgPage() {
                 <Label htmlFor="name" className="text-sm font-medium">
                   조직명 <span className="text-red-500">*</span>
                 </Label>
-                <div className={"flex flex-row"}>
+                <div className={'flex flex-row'}>
                   <Input
                     id="name"
                     value={formData.name}
                     onChange={(e) => {
                       const newName = e.target.value;
                       setFormData({ ...formData, name: newName });
-                      debounce(() => {
-                        setExistenceCheckLoading(true);
-                        (async () => {
-                          const res = await fetch(new URL(`organization/existence?name=${formData.name}`, process.env.NEXT_PUBLIC_NATUREX_BACKEND), {
-                            method: 'GET',
-                          });
-                          if (!res.ok) {
-                            console.error('existence call failed');
-                          }
-
-                          const json = await res.json();
-                          setExistenceBefore(json.existence);
-                          setExistenceCheckLoading(false);
-                        })();
-                      }, 1000);
+                      orgNameDebouncer.current?.(newName);
                     }}
                     placeholder="예: 서울시청"
                     required
                     className="bg-white border-[#E5E7EB] placeholder:text-slate-400"
                   />
-                  <Button>
-                    중복 확인
-                  </Button>
+                  <div className={'ml-2 w-14 flex items-center justify-center'}>
+                    <span>
+                      {existenceCheckLoading ? (
+                        <LoaderCircle className="animate-spin" />
+                      ) : existenceBefore == null ? (
+                        <span className={'text-sm font-semibold'}>확인</span>
+                      ) : existenceBefore ? (
+                        <span className={'text-sm font-semibold text-red-700'}>
+                          불가능
+                        </span>
+                      ) : (
+                        <span
+                          className={'text-sm font-semibold text-green-700'}
+                        >
+                          가능
+                        </span>
+                      )}
+                    </span>
+                  </div>
                 </div>
               </div>
               <div className="space-y-2">
@@ -199,10 +250,15 @@ export default function NewOrgPage() {
 
             <div className="flex justify-end gap-2">
               <Button
+                disabled={createLoading}
                 type="submit"
-                className="bg-[#118DFF] text-white hover:bg-[#118DFF] hover:text-white"
+                className="bg-[#118DFF] text-white hover:bg-[#118DFF] hover:text-white w-16"
               >
-                생성
+                {createLoading ? (
+                  <LoaderCircle className="animate-spin" />
+                ) : (
+                  <>생성</>
+                )}
               </Button>
             </div>
           </form>

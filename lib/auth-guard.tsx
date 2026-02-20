@@ -29,10 +29,10 @@ export function AuthGuard({
     } else {
       router.replace(`/login`);
     }
-  }, [user]);
+  }, [isAuthLoading]);
 
   return isLoading ? (
-    <div className="flex items-center justify-center w-full h-full bg-[#F5F7FB]">
+    <div className="flex items-center justify-center w-full h-screen bg-[#F5F7FB]">
       <div className="text-[#6B7280]">Loading...</div>
     </div>
   ) : (

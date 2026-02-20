@@ -4,26 +4,20 @@ import { AuthProvider } from '@/lib/auth-context';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'NatureX - Ecological Analysis Platform',
+  title: 'NatureX',
   description:
-    'Professional ecological analysis and restoration platform by InvaLab. Tree management, environmental impact assessment, and custom restoration solutions.',
-  generator: 'v0.app',
+    'Professional ecological analysis and restoration platform by InvaLab.',
   icons: {
     icon: [
       {
-        url: '/icon-light-32x32.png',
+        url: '/icon-32x32.png',
         media: '(prefers-color-scheme: light)',
       },
       {
-        url: '/icon-dark-32x32.png',
+        url: '/icon-32x32.png',
         media: '(prefers-color-scheme: dark)',
       },
-      {
-        url: '/icon.svg',
-        type: 'image/svg+xml',
-      },
     ],
-    apple: '/apple-icon.png',
   },
 };
 
